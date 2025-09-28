@@ -1,0 +1,9 @@
+requests==2.32.3
+pandas>=2.2.0
+playwright>=1.47.0
+# Opcional (mejor rendimiento en IO de datos)
+pyarrow>=17.0.0
+# Para análisis y visualización en ordenamiento
+numpy>=1.26.0
+matplotlib>=3.8.0
+seaborn>=0.13.0

@@ -1,0 +1,19 @@
+=== REPORTE DE TIEMPOS DE EJECUCIÓN ===
+
+Archivo analizado: C:\Users\NAPACHE\Documents\Universidad\Analisis Algoritmo\Seguimiento\ebsco_data_20250928_154103_LIMPIO.csv
+Total de registros: 499
+
+TIEMPOS DE EJECUCIÓN (ordenado ascendente):
+--------------------------------------------------
+ 1. TimSort             :    0.132 ms
+ 2. RadixSort           :    0.146 ms
+ 3. PigeonholeSort      :    0.151 ms
+ 4. BucketSort          :    0.175 ms
+ 5. TreeSort            :    0.456 ms
+ 6. QuickSort           :    0.462 ms
+ 7. HeapSort            :    0.722 ms
+ 8. CombSort            :    0.752 ms
+ 9. BitonicSort         :    1.693 ms
+10. BinaryInsertionSort :    1.928 ms
+11. SelectionSort       :    5.790 ms
+12. GnomeSort           :   10.133 ms

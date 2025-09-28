@@ -1,0 +1,25 @@
+
+        === REPORTE DE LIMPIEZA DE DATOS EBSCO ===
+        Fecha: 2025-09-28 15:47:58
+        Archivo procesado: scrape_20250928_154646.csv
+
+        ESTADÍSTICAS:
+        - Registros originales: 600
+        - Registros finales (limpios): 599
+        - Total eliminados: 1
+
+        DETALLE DE ELIMINACIONES:
+        - Títulos vacíos: 0
+        - Duplicados: 1
+
+        TASA DE LIMPIEZA:
+        - Porcentaje conservado: 99.83%
+        - Porcentaje eliminado: 0.17%
+
+        CRITERIOS DE DUPLICACIÓN:
+        - Título normalizado (sin puntuación, minúsculas)
+        - DOI (si está disponible)
+        - Autores
+
+        ========================================
+        
