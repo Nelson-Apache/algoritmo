@@ -1097,7 +1097,86 @@ class AcademicAnalysisAPI:
 
             return {'success': True, 'labels': labels, 'results': results}
         except Exception as e:
+                return {'success': False, 'message': str(e)}
+    # ===================== NUEVO: Análisis de Grafos de Citaciones =====================
+    def analyze_citation_graph(self, csv_file: Optional[str] = None):
+        """
+        Construye y analiza la red de citaciones entre artículos científicos y genera una imagen PNG del grafo.
+        """
+        try:
+            from grafos.seguimiento2_req1 import Seguimiento2Req1
+            import pandas as pd
+            import os
+            import io
+            import base64
+            import matplotlib.pyplot as plt
+
+            filepath = csv_file or self.unified_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni unificado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if not {'title', 'authors', 'keywords'}.issubset(df.columns):
+                return {'success': False, 'message': 'El CSV debe tener columnas title, authors y keywords.'}
+
+            # Construir lista de artículos
+            articulos = []
+            for i, row in df.iterrows():
+                articulos.append({
+                    'id': f"A{i}",
+                    'titulo': str(row['title']),
+                    'autores': [a.strip() for a in str(row['authors']).split(',') if a.strip()],
+                    'palabras_clave': [k.strip() for k in str(row['keywords']).split(',') if k.strip()]
+                })
+
+            grafo = Seguimiento2Req1()
+            grafo.construir_red(articulos)
+            componentes = grafo.componentes_fuertemente_conexas()
+
+            # Dibujar grafo
+            plt.figure(figsize=(8, 6))
+            pos = None
+            try:
+                import networkx as nx
+                pos = nx.spring_layout(grafo.grafo, seed=42)
+                nx.draw(
+                    grafo.grafo, pos,
+                    with_labels=True,
+                    node_size=500,
+                    node_color="#6366f1",
+                    font_size=7,
+                    font_color="white",
+                    edge_color="#94a3b8"
+                )
+            except Exception as e:
+                print("Error al dibujar el grafo:", e)
+
+            buffer = io.BytesIO()
+            plt.tight_layout()
+            plt.savefig(buffer, format='png')
+            plt.close()
+            buffer.seek(0)
+            img_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+            resumen = {
+                'n_nodos': grafo.grafo.number_of_nodes(),
+                'n_aristas': grafo.grafo.number_of_edges(),
+                'n_componentes': len(componentes)
+            }
+
+            return {
+                'success': True,
+                'resumen': resumen,
+                'componentes': componentes,
+                'graph_base64': img_base64
+            }
+
+        except Exception as e:
             return {'success': False, 'message': str(e)}
+
+
 
 
 def load_html():

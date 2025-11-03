@@ -790,6 +790,23 @@
             bottom: -200px;
             left: -200px;
         }
+
+        #graph-results {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Opcional: estilizar la barra de scroll del grafo */
+        #graph-results::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #graph-results::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -825,6 +842,10 @@
                 <div class="menu-item" onclick="showSection('analysis')">
                     <span class="menu-icon">📊</span>
                     <span class="menu-text">Solo Algoritmos</span>
+                </div>
+                <div class="menu-item" onclick="showSection('graphs')">
+                    <span class="menu-icon">🕸️</span>
+                    <span class="menu-text">Grafos</span>
                 </div>
             </div>
         </div>
@@ -1399,12 +1420,33 @@
                         <button class="btn btn-primary" onclick="runSimilarityAnalysis()">Calcular similitud</button>
                     </div>
 
-                    <div class="card">
-                        <h3>📈 Resultados de Similitud</h3>
-                        <div id="algo-results"></div>
+                <div class="card">
+                    <h3>📈 Resultados de Similitud</h3>
+                    <div id="algo-results"></div>
+                </div>
+            </div> <!-- 🔹 cierre correcto de #analysis -->
+
+            <!-- SECCIÓN GRAFOS -->
+
+            <div id="graphs" class="section">
+                <div class="card">
+                    <h3>🕸️ Análisis de Grafos de Citaciones</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                        Construye una red de citaciones entre artículos científicos a partir de los datos unificados.
+                    </p>
+
+                    <div class="form-group">
+                        <label>📁 Fuente de artículos:</label>
+                        <button class="btn btn-secondary" onclick="selectFile('graphs-csv')">Seleccionar CSV</button>
+                        <span id="graphs-csv-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
                     </div>
+
+                    <button class="btn btn-primary" onclick="generateGraph()">🔗 Generar Grafo</button>
+
+                    <div id="graph-results" class="mt-20"></div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
     
@@ -1449,7 +1491,8 @@
                 'pipeline': 'Pipeline Completo',
                 'scraping': 'Solo Scraping',
                 'cleaning': 'Solo Limpieza',
-                'analysis': 'Solo Análisis de Algoritmos'
+                'analysis': 'Solo Análisis de Algoritmos',
+                'graphs': 'Análisis de Grafos de Citaciones',
             };
             document.getElementById('section-title').textContent = titles[section];
             
@@ -2104,6 +2147,54 @@
             cont.innerHTML = '';
             cont.appendChild(frag);
         }
+        // ==================== NUEVO: Análisis de Grafos ====================
+        function generateGraph() {
+            const file = selectedFiles['graphs-csv'] || (currentResults && currentResults.unified_file) || null;
+            const output = document.getElementById('graph-results');
+            output.innerHTML = 'Construyendo grafo...';
+
+            pywebview.api.analyze_citation_graph(file).then(result => {
+                if (!result || !result.success) {
+                    output.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${(result && result.message) || 'Error al generar el grafo.'}</span></div>`;
+                    return;
+                }
+
+                const res = result.resumen;
+                output.innerHTML = `
+    <div class="results-grid">
+        <div class="stat-card">
+            <div class="stat-label">Nodos</div>
+            <div class="stat-value">${res.n_nodos}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Aristas</div>
+            <div class="stat-value">${res.n_aristas}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Componentes</div>
+            <div class="stat-value">${res.n_componentes}</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <img src="data:image/png;base64,${result.graph_base64}" alt="Grafo de citaciones" />
+    </div>
+
+    <div class="card">
+        <h3>🔍 Componentes Fuertemente Conexas</h3>
+        ${result.componentes.map((c, i) => `
+            <div style="margin-bottom: 10px;">
+                <strong>Grupo ${i + 1}:</strong> ${c.join(', ')}
+            </div>
+        `).join('')}
+    </div>
+`;
+
+            }).catch(err => {
+                output.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err)}</span></div>`;
+            });
+        }
+
     </script>
 </body>
 </html>
