@@ -437,17 +437,28 @@
         .db-logo {
             width: 100px;
             height: 100px;
-            object-fit: contain;
             margin-bottom: 16px;
-            filter: brightness(0.9) grayscale(0.3);
-            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            filter: brightness(0.9) grayscale(0.15);
+            transition: transform 0.3s, filter 0.3s;
         }
-        
+
+        .db-logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
         .db-card:hover .db-logo,
         .db-card.selected .db-logo {
-            filter: brightness(1.2) grayscale(0);
+            filter: brightness(1.15) grayscale(0);
             transform: scale(1.05);
         }
+
+        /* Colores por base */
+        .db-icon-ebsco { color: var(--primary); }
+        .db-icon-ieee { color: #0ea5e9; }
         
         .db-name {
             font-size: 16px;
@@ -838,7 +849,7 @@
                         <div class="results-grid mt-20">
                             <div class="stat-card">
                                 <div class="stat-label">Bases de Datos</div>
-                                <div class="stat-value">3</div>
+                                <div class="stat-value">2</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-label">Algoritmos</div>
@@ -925,24 +936,49 @@
                         <div class="db-grid" id="pipeline-db-grid">
                             <div class="db-card" onclick="toggleDB('pipeline', 'ebsco')">
                                 <input type="checkbox" id="pipeline-db-ebsco">
-                                <img class="db-logo" src="assets/images/ebsco_logo.png" alt="EBSCO">
+                                <div class="db-logo db-icon-ebsco" aria-label="EBSCO" role="img">
+                                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <rect x="12" y="12" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <rect x="12" y="26" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <rect x="12" y="40" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                    </svg>
+                                </div>
                                 <div class="db-name">EBSCO</div>
                                 <div class="db-count" id="pipeline-count-ebsco">- resultados</div>
                             </div>
                             
                             <div class="db-card" onclick="toggleDB('pipeline', 'ieee')">
                                 <input type="checkbox" id="pipeline-db-ieee">
-                                <img class="db-logo" src="assets/images/ieee_logo.png" alt="IEEE">
+                                <div class="db-logo db-icon-ieee" aria-label="IEEE Xplore" role="img">
+                                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <rect x="16" y="16" width="32" height="32" rx="5" ry="5" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <!-- pins top -->
+                                        <line x1="20" y1="12" x2="20" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="28" y1="12" x2="28" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="36" y1="12" x2="36" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="44" y1="12" x2="44" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <!-- pins bottom -->
+                                        <line x1="20" y1="48" x2="20" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="28" y1="48" x2="28" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="36" y1="48" x2="36" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="44" y1="48" x2="44" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <!-- pins left -->
+                                        <line x1="12" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="28" x2="16" y2="28" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="36" x2="16" y2="36" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="44" x2="16" y2="44" stroke="currentColor" stroke-width="3"/>
+                                        <!-- pins right -->
+                                        <line x1="48" y1="20" x2="52" y2="20" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="28" x2="52" y2="28" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="36" x2="52" y2="36" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="44" x2="52" y2="44" stroke="currentColor" stroke-width="3"/>
+                                    </svg>
+                                </div>
                                 <div class="db-name">IEEE Xplore</div>
                                 <div class="db-count" id="pipeline-count-ieee">- resultados</div>
                             </div>
                             
-                            <div class="db-card" onclick="toggleDB('pipeline', 'jstor')">
-                                <input type="checkbox" id="pipeline-db-jstor">
-                                <img class="db-logo" src="assets/images/jstor_logo.png" alt="JSTOR">
-                                <div class="db-name">JSTOR</div>
-                                <div class="db-count" id="pipeline-count-jstor">- resultados</div>
-                            </div>
+                            
                         </div>
                         
                         <div class="form-group mt-20">
@@ -959,6 +995,35 @@
                                 <input type="number" id="pipeline-custom-amount" value="100" min="1" style="width: 120px;">
                             </div>
                         </div>
+
+                        <div class="form-group mt-20">
+                            <label>🧠 Similitud Textual en el Pipeline</label>
+                            <label class="checkbox-label"><input type="checkbox" id="pipeline-sim-enable"> <span>Incluir análisis de similitud textual al finalizar</span></label>
+                            <div id="pipeline-sim-opts" style="margin-left:22px; margin-top:8px; display:block;">
+                                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                                    <label class="checkbox-label"><input type="checkbox" id="pipe-only-abs" checked> <span>Solo artículos con abstract</span></label>
+                                    <label class="checkbox-label"><span>Límite:</span> <input type="number" id="pipeline-sim-limit" value="50" min="2" style="width: 100px; margin-left:8px;"></label>
+                                </div>
+                                <div style="margin-top:10px;">
+                                    <label class="checkbox-label"><input type="checkbox" id="pipe-use-classic" checked> <span>Clásicos</span></label>
+                                    <div style="margin:6px 0 10px 22px; display:grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap:6px;">
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-lev" checked> <span>Levenshtein</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-jaro" checked> <span>Jaro-Winkler</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-tfidf" checked> <span>TF-IDF</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-cos" checked> <span>Coseno</span></label>
+                                    </div>
+                                    <label class="checkbox-label"><input type="checkbox" id="pipe-use-ai" checked> <span>IA</span></label>
+                                    <div style="margin:6px 0 0 22px; display:grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap:6px;">
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-sbert" checked> <span>SBERT</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" id="pipe-hf" checked> <span>HF-MeanPooling</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info" style="margin-top:8px;">
+                                <span>ℹ️</span>
+                                <span>El análisis de similitud es O(n²) sobre el límite de artículos; ajusta el límite según el tamaño del dataset.</span>
+                            </div>
+                        </div>
                         
                         <button class="btn btn-primary" onclick="startFullPipeline()">
                             🚀 Iniciar Pipeline Completo
@@ -973,7 +1038,7 @@
                         </div>
                         
                         <div id="pipeline-results" class="hidden mt-20">
-                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                                 🎉 Resultados
                             </h3>
                             
@@ -987,6 +1052,9 @@
                             </div>
                             
                             <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('sorted')">
+                                    📄 Abrir CSV Ordenado
+                                </button>
                                 <button class="file-btn" onclick="openFile('unified')">
                                     📄 Abrir CSV Unificado
                                 </button>
@@ -996,6 +1064,19 @@
                                 <button class="file-btn" onclick="openFile('authors')">
                                     👥 Top Autores
                                 </button>
+                            </div>
+
+                            <div class="card" id="pipeline-sim-card" style="margin-top:16px;">
+                                <h3>🧠 Resultados de Similitud (Pipeline)</h3>
+                                <div id="pipeline-sim-results"></div>
+                            </div>
+                            <div class="card" id="pipeline-concepts-card" style="margin-top:16px;">
+                                <h3>🧩 Resultados de Conceptos (GAIE)</h3>
+                                <div id="pipeline-concepts-results"></div>
+                            </div>
+                            <div class="card" id="pipeline-hc-card" style="margin-top:16px;">
+                                <h3>🌳 Dendrogramas (Clustering Jerárquico)</h3>
+                                <div id="pipeline-hc-results"></div>
                             </div>
                         </div>
                     </div>
@@ -1039,24 +1120,45 @@
                         <div class="db-grid">
                             <div class="db-card" onclick="toggleDB('scraping', 'ebsco')">
                                 <input type="checkbox" id="scraping-db-ebsco">
-                                <img class="db-logo" src="assets/images/ebsco_logo.png" alt="EBSCO">
+                                <div class="db-logo db-icon-ebsco" aria-label="EBSCO" role="img">
+                                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <rect x="12" y="12" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <rect x="12" y="26" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <rect x="12" y="40" width="40" height="10" rx="3" ry="3" stroke="currentColor" fill="none" stroke-width="3"/>
+                                    </svg>
+                                </div>
                                 <div class="db-name">EBSCO</div>
                                 <div class="db-count" id="scraping-count-ebsco">- resultados</div>
                             </div>
                             
                             <div class="db-card" onclick="toggleDB('scraping', 'ieee')">
                                 <input type="checkbox" id="scraping-db-ieee">
-                                <img class="db-logo" src="assets/images/ieee_logo.png" alt="IEEE">
+                                <div class="db-logo db-icon-ieee" aria-label="IEEE Xplore" role="img">
+                                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <rect x="16" y="16" width="32" height="32" rx="5" ry="5" stroke="currentColor" fill="none" stroke-width="3"/>
+                                        <line x1="20" y1="12" x2="20" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="28" y1="12" x2="28" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="36" y1="12" x2="36" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="44" y1="12" x2="44" y2="16" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="20" y1="48" x2="20" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="28" y1="48" x2="28" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="36" y1="48" x2="36" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="44" y1="48" x2="44" y2="52" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="28" x2="16" y2="28" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="36" x2="16" y2="36" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="12" y1="44" x2="16" y2="44" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="20" x2="52" y2="20" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="28" x2="52" y2="28" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="36" x2="52" y2="36" stroke="currentColor" stroke-width="3"/>
+                                        <line x1="48" y1="44" x2="52" y2="44" stroke="currentColor" stroke-width="3"/>
+                                    </svg>
+                                </div>
                                 <div class="db-name">IEEE Xplore</div>
                                 <div class="db-count" id="scraping-count-ieee">- resultados</div>
                             </div>
                             
-                            <div class="db-card" onclick="toggleDB('scraping', 'jstor')">
-                                <input type="checkbox" id="scraping-db-jstor">
-                                <img class="db-logo" src="assets/images/jstor_logo.png" alt="JSTOR">
-                                <div class="db-name">JSTOR</div>
-                                <div class="db-count" id="scraping-count-jstor">- resultados</div>
-                            </div>
+                            
                         </div>
                         
                         <div class="form-group mt-20">
@@ -1117,13 +1219,7 @@
                             <span id="cleaning-ieee-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
                         </div>
                         
-                        <div class="form-group">
-                            <label>📁 Archivo JSTOR (opcional):</label>
-                            <button class="btn btn-secondary" onclick="selectFile('cleaning-jstor')">
-                                Seleccionar CSV
-                            </button>
-                            <span id="cleaning-jstor-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
-                        </div>
+                        
                         
                         <button class="btn btn-primary" onclick="startCleaning()">
                             🧹 Iniciar Limpieza
@@ -1183,7 +1279,7 @@
                         </div>
                         
                         <div id="analysis-results" class="hidden mt-20">
-                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                                 🎉 Resultados del Análisis
                             </h3>
                             
@@ -1197,14 +1293,115 @@
                             </div>
                             
                             <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('sorted')">
+                                    📄 Abrir CSV Ordenado
+                                </button>
                                 <button class="file-btn" onclick="openFile('chart')">
                                     📊 Abrir Gráfico
                                 </button>
                                 <button class="file-btn" onclick="openFile('authors')">
-                                    👥 Top Autores
+                                    � Top Autores
                                 </button>
                             </div>
                         </div>
+
+                    </div>
+
+                    <!-- NUEVO: Análisis de Conceptos (GAIE) -->
+                    <div class="card">
+                        <h3>🧩 Conceptos GAIE (Generative AI in Education)</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+                            Cuenta la frecuencia de términos semilla de la categoría y extrae hasta 15 términos asociados; además estima la precisión de los términos generados.
+                        </p>
+                        <div class="form-group">
+                            <label>📁 Fuente de artículos</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="selectFile('analysis-csv')">Elegir CSV…</button>
+                                <span style="color: var(--text-muted);">Usará el CSV seleccionado para "Solo Análisis de Algoritmos" si está disponible; de lo contrario, el CSV unificado del pipeline.</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="runConceptsAnalysis()">Analizar Conceptos</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>📈 Resultados de Conceptos</h3>
+                        <div id="concepts-results"></div>
+                    </div>
+
+                    <!-- NUEVO: Similitud Textual (selección múltiple) -->
+                    <div class="card">
+                        <h3>🌳 Clustering Jerárquico (Dendrogramas)</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+                            Genera dendrogramas usando enlaces Single, Complete y Average sobre los abstracts.
+                        </p>
+                        <div class="form-group">
+                            <label>📁 Fuente de artículos</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                                <button class="btn btn-secondary" onclick="selectFile('analysis-csv')">Elegir CSV…</button>
+                                <span style="color: var(--text-muted);">Usa el CSV seleccionado o el unificado del pipeline.</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>⚙️ Opciones</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                                <label class="checkbox-label"><input type="checkbox" id="hc-single" checked> <span>Single</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="hc-complete" checked> <span>Complete</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="hc-average" checked> <span>Average</span></label>
+                                <label class="checkbox-label"><span>Máx. docs:</span> <input type="number" id="hc-maxdocs" value="120" min="2" style="width: 100px; margin-left:8px;"></label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="runClusteringAnalysis()">Generar dendrogramas</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>🖼️ Resultados de Dendrogramas</h3>
+                        <div id="hc-results"></div>
+                    </div>
+                        <h3>🧠 Similitud Textual (Abstracts)</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+                            Selecciona 2 o más artículos, extrae sus abstracts y calcula similitud con algoritmos clásicos e IA.
+                        </p>
+
+                        <div class="form-group">
+                            <label>📁 Fuente de artículos</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="loadArticlesForAlgorithms()">Usar CSV Unificado</button>
+                                <button class="btn" onclick="selectCSVForAlgorithms()">Elegir CSV…</button>
+                                <span id="algo-csv-file" style="color: var(--text-muted); margin-left: 8px;">Ninguno</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>🗂️ Artículos (marca para seleccionar)</label>
+                            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                                <button class="btn" onclick="selectAllArticles(true)">Seleccionar todo</button>
+                                <button class="btn" onclick="selectAllArticles(false)">Limpiar selección</button>
+                            </div>
+                            <div id="algo-articles-list" class="log-box" style="height: 260px; overflow:auto;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>⚙️ Algoritmos a usar</label>
+                            <label class="checkbox-label"><input type="checkbox" id="algoUseClassic" checked> <span>Clásicos</span></label>
+                            <div id="algo-classic-group" style="margin: 6px 0 10px 22px; display:grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 6px;">
+                                <label class="checkbox-label"><input type="checkbox" id="algoLev" checked> <span>Levenshtein</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="algoJaro" checked> <span>Jaro-Winkler</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="algoTFIDF" checked> <span>TF-IDF</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="algoCos" checked> <span>Coseno</span></label>
+                            </div>
+                            <label class="checkbox-label"><input type="checkbox" id="algoUseAI" checked> <span>IA</span></label>
+                            <div id="algo-ai-group" style="margin: 6px 0 0 22px; display:grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 6px;">
+                                <label class="checkbox-label"><input type="checkbox" id="algoSBERT" checked> <span>SBERT</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="algoHF" checked> <span>HF-MeanPooling</span></label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="runSimilarityAnalysis()">Calcular similitud</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>📈 Resultados de Similitud</h3>
+                        <div id="algo-results"></div>
                     </div>
                 </div>
             </div>
@@ -1283,7 +1480,7 @@
             }
             
             const databases = [];
-            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+            ['ebsco', 'ieee'].forEach(db => {
                 if (document.getElementById(`${prefix}-db-${db}`).checked) {
                     databases.push(db);
                 }
@@ -1347,7 +1544,7 @@
             const showBrowser = document.getElementById('pipeline-show-browser').checked;
             
             const databases = [];
-            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+            ['ebsco', 'ieee'].forEach(db => {
                 if (document.getElementById(`pipeline-db-${db}`).checked) {
                     databases.push(db);
                 }
@@ -1372,6 +1569,11 @@
             const customAmount = parseInt(document.getElementById('pipeline-custom-amount').value);
             
             document.getElementById('pipeline-progress').classList.add('active');
+            // Mensaje calmante para el usuario mientras arranca el pipeline (incluye scraping)
+            const pStatus = document.getElementById('pipeline-status');
+            const pSub = document.getElementById('pipeline-substatus');
+            if (pStatus) pStatus.textContent = 'Iniciando pipeline (scraping, limpieza y análisis)… Esto puede tardar unos minutos.';
+            if (pSub) pSub.textContent = 'Por favor no cierres la ventana ni la aplicación durante el proceso.';
 
             pywebview.api.start_full_pipeline(
                 query,
@@ -1381,7 +1583,23 @@
                 query.replace(/ /g, '_'),
                 email,
                 password,
-                showBrowser
+                showBrowser,
+                // Opciones de similitud en pipeline
+                document.getElementById('pipeline-sim-enable').checked,
+                parseInt(document.getElementById('pipeline-sim-limit').value),
+                document.getElementById('pipe-only-abs').checked,
+                document.getElementById('pipe-use-classic').checked,
+                document.getElementById('pipe-use-ai').checked,
+                {
+                    levenshtein: document.getElementById('pipe-lev').checked,
+                    jaro: document.getElementById('pipe-jaro').checked,
+                    tfidf: document.getElementById('pipe-tfidf').checked,
+                    coseno: document.getElementById('pipe-cos').checked,
+                },
+                {
+                    sbert: document.getElementById('pipe-sbert').checked,
+                    hf: document.getElementById('pipe-hf').checked,
+                }
             ).then(res => {
                 console.log('Pipeline iniciado:', res);
             });
@@ -1395,7 +1613,7 @@
             const showBrowser = document.getElementById('scraping-show-browser').checked;
             
             const databases = [];
-            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+            ['ebsco', 'ieee'].forEach(db => {
                 if (document.getElementById(`scraping-db-${db}`).checked) {
                     databases.push(db);
                 }
@@ -1420,6 +1638,11 @@
             const customAmount = parseInt(document.getElementById('scraping-custom-amount').value);
             
             document.getElementById('scraping-progress').classList.add('active');
+            // Mensaje calmante para el usuario mientras arranca el scraping
+            const sStatus = document.getElementById('scraping-status');
+            const sSub = document.getElementById('scraping-substatus');
+            if (sStatus) sStatus.textContent = 'Procesando scraping… Esto puede tardar unos minutos según tu red y la cantidad de resultados.';
+            if (sSub) sSub.textContent = 'Puedes seguir viendo el log en vivo mientras trabajamos.';
 
             pywebview.api.start_scraping(
                 query,
@@ -1438,8 +1661,7 @@
         function startCleaning() {
             const files = {
                 ebsco: selectedFiles['cleaning-ebsco'],
-                ieee: selectedFiles['cleaning-ieee'],
-                jstor: selectedFiles['cleaning-jstor']
+                ieee: selectedFiles['cleaning-ieee']
             };
             
             const validFiles = Object.values(files).filter(f => f);
@@ -1489,6 +1711,8 @@
             
             if (type === 'unified') {
                 filepath = currentResults.unified_file;
+            } else if (type === 'sorted') {
+                filepath = (currentResults.best_sorted && currentResults.best_sorted.sorted_file) ? currentResults.best_sorted.sorted_file : '';
             } else if (type === 'chart') {
                 filepath = currentResults.chart_file;
             } else if (type === 'authors') {
@@ -1569,6 +1793,27 @@
                 list.appendChild(li);
                 rank++;
             }
+
+            // Renderizar similitud (si viene en resultados y estamos en pipeline)
+            if (results.similarity && prefix === 'pipeline') {
+                const sim = results.similarity;
+                const contId = 'pipeline-sim-results';
+                const cont = document.getElementById(contId);
+                if (cont) {
+                    cont.innerHTML = 'Generando resultados de similitud…';
+                    renderSimilarityResults(sim.labels || [], sim.results || {}, contId);
+                }
+            }
+
+            // Renderizar conceptos (si viene en resultados y estamos en pipeline)
+            if (results.concepts && prefix === 'pipeline') {
+                renderConceptsResults(results.concepts, 'pipeline-concepts-results');
+            }
+
+            // Renderizar clustering jerárquico (pipeline)
+            if (results.clustering && prefix === 'pipeline') {
+                renderClusteringResults(results.clustering, 'pipeline-hc-results');
+            }
         }
         
         // Show cleaning results
@@ -1577,6 +1822,287 @@
             resultsDiv.classList.remove('hidden');
             
             document.getElementById(`${prefix}-total`).textContent = results.total_records.toLocaleString();
+        }
+
+        // ==================== NUEVO: Lógica de Similitud Textual ====================
+        let algoCSVPath = null;
+        let algoArticles = [];
+        let algoSelected = new Set();
+
+        function selectCSVForAlgorithms() {
+            pywebview.api.select_csv_file().then(fp => {
+                if (fp) {
+                    loadArticlesForAlgorithms(fp);
+                }
+            });
+        }
+
+        function loadArticlesForAlgorithms(csvPath = null) {
+            document.getElementById('algo-articles-list').innerHTML = 'Cargando…';
+            pywebview.api.get_articles_for_algorithms(csvPath, 500).then(resp => {
+                if (resp.success) {
+                    algoCSVPath = resp.file;
+                    document.getElementById('algo-csv-file').textContent = (resp.file || '').split(/[\\/]/).pop();
+                    renderAlgoArticles(resp.articles || []);
+                } else {
+                    document.getElementById('algo-articles-list').innerHTML = `<div class="alert alert-warning">${resp.message || 'Error al cargar artículos'}</div>`;
+                }
+            });
+        }
+
+        function renderAlgoArticles(articles) {
+            algoArticles = articles;
+            algoSelected.clear();
+            const cont = document.getElementById('algo-articles-list');
+            if (!articles.length) {
+                cont.innerHTML = '<span style="color: var(--text-muted)">Sin artículos para mostrar.</span>';
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            articles.forEach(a => {
+                const div = document.createElement('div');
+                div.style.padding = '6px 8px';
+                div.style.borderBottom = '1px solid var(--border)';
+                div.innerHTML = `
+                    <label class="checkbox-label" style="display:flex; gap:10px; align-items:flex-start;">
+                        <input type="checkbox" data-idx="${a.index}" onchange="toggleArticleSelection(event)">
+                        <span>
+                            <strong>${(a.title || '').replace(/</g,'&lt;')}</strong>
+                            <div style="color: var(--text-muted); font-size: 12px;">${(a.abstract_preview || '').replace(/</g,'&lt;')}</div>
+                        </span>
+                    </label>`;
+                frag.appendChild(div);
+            });
+            cont.innerHTML = '';
+            cont.appendChild(frag);
+        }
+
+        function toggleArticleSelection(ev) {
+            const cb = ev.target;
+            const idx = parseInt(cb.getAttribute('data-idx'));
+            if (cb.checked) algoSelected.add(idx); else algoSelected.delete(idx);
+        }
+
+        function selectAllArticles(flag) {
+            const cont = document.getElementById('algo-articles-list');
+            cont.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = !!flag;
+                const idx = parseInt(cb.getAttribute('data-idx'));
+                if (flag) algoSelected.add(idx); else algoSelected.delete(idx);
+            });
+        }
+
+        function runSimilarityAnalysis() {
+            const indices = Array.from(algoSelected);
+            if (indices.length < 2) {
+                window.appendLog('⚠️ Selecciona al menos 2 artículos para analizar.');
+                return;
+            }
+            const useClassic = document.getElementById('algoUseClassic').checked;
+            const useAI = document.getElementById('algoUseAI').checked;
+            // Opciones granulares
+            const classicOptions = {
+                levenshtein: document.getElementById('algoLev').checked,
+                jaro: document.getElementById('algoJaro').checked,
+                tfidf: document.getElementById('algoTFIDF').checked,
+                coseno: document.getElementById('algoCos').checked,
+            };
+            const aiOptions = {
+                sbert: document.getElementById('algoSBERT').checked,
+                hf: document.getElementById('algoHF').checked,
+            };
+            const resDiv = document.getElementById('algo-results');
+            resDiv.innerHTML = 'Calculando…';
+            pywebview.api.analyze_similarity(indices, algoCSVPath, useClassic, useAI, classicOptions, aiOptions).then(resp => {
+                if (!resp.success) {
+                    resDiv.innerHTML = `<div class="alert alert-warning">${resp.message || 'Error en el análisis'}</div>`;
+                    return;
+                }
+                renderSimilarityResults(resp.labels || [], resp.results || {}, 'algo-results');
+            });
+        }
+
+        function renderSimilarityResults(labels, results, containerId = 'algo-results') {
+            const resDiv = document.getElementById(containerId);
+            const order = ['Levenshtein','Jaro-Winkler','TF-IDF','Coseno','SBERT','HF-MeanPooling'];
+            const frag = document.createDocumentFragment();
+
+            // Mostrar errores de backend (p.ej., falta de librerías IA)
+            if (results.ClasicosError) {
+                const warn = document.createElement('div');
+                warn.className = 'alert alert-warning';
+                warn.innerHTML = `<span>⚠️</span><span>${(results.ClasicosError+'').replace(/</g,'&lt;')}</span>`;
+                frag.appendChild(warn);
+            }
+            if (results.IAError) {
+                const warn = document.createElement('div');
+                warn.className = 'alert alert-warning';
+                warn.innerHTML = `<span>⚠️</span><span>${(results.IAError+'').replace(/</g,'&lt;')}</span>`;
+                frag.appendChild(warn);
+            }
+            order.forEach(key => {
+                if (!results[key]) return;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<h3>${key}</h3>`;
+                const pairs = results[key].pairs || [];
+                if (!pairs.length) {
+                    const p = document.createElement('p');
+                    p.style.color = 'var(--text-muted)';
+                    p.textContent = 'Sin pares destacados o no disponible.';
+                    card.appendChild(p);
+                } else {
+                    const tbl = document.createElement('table');
+                    tbl.style.width = '100%';
+                    tbl.style.borderCollapse = 'collapse';
+                    tbl.innerHTML = '<thead><tr><th style="text-align:left; padding:6px;">Par</th><th style="text-align:right; padding:6px;">Score</th></tr></thead>';
+                    const tb = document.createElement('tbody');
+                    pairs.forEach(p => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding:6px; border-top:1px solid var(--border);">${(labels[p.i]||'Doc '+p.i)} ⇄ ${(labels[p.j]||'Doc '+p.j)}</td>
+                            <td style="padding:6px; border-top:1px solid var(--border); text-align:right;">${(p.score||0).toFixed(3)}</td>`;
+                        tb.appendChild(tr);
+                    });
+                    tbl.appendChild(tb);
+                    card.appendChild(tbl);
+                }
+                frag.appendChild(card);
+            });
+            resDiv.innerHTML = '';
+            resDiv.appendChild(frag);
+        }
+
+        // ==================== NUEVO: Clustering Jerárquico ====================
+        function runClusteringAnalysis() {
+            const file = selectedFiles['analysis-csv'] || (currentResults && (currentResults.unified_file || currentResults.similarity_source)) || null;
+            const algos = [];
+            if (document.getElementById('hc-single').checked) algos.push('single');
+            if (document.getElementById('hc-complete').checked) algos.push('complete');
+            if (document.getElementById('hc-average').checked) algos.push('average');
+            const maxdocs = parseInt(document.getElementById('hc-maxdocs').value) || 120;
+            const cont = document.getElementById('hc-results');
+            if (cont) cont.innerHTML = 'Generando…';
+            pywebview.api.analyze_hierarchical_clustering(file, maxdocs, algos).then(resp => {
+                if (!resp || !resp.success) {
+                    cont.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp && resp.message) || 'Error en clustering').replace(/</g,'&lt;')}</span></div>`;
+                    return;
+                }
+                renderClusteringResults(resp.results, 'hc-results');
+            }).catch(err => {
+                cont.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+            });
+        }
+
+        function renderClusteringResults(data, containerId) {
+            const cont = document.getElementById(containerId);
+            if (!cont) return;
+            const frag = document.createDocumentFragment();
+
+            // Resumen CCC
+            const summary = document.createElement('div');
+            summary.className = 'card';
+            const best = data.best || {};
+            let html = '<h3>📊 Coherencia (Cophenetic Correlation)</h3>';
+            html += '<table style="width:100%; border-collapse:collapse"><thead><tr><th style="text-align:left; padding:6px;">Algoritmo</th><th style="text-align:right; padding:6px;">CCC</th></tr></thead><tbody>';
+            (data.algorithms||[]).forEach(a => {
+                const row = data.results && data.results[a];
+                if (!row || row.error) return;
+                const v = (row.ccc!=null && row.ccc.toFixed) ? row.ccc.toFixed(4) : row.ccc;
+                html += `<tr><td style="padding:6px; border-top:1px solid var(--border);">${a}</td><td style="padding:6px; border-top:1px solid var(--border); text-align:right;">${v}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            if (best && best.algorithm) {
+                html += `<div style="margin-top:8px; color: var(--text-muted);">Mejor: <strong>${best.algorithm}</strong> (CCC=${(best.ccc && best.ccc.toFixed) ? best.ccc.toFixed(4) : best.ccc})</div>`;
+            }
+            summary.innerHTML = html;
+            frag.appendChild(summary);
+
+            // Dendrogramas
+            (data.algorithms||[]).forEach(a => {
+                const row = data.results && data.results[a];
+                if (!row || row.error || !row.dendrogram_base64) return;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<h3>${a}</h3><img style="width:100%; height:auto; border-radius:8px;" src="data:image/png;base64,${row.dendrogram_base64}" alt="Dendrograma ${a}">`;
+                frag.appendChild(card);
+            });
+
+            cont.innerHTML = '';
+            cont.appendChild(frag);
+        }
+
+        // ==================== NUEVO: Lógica de Conceptos GAIE ====================
+        function runConceptsAnalysis() {
+            const file = selectedFiles['analysis-csv'] || (currentResults && currentResults.unified_file) || null;
+            const cont = document.getElementById('concepts-results');
+            if (cont) cont.innerHTML = 'Analizando…';
+            pywebview.api.analyze_concepts(file, 15).then(resp => {
+                const c = document.getElementById('concepts-results');
+                if (!resp || !resp.success) {
+                    if (c) c.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp && resp.message) || 'Error en análisis de conceptos').replace(/</g,'&lt;')}</span></div>`;
+                    return;
+                }
+                renderConceptsResults(resp.results, 'concepts-results');
+            }).catch(err => {
+                const c = document.getElementById('concepts-results');
+                if (c) c.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+            });
+        }
+
+        function renderConceptsResults(data, containerId) {
+            const cont = document.getElementById(containerId);
+            if (!cont) return;
+            const frag = document.createDocumentFragment();
+
+            // Semillas
+            const seedCard = document.createElement('div');
+            seedCard.className = 'card';
+            seedCard.innerHTML = `<h3>📌 Términos Semilla</h3>`;
+            const st = document.createElement('table');
+            st.style.width = '100%'; st.style.borderCollapse = 'collapse';
+            st.innerHTML = '<thead><tr><th style="text-align:left; padding:6px;">Término</th><th style="text-align:right; padding:6px;">Docs</th><th style="text-align:right; padding:6px;">Ocurrencias</th></tr></thead>';
+            const stb = document.createElement('tbody');
+            (data.seed_stats||[]).forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td style=\"padding:6px; border-top:1px solid var(--border);\">${(r.term||'').replace(/</g,'&lt;')}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${(r.docs_with_term||0)}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${(r.total_occurrences||0)}</td>`;
+                stb.appendChild(tr);
+            });
+            st.appendChild(stb); seedCard.appendChild(st); frag.appendChild(seedCard);
+
+            // Generados
+            const genCard = document.createElement('div');
+            genCard.className = 'card';
+            genCard.innerHTML = `<h3>✨ Términos Generados (top ${(data.generated_terms||[]).length})</h3>`;
+            const gt = document.createElement('table');
+            gt.style.width = '100%'; gt.style.borderCollapse = 'collapse';
+            gt.innerHTML = '<thead><tr><th style="text-align:left; padding:6px;">Término</th><th style="text-align:right; padding:6px;">Docs</th><th style="text-align:right; padding:6px;">Ocurrencias</th><th style="text-align:right; padding:6px;">TF-IDF</th><th style="text-align:right; padding:6px;">Precisión P(cat|t)</th></tr></thead>';
+            const gtb = document.createElement('tbody');
+            (data.generated_terms||[]).forEach(r => {
+                const tr = document.createElement('tr');
+                const tfidf = (r.tfidf_score!=null && typeof r.tfidf_score.toFixed==='function') ? r.tfidf_score.toFixed(4) : r.tfidf_score;
+                const prec = (r.precision_cat_given_term!=null && typeof r.precision_cat_given_term.toFixed==='function') ? r.precision_cat_given_term.toFixed(3) : r.precision_cat_given_term;
+                tr.innerHTML = `<td style=\"padding:6px; border-top:1px solid var(--border);\">${(r.term||'').replace(/</g,'&lt;')}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${(r.docs_with_term||0)}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${(r.total_occurrences||0)}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${tfidf ?? ''}</td>
+                                <td style=\"padding:6px; border-top:1px solid var(--border); text-align:right;\">${prec ?? ''}</td>`;
+                gtb.appendChild(tr);
+            });
+            gt.appendChild(gtb); genCard.appendChild(gt);
+            const avg = document.createElement('div');
+            avg.style.marginTop = '8px';
+            avg.style.color = 'var(--text-muted)';
+            const avgVal = (data.avg_precision_generated||0);
+            const avgStr = (avgVal && typeof avgVal.toFixed==='function') ? avgVal.toFixed(3) : avgVal;
+            avg.textContent = `Precisión promedio (términos generados): ${ avgStr }`;
+            genCard.appendChild(avg);
+            frag.appendChild(genCard);
+
+            cont.innerHTML = '';
+            cont.appendChild(frag);
         }
     </script>
 </body>

@@ -1,0 +1,766 @@
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        
+        <link rel="preconnect" href="https://static.ithaka.org">
+        <link rel="preconnect" href="https://cdn-cookielaw-org.crai.referencistas.com">
+        <link rel="preconnect" href="https://geolocation-onetrust-com.crai.referencistas.com">
+        <link rel="preconnect" href="https://www.googletagmanager.com">
+
+        <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+        
+            <link rel="dns-prefetch" href="https://status-app-jstor-org.crai.referencistas.com">
+        
+
+        
+        
+        
+        
+
+        <link rel="preload" href="/assets/long-lived_20201006/js/scoped-custom-element-registry@0.0.3.min.js" as="script">
+
+        
+            <link rel="preload" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/global/js/global.min.js" as="script">
+        
+
+        <link rel="preload" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/global/css/global.css" as="style">
+
+        
+        
+        <link rel="preload" href="https://static.ithaka.org/pharos/assets/fonts/GT-America-Standard-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+        
+        <link rel="preload" href="https://static.ithaka.org/pharos/assets/fonts/GT-America-Standard-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+        
+        <link rel="preload" href="https://static.ithaka.org/pharos/assets/fonts/IvarHeadline-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+        
+
+        
+        <link rel="preload" href="/mfe-registry-service/public/mfe/header/remoteEntry/path/" as="fetch" crossorigin>
+        <link rel="preload" href="/mfe-registry-service/public/mfe/footer/remoteEntry/path/" as="fetch" crossorigin>
+        <link rel="preload" href="/mfe-registry-service/public/mfe/query-builder/remoteEntry/path/" as="fetch" crossorigin>
+        
+
+        
+    <link rel="preload" href="//www-jstor-org.crai.referencistas.com/assets/search-ui_20250818T182451/build/search-ui/css/homepage.css" as="style">
+    <link rel="preload" href="//www-jstor-org.crai.referencistas.com/assets/search-ui_20250818T182451/build/search-ui/js/homepage.min.js" as="script">
+
+    
+
+        
+
+        <title>JSTOR Home</title>
+
+        
+            <script type="text/javascript">
+                function OptanonWrapper() {
+                    window.dispatchEvent(new CustomEvent("onetrust-ready"));
+                }
+            </script>
+        
+
+        
+            <script src="https://cdn-cookielaw-org.crai.referencistas.com/scripttemplates/otSDKStub.js" type="text/javascript" charset="UTF-8" data-domain-script="94945f03-5e19-4775-ab08-18086adc0f18"></script>
+        
+
+        <script type="text/javascript">
+            window.requestId = "fastly-default:e335a2cf3a80dd3dddf40e059d7c9089";
+            
+        </script>
+
+        <script type="text/javascript" data-analytics-provider="ga">
+            var dataLayer = window.dataLayer = window.dataLayer || [];
+            var gaData = {};
+
+            gaData.page = {
+                
+    "pageName" : "home",
+    "siteSection" : "home",
+    "pageProduct" : "jstor",
+    "pagePlatform" : "seq",
+    "pageType" : "home"
+
+            };
+
+            gaData.user = {
+                
+    "loggedIn" : "false",
+    "userAuthentication" : "Institutional",
+    "userInstitution" : "[&#x27;uniquindio.edu.co&#x27;]",
+    "institutionID" : "[&#x27;207c533e-38df-4ddf-87f0-a433eb320421&#x27;]",
+    "myJstorUserID" : ""
+
+            };
+
+            
+            
+
+            dataLayer.push(gaData);
+        </script>
+
+        
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-N6GDC22');</script>
+        
+
+        
+        <meta name="msapplication-TileImage" content="/assets/mstile-150x150.png" />
+        <meta name="msapplication-TileColor" content="#DA532C" />
+        <meta name="msapplication-config" content="/assets/browserconfig.xml" />
+
+        
+    <meta name="MSSmartTagsPreventParsing" content="true"/>
+
+
+        <!-- Start SEO custom tags -->
+<meta name="robots" content="noarchive,NOODP" />
+<meta name="description" content="JSTOR is a digital library of academic journals, books, and primary sources." />
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "JSTOR", "url": "https://jstor-org.crai.referencistas.com/"}</script>
+<meta name="MSSmartTagsPreventParsing" content="true" />
+<!-- End SEO custom tags -->
+
+        
+    
+    <script>
+        window.ga_homepage_experiment_id =  "";
+        window.ga_homepage_experiment_variant = "";
+    </script>
+
+
+        
+        
+        <link rel="icon" sizes="192x192" type="image/png" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/android-chrome-192x192.png" />
+        <link rel="icon" sizes="512x512" type="image/png" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/android-chrome-512x512.png" />
+
+        
+        <link rel="apple-touch-icon" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/apple-touch-icon.png" />
+
+        
+        <link rel="icon" sizes="16x16" type="image/png" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/favicon-16x16.png" />
+        <link rel="icon" sizes="48x48" type="image/png" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/favicon-48x48.png" />
+        <link rel="icon" sizes="32x32" type="image/png" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/images/favicons/favicon-32x32.png" />
+        
+
+        <link rel="stylesheet" href="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/global/css/global.css" />
+
+        <script src="/assets/long-lived_20201006/js/scoped-custom-element-registry@0.0.3.min.js"></script>
+
+        
+        
+        
+        
+
+        
+        
+    <link rel="stylesheet" href="//www-jstor-org.crai.referencistas.com/assets/search-ui_20250818T182451/build/search-ui/css/homepage.css" />
+
+    
+
+
+        
+    <link rel="canonical" href="https://www-jstor-org.crai.referencistas.com/">
+
+    </head>
+    <body
+        data-structured-context='{"referring_requestid": "fastly-default:e335a2cf3a80dd3dddf40e059d7c9089", "user": { "is_logged_in": false}}'
+        onload="validateElementsPresent();"
+    >
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe title="google tag manager" src="https://www.googletagmanager.com/ns.html?id=GTM-N6GDC22"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <!-- End Google Tag Manager (noscript) -->
+
+        
+            <script>
+    const validateElementsPresent = function() {
+        const requiredElementSelectors = [];
+
+        requiredElementSelectors.forEach(function(selector){
+            if (!document.querySelectorAll(selector).length) {
+                storePerimeterXLoadingError(selector, 'element not present');
+            }
+        });
+    };
+
+    const storePerimeterXLoadingError = function(element, errorType) {
+        if (window.perimeterXLoadingErrors) {
+            if (!window.perimeterXLoadingErrors.hasOwnProperty(element)) {
+                window.perimeterXLoadingErrors[element] = errorType;
+            }
+        } else {
+            window.perimeterXLoadingErrors = {};
+            window.perimeterXLoadingErrors[element] = errorType;
+        }
+    };
+</script>
+
+
+
+        
+
+        <global-pharos-toaster></global-pharos-toaster>
+
+        <div id="unsupportedBrowserMessageMountPoint"></div>
+
+        <div id="statusBannerMountPoint"></div>
+
+        <div id="globalAccessWorkflowMountPoint"></div>
+
+        
+            <div id="promptMountPoint"></div>
+        
+
+        
+
+        
+        
+            <div id="headerMountPoint"></div>
+        
+
+        
+        
+
+        <main id="content" class="content">
+            <div class="row" data-equalizer>
+                
+                
+            </div>
+            <div class="main-content-without-margin">
+                
+    <search-ui-pharos-layout class="negate-nav-bottom-margin homepage-container" row-gap="0">
+        <search-ui-pharos-heading level="1" preset="7" no-margin class="main-heading homepage-heading" slot="top">
+            Explore the world&rsquo;s knowledge, cultures, and ideas
+        </search-ui-pharos-heading>
+        <search-ui-pharos-heading level="1" preset="5" no-margin class="main-heading homepage-mobile-heading" slot="top">
+            Explore the world&rsquo;s knowledge, cultures, and ideas
+        </search-ui-pharos-heading>
+
+        <search-ui-pharos-layout slot="top" class="search-layout" row-gap="0">
+            <div class="search-form-and-link scope-selector">
+                <form action="/action/doBasicSearch" id="home-search-form" class="basic-search-form" method="get">
+                    <div id="query-builder-mount-point"></div>
+                    
+                </form>
+            </div>
+        </search-ui-pharos-layout>
+
+        <section slot="top" class="hero-slider">
+            <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides">
+                    
+                        <li class="glide__slide glide__slide--hero" data-slide-index="1" data-url="https://www-jstor-org.crai.referencistas.com/site/artstor/GeorgiaOKeeffeMuseum-100143067/" data-caption="Georgia O’Keeffe, Ghost Ranch Landscape (detail), c. 1936." data-collection="Georgia O&#x27;Keeffe Museum" data-copyright="">
+                            <picture>
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_georgia_okeeffe.webp?lastUpdated=20250729" type="image/webp">
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_georgia_okeeffe.jpg?lastUpdated=20250729" type="image/jpeg">
+                                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_georgia_okeeffe.jpg?lastUpdated=20250729" alt="Detail of a painting depicting the landscape of New Mexico with mountains in the distance">
+                            </picture>
+                        </li>
+                    
+                        <li class="glide__slide glide__slide--hero" data-slide-index="2" data-url="https://www-jstor-org.crai.referencistas.com/site/artstor/AmistadResearchCenter-100145567/" data-caption="Elizabeth Catlett, Roots (detail), 1981." data-collection="Amistad Research Center" data-copyright="Art © Estate of Elizabeth Catlett / Licensed by VAGA, New York, NY.">
+                            <picture>
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_elizabeth_catlett.webp?lastUpdated=20250729" type="image/webp">
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_elizabeth_catlett.jpg?lastUpdated=20250729" type="image/jpeg">
+                                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_elizabeth_catlett.jpg?lastUpdated=20250729" alt="Detail of a print depicting a woman’s face and decorative abstract patterns">
+                            </picture>
+                        </li>
+                    
+                        <li class="glide__slide glide__slide--hero" data-slide-index="3" data-url="https://www-jstor-org.crai.referencistas.com/site/artstor/BerlinStateMuseumsStaatlicheMuseenzuBerlin-100141727/" data-caption="Egyptian, winged scarab, 664-525 BC. Repository: Ägyptisches Museum und Papyrussammlung, Staatliche Museen zu Berlin." data-collection="Berlin State Museums (Staatliche Museen zu Berlin)" data-copyright="">
+                            <picture>
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_egyptian_winged_scarab.webp?lastUpdated=20250729" type="image/webp">
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_egyptian_winged_scarab.jpg?lastUpdated=20250729" type="image/jpeg">
+                                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_egyptian_winged_scarab.jpg?lastUpdated=20250729" alt="Golden figure of a scarab with bird’s wings">
+                            </picture>
+                        </li>
+                    
+                        <li class="glide__slide glide__slide--hero" data-slide-index="4" data-url="https://www-jstor-org.crai.referencistas.com/site/washington/maps/" data-caption="Johannes van Keulen, Pas-caert van de Canael… (detail), 1682." data-collection="World and Regional Maps" data-copyright="">
+                            <picture>
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_johannes_van_keulen.webp?lastUpdated=20250729" type="image/webp">
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_johannes_van_keulen.jpg?lastUpdated=20250729" type="image/jpeg">
+                                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_johannes_van_keulen.jpg?lastUpdated=20250729" alt="Detail of 17th-century nautical chart depicting the English Channel and decorated with allegorical figures and explanatory cartouche">
+                            </picture>
+                        </li>
+                    
+                        <li class="glide__slide glide__slide--hero" data-slide-index="5" data-url="https://www-jstor-org.crai.referencistas.com/site/artstor/FrankCancianDocumentaryPhotographArchive-100146307/" data-caption="Frank Cancian, School classroom [A] (detail), 1971." data-collection="Frank Cancian Documentary Photograph Archive" data-copyright="">
+                            <picture>
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_frank_cancian.webp?lastUpdated=20250729" type="image/webp">
+                                <source srcset="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_frank_cancian.jpg?lastUpdated=20250729" type="image/jpeg">
+                                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/hero/jstor_homepagehero_nov2021_frank_cancian.jpg?lastUpdated=20250729" alt="Detail of a black and white photograph of Maya children lined up by a blackboard">
+                            </picture>
+                        </li>
+                    
+                </ul>
+            </div>
+            <search-ui-pharos-layout class="hero-slider__footer" row-gap="1rem">
+                <div class="hero-slider__footer__caption">
+                    <span id="caption">Georgia O’Keeffe, Ghost Ranch Landscape (detail), c. 1936.</span>
+                    Part of <search-ui-pharos-link id="caption-link" href="https://www-jstor-org.crai.referencistas.com/site/artstor/GeorgiaOKeeffeMuseum-100143067/" data-sc="text link:homepage image">Georgia O&#x27;Keeffe Museum</search-ui-pharos-link>.
+                    <span id="copyright"></span>
+                </div>
+                <div class="hero-slider__footer__pagination" data-glide-el="controls">
+                    <strong class="hero-slider__label--pagination">Image 1 of 5</strong>
+                    <search-ui-pharos-button class="hero-slider__previous-button" data-glide-dir="<" icon="chevron-left-large" variant="subtle" label="Previous" icon-condensed  data-sc="homepage:button:hero-prev"></search-ui-pharos-button>
+                    <search-ui-pharos-button class="hero-slider__next-button" data-glide-dir=">" icon="chevron-right-large" variant="subtle" label="Next" icon-condensed  data-sc="homepage:button:hero-next"></search-ui-pharos-button>
+                </div>
+            </search-ui-pharos-layout>
+        </section>
+
+        
+
+        <section class="collection-showcase--browse">
+            <div class="collection-showcase__images">
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/great-wall-of-china.jpg" alt="" loading="lazy" height="500" width="328" />
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/letter-to-ernest-hemingway.jpg" alt="" loading="lazy" height="312" width="500" />
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/theatrical-qing-dynasty-robe.jpg" alt="" loading="lazy" height="322" width="500" />
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/birth-of-mahavira.jpg" alt="" loading="lazy" height="187" width="500" />
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/youth-service-coalition-inc.jpg" alt="" loading="lazy" height="296" height="500" />
+                <img src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/browse-by-collection-cluster/filatios-on-horseback.jpg" alt="" loading="lazy" height="329" width="500" />
+            </div>
+            <div class="collection-showcase__copy">
+                <search-ui-pharos-heading level="2" preset="5" class="homepage-heading">Enrich your research with primary sources</search-ui-pharos-heading>
+                <search-ui-pharos-heading level="2" preset="3" class="homepage-mobile-heading">Enrich your research with primary sources</search-ui-pharos-heading>
+                <p>
+                    Explore millions of high-quality primary sources and images from around the world, including artworks, maps, photographs, and more.
+                </p>
+                <search-ui-pharos-button
+                    href="/site/collection-list/"
+                    variant="secondary"
+                    data-sc="homepage:cta:collection-browse"
+                >
+                    Browse by collection
+                </search-ui-pharos-button>
+            </div>
+        </section>
+
+        <section class="thematic-container">
+            <search-ui-pharos-heading level="2" preset="5" class="homepage-heading">
+                Take an interdisciplinary approach to <strong>Latin American Studies</strong>
+            </search-ui-pharos-heading>
+            <search-ui-pharos-heading level="2" preset="3" class="homepage-mobile-heading">
+                Take an interdisciplinary approach to <strong>Latin American Studies</strong>
+            </search-ui-pharos-heading>
+            <p>
+                Explore Latin American Studies through a variety of media types
+            </p>
+            <div class="thematic-slider">
+                <div class="thematic-slider__controls" data-glide-el="controls">
+                    <search-ui-pharos-button data-glide-dir="<" icon="chevron-left-large" variant="subtle" label="Previous image" icon-condensed class="thematic-slider__previous-button" data-sc="homepage:button:thematic-prev"></search-ui-pharos-button>
+                    <search-ui-pharos-button data-glide-dir=">" icon="chevron-right-large" variant="subtle" label="Next image" icon-condensed class="thematic-slider__next-button" data-sc="homepage:button:thematic-next"></search-ui-pharos-button>
+                </div>
+                <div class="thematic-slider__track glide__track" data-glide-el="track">
+                    <ul class="glide__slides">
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="1"> 
+                            <search-ui-pharos-image-card title="Three essays by Gabriela Mistral on Feminism and the Women’s Movement" link="/stable/48821924" source-type="Article" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Montero-ThreeessaysGabriela-2025.jpg?lastUpdated=20250729"
+                                    alt="Three essays by Gabriela Mistral on Feminism and the Women’s Movement"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/journal/latinamerlitrev" data-sc="homepage:link:thematic-image-card-collection">Latin American Literary Review</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="2"> 
+                            <search-ui-pharos-image-card title="How DiDi Chuxing Adapts to Latin America’s Era of Digital Platforms" link="/stable/resrep61107" source-type="Research report" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Manky-FrontMatter-2024.jpg?lastUpdated=20250729"
+                                    alt="How DiDi Chuxing Adapts to Latin America’s Era of Digital Platforms"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/publisher/ceip" data-sc="homepage:link:thematic-image-card-collection">Carnegie Endowment for International Peace</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="3"> 
+                            <search-ui-pharos-image-card title="Introduction: Global Ideas, Policy Variation, and the Governance of Secondary Education in Latin America" link="/stable/jj.13609904.6" source-type=" Book chapter" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/DIAZRIOS-Introduction-2024.jpg?lastUpdated=20250729"
+                                    alt="Introduction: Global Ideas, Policy Variation, and the Governance of Secondary Education in Latin America"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/stable/jj.13609904" data-sc="homepage:link:thematic-image-card-collection">Translating Global Ideas: How Policy Legacies and Domestic Politics Shape Education Governance in Latin America</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="4"> 
+                            <search-ui-pharos-image-card title="Rip Van Winkle in the Rainforest" link="/stable/27366583" source-type="Article" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Price-RipVanWinkle-2025.jpg?lastUpdated=20250729"
+                                    alt="Rip Van Winkle in the Rainforest"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/journal/nwignewwesindgui" data-sc="homepage:link:thematic-image-card-collection">NWIG: New West Indian Guide / Nieuwe West-Indische Gids</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="5"> 
+                            <search-ui-pharos-image-card title="PANAMA. Pilgrimage at the Black Christ (El Cristo Negro)." link="/stable/community.19015919" source-type="Image" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="349"
+                                    width="450"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Rodero-PANAMA.PilgrimageBlack-.jpg?lastUpdated=20250729"
+                                    alt="PANAMA. Pilgrimage at the Black Christ (El Cristo Negro)."
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/site/artstor/MagnumPhotos-100142707/" data-sc="homepage:link:thematic-image-card-collection">Magnum Photos</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="6"> 
+                            <search-ui-pharos-image-card title="ENVEJECIMIENTO EN BOLIVIA: SITUACIÓN, TENDENCIAS Y DESAFÍOS PARA LA PROTECCIÓN Y CUIDADO DE PERSONAS MAYORES" link="/stable/resrep65899" source-type="Research report" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Aru-FrontMatter-2024.jpg?lastUpdated=20250729"
+                                    alt="ENVEJECIMIENTO EN BOLIVIA: SITUACIÓN, TENDENCIAS Y DESAFÍOS PARA LA PROTECCIÓN Y CUIDADO DE PERSONAS MAYORES"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/publisher/fundacionaru" data-sc="homepage:link:thematic-image-card-collection">Fundación Aru</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="7"> 
+                            <search-ui-pharos-image-card title="Alain Touraine en el debate sobre los orígenes del peronismo" link="/stable/48824968" source-type="Article" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Gimnez-AlainTouraineen-2025.jpg?lastUpdated=20250729"
+                                    alt="Alain Touraine en el debate sobre los orígenes del peronismo"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/journal/desaecon" data-sc="homepage:link:thematic-image-card-collection">Desarrollo Económico,</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="8"> 
+                            <search-ui-pharos-image-card title="In the Labyrinth of Latin American History" link="/stable/10.5149/9781469678511_jarqun.9" source-type=" Book chapter" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/JARQUN-LabyrinthLatinAmerican-2024.jpg?lastUpdated=20250729"
+                                    alt="In the Labyrinth of Latin American History"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/stable/10.5149/9781469678511_jarqun" data-sc="homepage:link:thematic-image-card-collection">The Sandinista Revolution: A Global Latin American History</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="9"> 
+                            <search-ui-pharos-image-card title="Ambiente, cambio climático y buen vivir en América Latina y el Caribe" link="/stable/j.ctv2v88ckd" source-type="Book" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Castelblanco-FrontMatter-2022.jpg?lastUpdated=20250729"
+                                    alt="Ambiente, cambio climático y buen vivir en América Latina y el Caribe"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/stable/j.ctv2v88ckd" data-sc="homepage:link:thematic-image-card-collection">Ambiente, cambio climático y buen vivir en América Latina y el Caribe</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="10"> 
+                            <search-ui-pharos-image-card title="Conocimiento Tradicional del Fuego de los Pueblos Indígenas: Estudios de caso del Escudo Guayanés (Guyana, Surinam, Venezuela)" link="/stable/resrep70860" source-type="Research report" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/UNESCO-FrontMatter-2025.jpg?lastUpdated=20250729"
+                                    alt="Conocimiento Tradicional del Fuego de los Pueblos Indígenas: Estudios de caso del Escudo Guayanés (Guyana, Surinam, Venezuela)"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/publisher/unesco" data-sc="homepage:link:thematic-image-card-collection">UNESCO</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="11"> 
+                            <search-ui-pharos-image-card title="BAHIA. The Capoiera is an Afro-Brazilian martial art with dance like acrobatic movements" link="/stable/community.9851049" source-type="Image" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="349"
+                                    width="450"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Branco-BAHIACapoieraAfroBrazilian-1984.jpg?lastUpdated=20250729"
+                                    alt="BAHIA. The Capoiera is an Afro-Brazilian martial art with dance like acrobatic movements"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/site/artstor/MagnumPhotos-100142707/" data-sc="homepage:link:thematic-image-card-collection">Magnum Photos</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="12"> 
+                            <search-ui-pharos-image-card title="RESISTANCE TO AUTHORITARIANISM: Lessons Learned from Brazilian Civil Society" link="/stable/resrep60709" source-type="Research report" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Institute-FrontMatter-2024.jpg?lastUpdated=20250729"
+                                    alt="RESISTANCE TO AUTHORITARIANISM: Lessons Learned from Brazilian Civil Society"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/publisher/igarapeinst" data-sc="homepage:link:thematic-image-card-collection">Igarape Institute</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                        <li class="glide__slide glide__slide--thematic" data-slide-index="13"> 
+                            <search-ui-pharos-image-card title="In the Time of the Zombie: Remaking a Caribbean Icon" link="/stable/jj.14250117.9" source-type=" Book chapter" data-sc="homepage:link:thematic-image-card">
+                                <img
+                                    slot="image"
+                                    height="450"
+                                    width="331"
+                                    src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/thematic-carousel/Maguire-TimeZombie-2024.jpg?lastUpdated=20250729"
+                                    alt="In the Time of the Zombie: Remaking a Caribbean Icon"
+                                />
+                                
+                                
+                                    
+                                        <div slot="metadata">Part of <search-ui-pharos-link href="/stable/jj.14250117" data-sc="homepage:link:thematic-image-card-collection">Tropical Time Machines: Science Fiction in the Contemporary Hispanic Caribbean</search-ui-pharos-link></div>
+                                    
+                                
+                            </search-ui-pharos-image-card>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="collection-showcase--broaden">
+            <search-ui-pharos-heading level="2" preset="5" class="homepage-heading">Broaden your research with images and primary sources</search-ui-pharos-heading>
+            <search-ui-pharos-heading level="2" preset="3" class="homepage-mobile-heading">Broaden your research with images and primary sources</search-ui-pharos-heading>
+            <ul>
+                <li>
+                    <search-ui-pharos-image-card
+                        title="Bring your work to life with images"
+                        variant="promotional"
+                        link="/images"
+                        data-sc="homepage:link:image-search"
+                    >
+                        <img
+                            slot="image"
+                            height="600"
+                            width="800"
+                            src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/new-avenues/work-with-images.jpg"
+                            alt="Architectural details and art from the Alhambra palace"
+                            loading="lazy"
+                        />
+                        <p slot="metadata">
+                            Harness the power of visual materials&mdash;explore more than 3 million images now on JSTOR.
+                        </p>
+                        <search-ui-pharos-button
+                            slot="metadata"
+                            href="/images"
+                            variant="secondary"
+                            data-sc="homepage:cta:image-search"
+                        >
+                            Search for images
+                        </search-ui-pharos-button>
+                    </search-ui-pharos-image-card>
+                </li>
+
+                <li>
+                    <search-ui-pharos-image-card
+                        title="Incorporate alternative voices in your research"
+                        variant="promotional"
+                        link="/site/reveal-digital/independent-voices/"
+                        data-sc="homepage:link:independent-voices"
+                    >
+                        <img
+                            slot="image"
+                            height="600"
+                            width="800"
+                            src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/new-avenues/alternative-press.jpg?lastUpdated=20250729"
+                            alt="Cover and inside page from alternative publication Overthrow"
+                            loading="lazy"
+                        />
+                        <p slot="metadata">
+                            Enhance your scholarly research with underground newspapers, magazines, and journals.
+                        </p>
+                        <search-ui-pharos-button
+                            slot="metadata"
+                            href="/site/reveal-digital/independent-voices/"
+                            variant="secondary"
+                            data-sc="homepage:cta:independent-voices"
+                        >
+                            Browse Independent Voices
+                        </search-ui-pharos-button>
+                    </search-ui-pharos-image-card>
+                </li>
+
+                <li>
+                    <search-ui-pharos-image-card
+                        title="Take your research further with Artstor’s 3+ million images"
+                        variant="promotional"
+                        link="/site/artstor/"
+                        data-sc="homepage:link:artstor-images"
+                    >
+                        <img
+                            slot="image"
+                            height="600"
+                            width="800"
+                            src="https://www-jstor-org.crai.referencistas.com/assets/long-lived_20201006/images/new-avenues/artstor-images.jpg?lastUpdated=20250729"
+                            alt="Vintage photograph of a woman looking through a picture frame"
+                            loading="lazy"
+                        />
+                        <p slot="metadata">
+                            Explore collections in the arts, sciences, and literature from the world’s leading museums, archives, and scholars.
+                        </p>
+                        <search-ui-pharos-button
+                            slot="metadata"
+                            href="/images#artstor-collections"
+                            variant="secondary"
+                            data-sc="homepage:cta:artstor-images"
+                        >
+                            Search Artstor collections
+                        </search-ui-pharos-button>
+                    </search-ui-pharos-image-card>
+                </li>
+            </ul>
+        </section>
+    </search-ui-pharos-layout>
+
+           </div>
+        </main>
+
+        
+            <div id="screen-reader-notification" class="visuallyhidden" role="alert" aria-live="polite" aria-atomic="false" aria-relevant="additions"></div>
+            <div id="screen-reader-alert" class="visuallyhidden" role="alert" aria-live="assertive" aria-atomic="false" aria-relevant="additions"></div>
+        
+
+        
+        
+            <div id="registeredFooterMountPoint"></div>
+        
+
+        
+            <div id="csrfTokenCookie" class="hide">
+                <input type="hidden" name="csrfmiddlewaretoken" value="52ux73MklfxNA5tGQ4UHJOmkbw8lpec4xAH8oYslsYjDiN4hKl5e9grZorjVKm8U">
+            </div>
+        
+
+        
+
+        
+    
+           <script>
+                var globalFlags = {
+                    "trackWebVitals": true,
+                    "mountGlobalMfesPoc": false,
+                    "genAIWaitlistPrompt": true,
+                    "genAIBetaWelcome": true,
+                    "rolePrompt": true,
+                    "workspaceCoachMarkEnabled": true
+                }
+            </script>
+
+            
+                <script type="text/javascript" src="//www-jstor-org.crai.referencistas.com/assets/global_20250731T212448/build/global/js/global.min.js"></script>
+            
+        
+
+    
+        
+
+    <script defer src="//www-jstor-org.crai.referencistas.com/assets/search-ui_20250818T182451/build/search-ui/js/homepage.min.js" type="text/javascript"></script>
+
+    
+
+
+        <div id="env_info" class="hide" data-debug="False"
+             data-env="prod">
+            
+        </div>
+
+        
+        <script>
+            const canonical = document.head.querySelector("link[rel='canonical']");
+            if (!canonical) {
+                navigator.sendBeacon("/no-canonical");
+            }
+        </script>
+        
+
+        
+            <div id="headsUpDisplayMountPoint"></div>
+        
+
+    </body>
+</html>

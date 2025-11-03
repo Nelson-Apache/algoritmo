@@ -32,6 +32,7 @@ from io import StringIO
 import logging
 from typing import Any, Dict, Optional, cast
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing
 
 # ===== SUPRIMIR ERRORES DE PYWEBVIEW/WEBVIEW2 =====
 import warnings
@@ -62,9 +63,13 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from scraper.EBSCO import EBSCOScraper
 from scraper.IEEEScraper import IEEEScraper
-from scraper.JSTORScraper import JSTORScraper
 from data.MultiDatabaseCleaner import MultiDatabaseCleaner, clean_and_unify_databases
+from algoritmo.SimilitudTextualClasico import SimilitudTextualClasico
+from algoritmo.SimilitudTextualIA import SimilitudTextualIA
+import pandas as pd
 from algoritmo.AcademicSortingAnalyzer import AcademicSortingAnalyzer
+from algoritmo.ConceptsCategoryAnalyzer import ConceptsCategoryAnalyzer
+from algoritmo.HierarchicalClusteringAnalyzer import HierarchicalClusteringAnalyzer
 
 # Directorios de datos centralizados bajo src/data
 ROOT_DIR = Path(__file__).parent
@@ -78,16 +83,48 @@ for d in (COOKIES_DIR, CSV_DIR, UNIFIED_DIR):
 
 def _scrape_db_job(db: str, query: str, download_all: bool, custom_amount: int,
                     email: Optional[str], password: Optional[str], show_browser: bool,
-                    threads_per_db: int = 4) -> Dict[str, Any]:
+                    threads_per_db: int = 4,
+                    log_queue: Optional[Any] = None) -> Dict[str, Any]:
     """
     Proceso aislado para scrapear una base de datos.
     Retorna dict con {db, count, file, error?}
     """
     # Capturar toda la salida de consola de este proceso (incluye prints de scrapers)
     log_capture = StringIO()
+    
+    # Stream live logs to parent via a queue while also capturing them
+    import io as _io
+    class _StreamTee(_io.TextIOBase):
+        def __init__(self, prefix: str, queue: Optional[Any], sink: StringIO):
+            self.prefix = prefix
+            self.queue = queue
+            self.sink = sink
+            self._buffer = ''
+        def write(self, s: str) -> int:
+            # write also to the capture sink
+            written = self.sink.write(s)
+            if self.queue is not None:
+                self._buffer += s
+                while '\n' in self._buffer:
+                    line, self._buffer = self._buffer.split('\n', 1)
+                    line = line.strip()
+                    if line:
+                        try:
+                            self.queue.put(f"{self.prefix}{line}")
+                        except Exception:
+                            pass
+            return written
+        def flush(self):
+            try:
+                self.sink.flush()
+            except Exception:
+                pass
     from contextlib import redirect_stdout, redirect_stderr
     try:
-        with redirect_stdout(log_capture), redirect_stderr(log_capture):
+        # Use a tee to both capture and stream
+        tee = _StreamTee(prefix=f"[{db.upper()}] ", queue=log_queue, sink=log_capture)
+        # El cast evita que el analizador estático se queje; en runtime cumple el protocolo de escritura
+        with redirect_stdout(cast(Any, tee)), redirect_stderr(cast(Any, tee)):
             headless = not show_browser
             # Instanciar scraper por base
             if db == 'ebsco':
@@ -96,9 +133,6 @@ def _scrape_db_job(db: str, query: str, download_all: bool, custom_amount: int,
             elif db == 'ieee':
                 scraper = IEEEScraper(auto_login=False)
                 cookie_file = 'ieee_cookies.json'
-            elif db == 'jstor':
-                scraper = JSTORScraper(auto_login=False)
-                cookie_file = 'jstor_cookies.json'
             else:
                 return { 'db': db, 'error': f"Base desconocida: {db}", 'logs': log_capture.getvalue() }
 
@@ -129,7 +163,7 @@ def _scrape_db_job(db: str, query: str, download_all: bool, custom_amount: int,
                 # EBSCO o sin concurrencia: usar método propio
                 articles = scraper.scrape_all(query, max_results=max_results)
             else:
-                # Concurrencia por páginas para IEEE/JSTOR
+                # Concurrencia por páginas para IEEE
                 from concurrent.futures import ThreadPoolExecutor, as_completed
                 # Determinar parámetros de paginación
                 if db == 'ieee':
@@ -157,41 +191,37 @@ def _scrape_db_job(db: str, query: str, download_all: bool, custom_amount: int,
                                 arts = scraper.extract_articles(data)
                                 articles.extend(arts)
                         articles = articles[:target]
-                elif db == 'jstor':
-                    page_size_default = 25
-                    total = scraper.get_total_items(query)
-                    if total == 0:
-                        articles = []
-                    else:
-                        target = min(max_results or total, total)
-                        pages = []
-                        remaining = target
-                        page = 0
-                        while remaining > 0:
-                            current_page_size = min(page_size_default, remaining)
-                            pages.append((page, current_page_size))
-                            remaining -= current_page_size
-                            page += 1
-                        with ThreadPoolExecutor(max_workers=threads_per_db) as executor:
-                            s = cast(Any, scraper)
-                            def fetch_jstor(pg: int, sz: int):
-                                return s.search(query, pg, sz, False)
-                            futures = [executor.submit(fetch_jstor, pg, sz) for (pg, sz) in pages]
-                            for fut in as_completed(futures):
-                                data = fut.result()
-                                arts = scraper.extract_articles(data)
-                                articles.extend(arts)
-                        articles = articles[:target]
 
             filename = f"{db}_{query.replace(' ', '_')}.csv"
             # Guardar CSV en src/data/csv
             full_csv_path = str(CSV_DIR / filename)
             scraper.save_to_csv(articles, full_csv_path)
             file_path = full_csv_path
+            # ensure any remaining partial line is sent
+            try:
+                if log_queue is not None and getattr(tee, '_buffer', ''):
+                    rem = tee._buffer.strip()
+                    if rem:
+                        log_queue.put(f"[{db.upper()}] {rem}")
+            except Exception:
+                pass
             return { 'db': db, 'count': len(articles), 'file': file_path, 'logs': log_capture.getvalue() }
 
     except Exception as e:
+        # try send last buffer
+        try:
+            if log_queue is not None:
+                log_queue.put(f"[{db.upper()}] ERROR: {e}")
+        except Exception:
+            pass
         return { 'db': db, 'error': str(e), 'logs': log_capture.getvalue() }
+    finally:
+        # signal end of stream
+        try:
+            if log_queue is not None:
+                log_queue.put(None)
+        except Exception:
+            pass
 
 
 class AcademicAnalysisAPI:
@@ -214,12 +244,12 @@ class AcademicAnalysisAPI:
         self.scrapers: Dict[str, Any] = {
             'ebsco': None,
             'ieee': None,
-            'jstor': None
         }
         
         # Datos del proceso
         self.scraped_files = {}
         self.unified_file = None
+        self.sorted_file = None
         self.analysis_results = {}
         # Buffer simple de logs para UI
         self.log_buffer: list[str] = []
@@ -271,7 +301,7 @@ class AcademicAnalysisAPI:
         Verificar si existen cookies válidas para las bases de datos seleccionadas.
         
         Args:
-            databases: Lista de bases de datos ['ebsco', 'ieee', 'jstor']
+            databases: Lista de bases de datos ['ebsco', 'ieee']
         
         Returns:
             dict: {database: bool} indicando si las cookies son válidas
@@ -296,13 +326,6 @@ class AcademicAnalysisAPI:
                         
                 elif db == 'ieee':
                     scraper = IEEEScraper(auto_login=False)
-                    if scraper.load_cookies(str(COOKIES_DIR / f"{db}_cookies.json")):
-                        results[db] = scraper.test_cookies()
-                    else:
-                        results[db] = False
-                        
-                elif db == 'jstor':
-                    scraper = JSTORScraper(auto_login=False)
                     if scraper.load_cookies(str(COOKIES_DIR / f"{db}_cookies.json")):
                         results[db] = scraper.test_cookies()
                     else:
@@ -354,11 +377,6 @@ class AcademicAnalysisAPI:
                         scraper.login_and_get_cookies(email, password, headless=headless)
                         scraper.save_cookies(str(COOKIES_DIR / "ieee_cookies.json"))
                         self.scrapers['ieee'] = scraper
-                    elif db == 'jstor':
-                        scraper = JSTORScraper(auto_login=False)
-                        scraper.login_and_get_cookies(email, password, headless=headless)
-                        scraper.save_cookies(str(COOKIES_DIR / "jstor_cookies.json"))
-                        self.scrapers['jstor'] = scraper
                     
                     self.update_status('login', progress + int(100/total), 
                                      f'✅ {db.upper()} autenticado', '')
@@ -400,8 +418,6 @@ class AcademicAnalysisAPI:
                         self.scrapers['ebsco'] = EBSCOScraper(auto_login=False)
                     elif db == 'ieee':
                         self.scrapers['ieee'] = IEEEScraper(auto_login=False)
-                    elif db == 'jstor':
-                        self.scrapers['jstor'] = JSTORScraper(auto_login=False)
 
                 scraper = self.scrapers[db]
 
@@ -413,8 +429,6 @@ class AcademicAnalysisAPI:
                         scraper.load_cookies(str(COOKIES_DIR / "ebsco_cookies.json"))
                     elif db == 'ieee':
                         scraper.load_cookies(str(COOKIES_DIR / "ieee_cookies.json"))
-                    elif db == 'jstor':
-                        scraper.load_cookies(str(COOKIES_DIR / "jstor_cookies.json"))
                     has_valid_session = scraper.test_cookies()
                 except Exception:
                     has_valid_session = False
@@ -428,8 +442,6 @@ class AcademicAnalysisAPI:
                             scraper.save_cookies(str(COOKIES_DIR / "ebsco_cookies.json"))
                         elif db == 'ieee':
                             scraper.save_cookies(str(COOKIES_DIR / "ieee_cookies.json"))
-                        elif db == 'jstor':
-                            scraper.save_cookies(str(COOKIES_DIR / "jstor_cookies.json"))
                         has_valid_session = scraper.test_cookies()
                     except Exception as _:
                         has_valid_session = False
@@ -475,11 +487,36 @@ class AcademicAnalysisAPI:
 
             # Multiproceso por base seleccionada
             threads_per_db = 4
+            # Manager y colas para logs en vivo
+            manager = multiprocessing.Manager()
+            log_queues: Dict[str, Any] = { db: manager.Queue() for db in databases }
+            # Consumidores de logs (hilos en el proceso padre)
+            consumers: Dict[str, threading.Thread] = {}
+
+            def _consume_logs(db_key: str, q: Any):
+                try:
+                    while True:
+                        item = q.get()
+                        if item is None:
+                            break
+                        # Pasar directamente a la UI
+                        self.log(str(item))
+                except Exception:
+                    pass
+
             with ProcessPoolExecutor(max_workers=total_dbs) as executor:
                 futures = {
-                    executor.submit(_scrape_db_job, db, query, download_all, custom_amount, email, password, show_browser, threads_per_db): db
-                    for db in databases
+                    executor.submit(
+                        _scrape_db_job, db, query, download_all, custom_amount,
+                        email, password, show_browser, threads_per_db, log_queues[db]
+                    ): db for db in databases
                 }
+
+                # Iniciar consumidores por DB
+                for db in databases:
+                    t = threading.Thread(target=_consume_logs, args=(db, log_queues[db]), daemon=True)
+                    t.start()
+                    consumers[db] = t
 
                 completed = 0
                 for fut in as_completed(futures):
@@ -488,8 +525,7 @@ class AcademicAnalysisAPI:
                     try:
                         self.update_status('scraping', base_progress, f'🔍 Scraping {db.upper()}...', 'Extrayendo artículos...')
                         result = fut.result()
-                        # Volcar logs de subproceso si existen
-                        self.log_blob(result.get('logs', ''))
+                        # Los logs ya se streamearon en vivo; opcionalmente añadir resumen final si hubiese
                         if 'error' in result:
                             msg = f"❌ Error en {db.upper()}: {result['error']}"
                             self.update_status('error' if stop_on_auth_failure else 'scraping', base_progress, msg, '')
@@ -514,6 +550,12 @@ class AcademicAnalysisAPI:
                             return
                     finally:
                         completed += 1
+                # Esperar cierre de consumidores
+                for db, t in consumers.items():
+                    try:
+                        t.join(timeout=2.0)
+                    except Exception:
+                        pass
             
             if self.scraped_files:
                 self.status['results']['scraped_files'] = self.scraped_files
@@ -558,7 +600,6 @@ class AcademicAnalysisAPI:
             unified_df, output_files = clean_and_unify_databases(
                 ebsco_file=files_to_clean.get('ebsco'),
                 ieee_file=files_to_clean.get('ieee'),
-                jstor_file=files_to_clean.get('jstor'),
                 output_name=output_name
             )
             
@@ -632,25 +673,158 @@ class AcademicAnalysisAPI:
             self.status['results']['chart_base64'] = img_data
             self.status['results']['chart_file'] = chart_path
             self.status['results']['authors_file'] = authors_path
+
+            # Elegir el mejor algoritmo (menor tiempo) y guardar CSV ordenado para siguiente fase
+            try:
+                valid_results = {n: (df, t) for n, (df, t) in results.items() if df is not None and t != float('inf')}
+                if valid_results:
+                    best_name, (best_df, best_time) = min(valid_results.items(), key=lambda kv: kv[1][1])
+                    # Remover columnas auxiliares si existen
+                    drop_cols = [c for c in ['title_clean', 'year', 'sort_key'] if c in best_df.columns]
+                    if drop_cols:
+                        best_df_to_save = best_df.drop(columns=drop_cols)
+                    else:
+                        best_df_to_save = best_df
+
+                    # Elegir nombre de salida según contexto:
+                    # 1) Si csv_file fue pasado, guardar junto a ese archivo con sufijo _ORDENADO
+                    # 2) Si no, pero existe self.unified_file, guardarlo junto a ese con sufijo _ORDENADO
+                    # 3) En último caso, guardarlo en CSV_DIR con nombre base de output_name
+                    from pathlib import Path as _Path
+                    target_path = None
+                    try:
+                        if csv_file and os.path.exists(csv_file):
+                            srcp = _Path(csv_file)
+                            target_path = str(srcp.with_name(srcp.stem + "_ORDENADO.csv"))
+                        elif self.unified_file:
+                            up = _Path(self.unified_file)
+                            target_path = str(up.with_name(up.stem + "_ORDENADO.csv"))
+                        else:
+                            target_path = str(CSV_DIR / f"{output_name}_ORDENADO.csv")
+                    except Exception:
+                        target_path = str(CSV_DIR / f"{output_name}_ORDENADO.csv")
+
+                    best_df_to_save.to_csv(target_path, index=False, encoding='utf-8')
+                    self.sorted_file = target_path
+
+                    # Publicar en resultados para la UI
+                    self.status['results']['best_sorted'] = {
+                        'algorithm': best_name,
+                        'time_ms': round(best_time*1000, 3),
+                        'sorted_file': target_path
+                    }
+                    self.log(f"✅ CSV ordenado generado con {best_name} → {target_path}")
+                else:
+                    self.log('⚠️ No hubo resultados válidos de ordenamiento para generar CSV ordenado.')
+            except Exception as _e:
+                self.log(f"⚠️ No se pudo generar el CSV ordenado del mejor algoritmo: {_e}")
             
             self.update_status('analysis', 100, '✅ Análisis completado', '')
             
         except Exception as e:
             self.update_status('error', 0, f'❌ Error: {str(e)}', '')
+
+    # ===================== NUEVO: Análisis de Conceptos (GAIE) =====================
+    def analyze_concepts(self, csv_file: Optional[str] = None, top_k: int = 15):
+        """
+        Analiza la categoría GAIE: frecuencias de términos semilla, extrae términos asociados y
+        estima la precisión de los términos generados.
+        """
+        try:
+            filepath = csv_file or self.unified_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni CSV unificado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if 'abstract' not in df.columns:
+                return {'success': False, 'message': 'El CSV no contiene columna "abstract".'}
+
+            abstracts = [str(x) if pd.notna(x) else '' for x in df['abstract'].tolist()]
+
+            analyzer = ConceptsCategoryAnalyzer()
+            results = analyzer.analyze(abstracts, top_k=top_k)
+
+            # Opcional: exponer en status para consumo de UI si esto se ejecuta en pipeline
+            existing = self.status.get('results', {})
+            existing['concepts'] = results
+            self.status['results'] = existing
+
+            return {'success': True, 'results': results, 'file': filepath}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    # ===================== NUEVO: Clustering Jerárquico (dendrogramas) =====================
+    def analyze_hierarchical_clustering(self, csv_file: Optional[str] = None, max_docs: int = 150,
+                                        algorithms: Optional[list] = None):
+        """
+        Genera dendrogramas para varios enlaces (single/complete/average) sobre abstracts.
+        Retorna imágenes en base64 y el coeficiente cophenético por algoritmo.
+        """
+        try:
+            filepath = csv_file or self.unified_file or self.sorted_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni CSV unificado/ordenado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if 'abstract' not in df.columns:
+                return {'success': False, 'message': 'El CSV no contiene columna "abstract".'}
+
+            # Preparar datos
+            data = df.copy()
+            if 'title' in data.columns:
+                labels = [str(t) if pd.notna(t) else f"Doc {i}" for i, t in enumerate(data['title'].tolist())]
+            else:
+                labels = [f"Doc {i}" for i in range(len(data))]
+            abstracts = [str(x) if pd.notna(x) else '' for x in data['abstract'].tolist()]
+
+            # Directorio para guardar imágenes
+            out_dir = str(DATA_DIR / 'screenshots' / 'dendrograms')
+            try:
+                os.makedirs(out_dir, exist_ok=True)
+            except Exception:
+                pass
+
+            from pathlib import Path as _P
+            base_name = _P(filepath).stem
+
+            hca = HierarchicalClusteringAnalyzer()
+            res = hca.analyze(abstracts, algorithms=algorithms, labels=labels, max_docs=max_docs,
+                              output_dir=out_dir, base_name=base_name)
+            if 'error' in res:
+                return {'success': False, 'message': res['error']}
+
+            # Guardar en status para consumo de UI si se invoca desde pipeline
+            existing = self.status.get('results', {})
+            existing['clustering'] = res
+            self.status['results'] = existing
+            return {'success': True, 'results': res, 'file': filepath}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
     
-    def start_full_pipeline(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True):
+    def start_full_pipeline(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True,
+                            sim_enable: bool = False, sim_limit: int = 50, sim_only_abstracts: bool = True,
+                            sim_use_classic: bool = True, sim_use_ai: bool = True,
+                            sim_classic_options: Optional[dict] = None, sim_ai_options: Optional[dict] = None):
         """
         Ejecutar pipeline completo: Scraping → Limpieza → Análisis.
         """
         thread = threading.Thread(
-            target=self._full_pipeline_worker,
-            args=(query, databases, download_all, custom_amount, output_name, email, password, show_browser)
+        target=self._full_pipeline_worker,
+        args=(query, databases, download_all, custom_amount, output_name, email, password, show_browser,
+            sim_enable, sim_limit, sim_only_abstracts, sim_use_classic, sim_use_ai, sim_classic_options, sim_ai_options)
         )
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Pipeline completo iniciado'}
     
-    def _full_pipeline_worker(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True):
+    def _full_pipeline_worker(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True,
+                              sim_enable: bool = False, sim_limit: int = 50, sim_only_abstracts: bool = True,
+                              sim_use_classic: bool = True, sim_use_ai: bool = True,
+                              sim_classic_options: Optional[dict] = None, sim_ai_options: Optional[dict] = None):
         """Worker para pipeline completo."""
         try:
             # FASE 1: Scraping (modo estricto: detener si una base falla)
@@ -669,8 +843,113 @@ class AcademicAnalysisAPI:
             
             time.sleep(2)
             
-            # FASE 3: Análisis
+            # FASE 3: Análisis (algoritmos de ordenamiento, tiempos, autores)
             self._analysis_worker(output_name, None)
+
+            # FASE 4 (opcional): Similitud textual sobre abstracts
+            # Usar el CSV ORDENADO por el mejor algoritmo si existe; si no, usar el UNIFICADO
+            data_source_for_next = self.sorted_file if (self.sorted_file and os.path.exists(self.sorted_file)) else self.unified_file
+            if sim_enable and data_source_for_next and os.path.exists(data_source_for_next):
+                try:
+                    self.update_status('analysis', 70, '🧠 Calculando similitud textual…', 'Esto puede tardar según el número de artículos seleccionado')
+                    df = pd.read_csv(data_source_for_next, encoding='utf-8')
+                    if 'abstract' in df.columns:
+                        # Filtrar por abstracts no vacíos si corresponde
+                        if sim_only_abstracts:
+                            df = df[~df['abstract'].isna() & (df['abstract'].astype(str).str.strip() != '')]
+                        # Limitar cantidad
+                        if sim_limit and sim_limit > 1:
+                            df = df.head(sim_limit)
+
+                        textos = [str(x) for x in (df['abstract'].tolist())]
+                        labels = []
+                        if 'title' in df.columns:
+                            labels = [str(t).strip() if str(t).strip() else f'Artículo {i}' for i, t in enumerate(df['title'].tolist())]
+                        else:
+                            labels = [f'Artículo {i}' for i in range(len(textos))]
+
+                        results = {}
+                        if sim_use_classic:
+                            try:
+                                simc = SimilitudTextualClasico()
+                                usar = None
+                                if sim_classic_options and isinstance(sim_classic_options, dict):
+                                    usar = {
+                                        'levenshtein': bool(sim_classic_options.get('levenshtein', True)),
+                                        'jaro': bool(sim_classic_options.get('jaro', True)),
+                                        'tfidf': bool(sim_classic_options.get('tfidf', True)),
+                                        'coseno': bool(sim_classic_options.get('coseno', True)),
+                                    }
+                                classic_res = simc.comparar_multiples(textos, corpus=None, usar=usar, top_k=10)
+                                results.update(classic_res)
+                            except Exception as e:
+                                results['ClasicosError'] = str(e)
+
+                        if sim_use_ai:
+                            try:
+                                siai = SimilitudTextualIA()
+                                opts = sim_ai_options or {}
+                                ai_res = siai.comparar_multiples(
+                                    textos,
+                                    usar_sbert=bool(opts.get('sbert', True)),
+                                    usar_transformer=bool(opts.get('hf', True)),
+                                    sbert_model=str(opts.get('sbert_model', 'sentence-transformers/all-MiniLM-L6-v2')),
+                                    hf_model=str(opts.get('hf_model', 'thenlper/gte-small')),
+                                    top_k=10
+                                )
+                                results.update(ai_res)
+                            except Exception as e:
+                                results['IAError'] = str(e)
+
+                        # Inyectar a resultados del pipeline y notificar
+                        existing = self.status.get('results', {})
+                        existing['similarity'] = {
+                            'labels': labels,
+                            'results': results
+                        }
+                        # Anexar referencia del dataset usado para esta fase
+                        existing['similarity_source'] = data_source_for_next
+                        self.status['results'] = existing
+                        self.update_status('analysis', 100, '✅ Análisis completado (incluye similitud textual)', '')
+                    else:
+                        self.log('⚠️ No se encontró columna "abstract" en el CSV unificado. Se omite la similitud textual.')
+                except Exception as e:
+                    self.log(f'⚠️ Error calculando similitud textual: {e}')
+
+            # FASE 5: Análisis de Conceptos (GAIE) siempre que haya datos
+            try:
+                source_for_concepts = data_source_for_next or self.unified_file
+                if source_for_concepts and os.path.exists(source_for_concepts):
+                    self.update_status('analysis', 90, '🧩 Analizando conceptos (GAIE)…', '')
+                    dfc = pd.read_csv(source_for_concepts, encoding='utf-8')
+                    if 'abstract' in dfc.columns:
+                        abstracts = [str(x) if pd.notna(x) else '' for x in dfc['abstract'].tolist()]
+                        cca = ConceptsCategoryAnalyzer()
+                        concepts_res = cca.analyze(abstracts, top_k=15)
+                        existing = self.status.get('results', {})
+                        existing['concepts'] = concepts_res
+                        self.status['results'] = existing
+                        self.update_status('analysis', 100, '✅ Análisis completado (incluye conceptos GAIE)', '')
+            except Exception as e:
+                self.log(f'⚠️ Error en Análisis de Conceptos: {e}')
+
+            # FASE 6: Clustering jerárquico (dendrogramas)
+            try:
+                source_for_hc = data_source_for_next or self.unified_file
+                if source_for_hc and os.path.exists(source_for_hc):
+                    self.update_status('analysis', 95, '🌳 Generando dendrogramas (clustering jerárquico)…', '')
+                    # Probar los 3 algoritmos clásicos
+                    hc_res = self.analyze_hierarchical_clustering(source_for_hc, max_docs=120,
+                                                                  algorithms=['single','complete','average'])
+                    if hc_res.get('success'):
+                        existing = self.status.get('results', {})
+                        existing['clustering'] = hc_res['results']
+                        self.status['results'] = existing
+                        self.update_status('analysis', 100, '✅ Análisis completado (incluye dendrogramas)', '')
+                    else:
+                        self.log('⚠️ ' + hc_res.get('message','Error en clustering jerárquico'))
+            except Exception as e:
+                self.log(f'⚠️ Error en Clustering Jerárquico: {e}')
             
         except Exception as e:
             self.update_status('error', 0, f'❌ Error en pipeline: {str(e)}', '')
@@ -701,6 +980,124 @@ class AcademicAnalysisAPI:
             )
             return result[0] if result else None
         return None
+
+    # ===================== NUEVOS MÉTODOS: ALGORITMOS (SELECCIÓN MÚLTIPLE) =====================
+    def get_articles_for_algorithms(self, csv_file: Optional[str] = None, limit: int = 500):
+        """
+        Cargar artículos (título y vista previa del abstract) desde un CSV para la sección de algoritmos.
+        Usa el CSV unificado si no se especifica uno.
+        """
+        try:
+            filepath = csv_file or self.unified_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni CSV unificado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if 'abstract' not in df.columns:
+                return {'success': False, 'message': 'El CSV no contiene columna "abstract".'}
+
+            articles = []
+            count = 0
+            for idx, row in df.iterrows():
+                title = str(row.get('title', '')).strip()
+                abstract = row.get('abstract', '')
+                if pd.isna(abstract):
+                    abstract = ''
+                preview_src = str(abstract)
+                preview = (preview_src[:180] + '…') if len(preview_src) > 180 else preview_src
+                try:
+                    index_val = int(idx)  # type: ignore
+                except Exception:
+                    try:
+                        index_val = int(str(idx))
+                    except Exception:
+                        index_val = count
+                articles.append({
+                    'index': index_val,
+                    'title': title if title else f'Artículo {idx}',
+                    'has_abstract': bool(preview_src.strip()),
+                    'abstract_preview': preview
+                })
+                count += 1
+                if limit and count >= limit:
+                    break
+
+            return {'success': True, 'file': filepath, 'count': len(articles), 'articles': articles}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    def analyze_similarity(self, indices: list, csv_file: Optional[str] = None,
+                           use_classic: bool = True, use_ai: bool = True,
+                           classic_options: Optional[dict] = None,
+                           ai_options: Optional[dict] = None):
+        """
+        Analiza similitud entre artículos seleccionados (por índice) usando algoritmos clásicos y/o IA.
+        """
+        try:
+            if not indices or len(indices) < 2:
+                return {'success': False, 'message': 'Seleccione al menos 2 artículos.'}
+
+            filepath = csv_file or self.unified_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni CSV unificado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if 'abstract' not in df.columns:
+                return {'success': False, 'message': 'El CSV no contiene columna "abstract".'}
+
+            # Extraer textos y etiquetas (títulos)
+            textos = []
+            labels = []
+            for i in indices:
+                row = df.iloc[int(i)]
+                title = str(row.get('title', '')).strip()
+                abstract = row.get('abstract', '')
+                if pd.isna(abstract):
+                    abstract = ''
+                textos.append(str(abstract))
+                labels.append(title if title else f'Artículo {i}')
+
+            results = {}
+
+            if use_classic:
+                try:
+                    simc = SimilitudTextualClasico()
+                    usar = None
+                    if classic_options and isinstance(classic_options, dict):
+                        usar = {
+                            'levenshtein': bool(classic_options.get('levenshtein', True)),
+                            'jaro': bool(classic_options.get('jaro', True)),
+                            'tfidf': bool(classic_options.get('tfidf', True)),
+                            'coseno': bool(classic_options.get('coseno', True)),
+                        }
+                    classic_res = simc.comparar_multiples(textos, corpus=None, usar=usar, top_k=10)
+                    results.update(classic_res)
+                except Exception as e:
+                    results['ClasicosError'] = str(e)
+
+            if use_ai:
+                try:
+                    siai = SimilitudTextualIA()
+                    opts = ai_options or {}
+                    ai_res = siai.comparar_multiples(
+                        textos,
+                        usar_sbert=bool(opts.get('sbert', True)),
+                        usar_transformer=bool(opts.get('hf', True)),
+                        sbert_model=str(opts.get('sbert_model', 'sentence-transformers/all-MiniLM-L6-v2')),
+                        hf_model=str(opts.get('hf_model', 'thenlper/gte-small')),
+                        top_k=10
+                    )
+                    results.update(ai_res)
+                except Exception as e:
+                    results['IAError'] = str(e)
+
+            return {'success': True, 'labels': labels, 'results': results}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
 
 
 def load_html():

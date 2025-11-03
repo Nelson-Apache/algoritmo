@@ -8,3 +8,14 @@ numpy>=1.26.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
 pywebview>=4.0.0
+playwright-stealth>=1.0.5
+
+# IA - Similitud de textos (Modelos de lenguaje)
+sentence-transformers>=2.7.0
+transformers>=4.44.0
+# PyTorch CPU (para embeddings y modelos HF/SBERT)
+torch>=2.2.0
+
+# Clustering jerárquico y TF-IDF
+scikit-learn>=1.3.0
+scipy>=1.11.0

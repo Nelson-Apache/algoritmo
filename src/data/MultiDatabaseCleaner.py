@@ -6,7 +6,6 @@ Este módulo proporciona herramientas avanzadas para limpiar, normalizar, unific
 y eliminar duplicados de datasets extraídos de múltiples bases de datos académicas:
 - EBSCO
 - IEEE Xplore
-- JSTOR
 
 El proceso incluye:
 - Limpieza individual de cada base de datos
@@ -38,7 +37,7 @@ Archivos Generados:
 
 Workflow Típico:
 ----------------
-1. Cargar múltiples CSV (EBSCO, IEEE, JSTOR)
+1. Cargar múltiples CSV (EBSCO, IEEE)
 2. Normalizar esquemas a columnas comunes
 3. Limpiar cada dataset individualmente
 4. Identificar duplicados entre bases de datos
@@ -68,11 +67,10 @@ class MultiDatabaseCleaner:
     Soporta:
     - EBSCO
     - IEEE Xplore  
-    - JSTOR
     
     Attributes:
         input_files (Dict[str, str]): Diccionario con archivos de entrada
-            Key: nombre de base de datos ('ebsco', 'ieee', 'jstor')
+            Key: nombre de base de datos ('ebsco', 'ieee')
             Value: ruta al archivo CSV
         dataframes (Dict[str, pd.DataFrame]): DataFrames originales por base de datos
         clean_dataframes (Dict[str, pd.DataFrame]): DataFrames limpios por base de datos
@@ -84,7 +82,7 @@ class MultiDatabaseCleaner:
         >>> cleaner = MultiDatabaseCleaner()
         >>> cleaner.add_database('ebsco', 'ebsco_articles.csv')
         >>> cleaner.add_database('ieee', 'ieee_articles.csv')
-        >>> cleaner.add_database('jstor', 'jstor_articles.csv')
+    >>> # Solo EBSCO e IEEE
         >>> 
         >>> cleaner.load_all()
         >>> unified_df = cleaner.clean_and_unify()
@@ -137,40 +135,16 @@ class MultiDatabaseCleaner:
             'is_open_access': 'is_open_access',
             'citing_paper_count': 'citation_count',
         },
-        'jstor': {
-            'id': 'article_id',
-            'stable_url': 'stable_url',
-            'title': 'title',
-            'subtitle': 'subtitle',
-            'abstract': 'abstract',
-            'authors': 'authors',
-            'publication_title': 'publication_title',
-            'publication_year': 'publication_year',
-            'publication_date': 'publication_date',
-            'doi': 'doi',
-            'isbn': 'isbn',
-            'issn': 'issn',
-            'content_type': 'document_type',
-            'publisher': 'publisher',
-            'language': 'language',
-            'volume': 'volume',
-            'issue': 'issue',
-            'page_start': 'page_start',
-            'page_end': 'page_end',
-            'subjects': 'keywords',
-            'pdf_url': 'pdf_url',
-            'is_open_access': 'is_open_access',
-            'citation_count': 'citation_count',
-        }
+        
     }
     
     # Columnas del esquema unificado
     UNIFIED_SCHEMA = [
         'article_id', 'title', 'subtitle', 'abstract', 'authors', 
-        'publication_title', 'publication_year', 'publication_date',
-        'doi', 'isbn', 'issn', 'document_type', 'publisher',
+        'publication_title', 'journal_title', 'publication_year', 'publication_date',
+        'doi', 'isbn', 'issn', 'eissn', 'document_type', 'publisher',
         'language', 'volume', 'issue', 'page_start', 'page_end',
-        'page_count', 'keywords', 'pdf_url', 'stable_url',
+        'page_count', 'keywords', 'subject_area', 'pdf_url', 'url', 'stable_url',
         'access_type', 'is_open_access', 'peer_reviewed',
         'citation_count', 'conference_location',
         'source_databases',  # Lista de bases de datos de origen
@@ -217,7 +191,7 @@ class MultiDatabaseCleaner:
         Agrega una base de datos al proceso de limpieza.
         
         Args:
-            db_name (str): Nombre de la base de datos ('ebsco', 'ieee', 'jstor')
+            db_name (str): Nombre de la base de datos ('ebsco', 'ieee')
             file_path (str): Ruta al archivo CSV
         
         Returns:
@@ -225,8 +199,8 @@ class MultiDatabaseCleaner:
         """
         # Validar nombre de base de datos
         db_name_lower = db_name.lower()
-        if db_name_lower not in ['ebsco', 'ieee', 'jstor']:
-            print(f"❌ Base de datos '{db_name}' no soportada. Usa: ebsco, ieee, jstor")
+        if db_name_lower not in ['ebsco', 'ieee']:
+            print(f"❌ Base de datos '{db_name}' no soportada. Usa: ebsco, ieee")
             return False
         
         # Validar existencia del archivo
@@ -372,7 +346,7 @@ class MultiDatabaseCleaner:
         df_normalized = self.normalize_schema(df, db_name)
         
         # Limpiar texto en columnas principales
-        text_columns = ['title', 'abstract', 'authors', 'keywords', 'publication_title']
+        text_columns = ['title', 'abstract', 'authors', 'keywords', 'publication_title', 'journal_title']
         for col in text_columns:
             if col in df_normalized.columns:
                 df_normalized[col] = df_normalized[col].apply(self.clean_text)
@@ -663,8 +637,14 @@ CONSOLIDACIÓN DE INFORMACIÓN:
         files_generated = {}
         
         # 1. Guardar dataset unificado
+        # Antes de exportar, eliminar columnas solicitadas del CSV UNIFICADO
+        columns_to_drop = [
+            'subtitle', 'journal_title', 'isbn', 'issn', 'eissn', 'language',
+            'page_count', 'subject_area', 'url', 'stable_url', 'conference_location'
+        ]
+        df_to_save = self.unified_df.drop(columns=columns_to_drop, errors='ignore')
         unified_file = f"{base_path}_UNIFICADO.csv"
-        self.unified_df.to_csv(unified_file, index=False, encoding='utf-8')
+        df_to_save.to_csv(unified_file, index=False, encoding='utf-8')
         files_generated['unified'] = unified_file
         print(f"💾 Dataset unificado: {unified_file}")
         
@@ -712,7 +692,6 @@ CONSOLIDACIÓN DE INFORMACIÓN:
 def clean_and_unify_databases(
     ebsco_file: Optional[str] = None,
     ieee_file: Optional[str] = None,
-    jstor_file: Optional[str] = None,
     output_name: Optional[str] = None
 ) -> Tuple[pd.DataFrame, Dict[str, str]]:
     """
@@ -721,26 +700,17 @@ def clean_and_unify_databases(
     Args:
         ebsco_file (Optional[str]): Ruta al CSV de EBSCO
         ieee_file (Optional[str]): Ruta al CSV de IEEE
-        jstor_file (Optional[str]): Ruta al CSV de JSTOR
         output_name (Optional[str]): Nombre base para archivos de salida
     
     Returns:
         Tuple[pd.DataFrame, Dict[str, str]]: (DataFrame unificado, archivos generados)
     
     Example:
-        >>> # Unificar las tres bases de datos
-        >>> unified_df, files = clean_and_unify_databases(
-        ...     ebsco_file='ebsco_articles.csv',
-        ...     ieee_file='ieee_articles.csv',
-        ...     jstor_file='jstor_articles.csv',
-        ...     output_name='all_databases_2025'
-        ... )
-        
-        >>> # Solo dos bases de datos
-        >>> unified_df, files = clean_and_unify_databases(
-        ...     ebsco_file='ebsco_articles.csv',
-        ...     ieee_file='ieee_articles.csv'
-        ... )
+    >>> # Solo dos bases de datos
+    >>> unified_df, files = clean_and_unify_databases(
+    ...     ebsco_file='ebsco_articles.csv',
+    ...     ieee_file='ieee_articles.csv'
+    ... )
         
         >>> print(f"Dataset unificado: {len(unified_df)} artículos")
         >>> print(f"Archivo principal: {files['unified']}")
@@ -760,9 +730,7 @@ def clean_and_unify_databases(
         if cleaner.add_database('ieee', ieee_file):
             added_count += 1
     
-    if jstor_file:
-        if cleaner.add_database('jstor', jstor_file):
-            added_count += 1
+    # Solo EBSCO e IEEE están soportadas
     
     if added_count == 0:
         raise ValueError("No se agregó ninguna base de datos válida")
@@ -780,3 +748,4 @@ def clean_and_unify_databases(
     print("\n🎉 Proceso completado exitosamente!")
     
     return unified_df, files
+

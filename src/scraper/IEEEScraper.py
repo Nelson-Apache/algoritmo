@@ -31,6 +31,7 @@ from typing import List, Dict, Optional, Any
 from playwright.sync_api import sync_playwright
 import os
 import random
+from pathlib import Path
 
 
 class IEEEScraper:
@@ -105,6 +106,11 @@ class IEEEScraper:
         
         # Variable para almacenar el total de resultados disponibles
         self.total_items = None
+
+        # Rutas centralizadas
+        # DATA_ROOT -> <repo>/src/data ; BROWSER_PROFILE_ROOT -> <repo>/browser_profile
+        self.DATA_ROOT = Path(__file__).parents[1] / "data"
+        self.BROWSER_PROFILE_ROOT = Path(__file__).parents[2] / "browser_profile"
 
         # Proceso de autenticación automática
         if auto_login:
@@ -195,12 +201,12 @@ class IEEEScraper:
         """
         print("=== LOGIN CON PERFIL PERSISTENTE ===")
         
-        profile_dir = "./browser_profile_ieee"
-        os.makedirs(profile_dir, exist_ok=True)
+        profile_dir = self.BROWSER_PROFILE_ROOT / "ieee"
+        profile_dir.mkdir(parents=True, exist_ok=True)
         
         with sync_playwright() as p:
             browser = p.chromium.launch_persistent_context(
-                user_data_dir=profile_dir,
+                user_data_dir=str(profile_dir),
                 headless=False,
                 user_agent=self.headers["User-Agent"]
             )
@@ -402,30 +408,29 @@ class IEEEScraper:
     def save_cookies(self, filename: str = "ieee_cookies.json"):
         """Guarda las cookies de sesión en un archivo JSON."""
         if not os.path.dirname(filename):
-            cookies_dir = os.path.join("data", "cookies")
-            os.makedirs(cookies_dir, exist_ok=True)
-            fullpath = os.path.join(cookies_dir, filename)
+            cookies_dir = self.DATA_ROOT / "cookies"
+            cookies_dir.mkdir(parents=True, exist_ok=True)
+            fullpath = cookies_dir / filename
         else:
-            fullpath = filename
-            parent = os.path.dirname(fullpath)
-            if parent:
-                os.makedirs(parent, exist_ok=True)
+            fullpath = Path(filename)
+            if fullpath.parent:
+                fullpath.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(fullpath, 'w', encoding='utf-8') as f:
+        with open(str(fullpath), 'w', encoding='utf-8') as f:
             json.dump(self.cookies, f, indent=2)
         print(f"Cookies guardadas en: {fullpath}")
 
     def load_cookies(self, filename: str = "ieee_cookies.json") -> bool:
         """Carga cookies de sesión desde un archivo JSON."""
         try:
-            # Buscar en data/cookies si es solo nombre de archivo
+            # Resolver ruta en src/data/cookies si es solo nombre de archivo
             if not os.path.dirname(filename):
-                fullpath = os.path.join("data", "cookies", filename)
+                fullpath = self.DATA_ROOT / "cookies" / filename
             else:
-                fullpath = filename
+                fullpath = Path(filename)
                 
-            if os.path.exists(fullpath):
-                with open(fullpath, 'r', encoding='utf-8') as f:
+            if os.path.exists(str(fullpath)):
+                with open(str(fullpath), 'r', encoding='utf-8') as f:
                     self.cookies = json.load(f)
                 print(f"Cookies cargadas desde: {fullpath}")
                 return True
@@ -736,16 +741,15 @@ class IEEEScraper:
         ordered_columns = sorted(all_columns)
         
         if not os.path.dirname(filename):
-            csv_dir = os.path.join("data", "csv")
-            os.makedirs(csv_dir, exist_ok=True)
-            fullpath = os.path.join(csv_dir, filename)
+            csv_dir = self.DATA_ROOT / "csv"
+            csv_dir.mkdir(parents=True, exist_ok=True)
+            fullpath = csv_dir / filename
         else:
-            fullpath = filename
-            parent = os.path.dirname(fullpath)
-            if parent:
-                os.makedirs(parent, exist_ok=True)
+            fullpath = Path(filename)
+            if fullpath.parent:
+                fullpath.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(fullpath, 'w', newline='', encoding='utf-8') as csvfile:
+        with open(str(fullpath), 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=ordered_columns)
             writer.writeheader()
 
@@ -765,15 +769,14 @@ class IEEEScraper:
     def save_to_json(self, articles: List[Dict], filename: str):
         """Guarda los artículos en formato JSON."""
         if not os.path.dirname(filename):
-            json_dir = os.path.join("data", "json")
-            os.makedirs(json_dir, exist_ok=True)
-            fullpath = os.path.join(json_dir, filename)
+            json_dir = self.DATA_ROOT / "json"
+            json_dir.mkdir(parents=True, exist_ok=True)
+            fullpath = json_dir / filename
         else:
-            fullpath = filename
-            parent = os.path.dirname(fullpath)
-            if parent:
-                os.makedirs(parent, exist_ok=True)
+            fullpath = Path(filename)
+            if fullpath.parent:
+                fullpath.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(fullpath, "w", encoding="utf-8") as f:
+        with open(str(fullpath), "w", encoding="utf-8") as f:
             json.dump(articles, f, indent=2, ensure_ascii=False)
         print(f"💾 Datos guardados en JSON: {fullpath}")
