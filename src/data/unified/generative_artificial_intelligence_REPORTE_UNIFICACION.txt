@@ -1,0 +1,45 @@
+
+======================================================================
+REPORTE DE LIMPIEZA Y UNIFICACIÓN DE DATOS ACADÉMICOS
+======================================================================
+Fecha: 2025-11-02 22:01:00
+
+BASES DE DATOS PROCESADAS:
+---------------------------
+
+EBSCO:
+  - Registros originales: 1,000
+  - Duplicados intra-base eliminados: 9
+  - Registros después de limpieza: 991
+
+IEEE:
+  - Registros originales: 1,000
+  - Duplicados intra-base eliminados: 0
+  - Registros después de limpieza: 1,000
+
+ESTADÍSTICAS GENERALES:
+-----------------------
+- Total de registros originales: 2,000
+- Total después de limpieza individual: 1,991
+- Duplicados entre bases de datos: 124
+- Total en dataset unificado: 1,867
+- Registros consolidados (fusionados): 124
+
+TASA DE REDUCCIÓN:
+------------------
+- Porcentaje final: 93.35%
+- Registros eliminados/consolidados: 133
+
+CRITERIOS DE DUPLICACIÓN:
+--------------------------
+1. DOI (Digital Object Identifier) - prioridad máxima
+2. Título normalizado (sin puntuación, minúsculas)
+3. Autores normalizados
+
+CONSOLIDACIÓN DE INFORMACIÓN:
+------------------------------
+- Campos simples: se toma el primer valor no vacío
+- Campos múltiples (autores, keywords): se fusionan sin duplicar
+- Source databases: se concatenan todas las fuentes
+
+======================================================================

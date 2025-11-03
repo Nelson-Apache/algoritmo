@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Analysis System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --dark-lighter: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text);
+            overflow: hidden;
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 300px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 100;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo-section {
+            padding: 32px 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+        
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        }
+        
+        .logo-section h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .logo-section p {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .menu {
+            flex: 1;
+            padding: 24px 0;
+            overflow-y: auto;
+        }
+        
+        .menu::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .menu::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        .menu-item {
+            padding: 14px 24px;
+            margin: 4px 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .menu-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            color: var(--primary-light);
+        }
+        
+        .menu-item.active::before {
+            transform: scaleY(1);
+        }
+        
+        .menu-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+        
+        .menu-text {
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 28px 40px;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .content-area::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .content-area::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 5px;
+        }
+        
+        .content-area::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 5px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* CARDS */
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .card h3 {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="email"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        /* CHECKBOX LABEL */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .checkbox-label:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .checkbox-label span {
+            color: var(--text);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        /* BUTTONS */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+        
+        /* DATABASE SELECTION */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        
+        .db-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .db-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .db-card:hover::before {
+            opacity: 1;
+        }
+        
+        .db-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.3);
+        }
+        
+        .db-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+        }
+        
+        .db-card input[type="checkbox"] {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        .db-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            filter: brightness(0.9) grayscale(0.3);
+            transition: all 0.3s;
+        }
+        
+        .db-card:hover .db-logo,
+        .db-card.selected .db-logo {
+            filter: brightness(1.2) grayscale(0);
+            transform: scale(1.05);
+        }
+        
+        .db-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .db-count {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* RADIO BUTTONS */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        
+        /* PROGRESS BAR */
+        .progress-container {
+            margin: 32px 0;
+            display: none;
+        }
+        
+        .progress-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 48px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 0 24px rgba(99, 102, 241, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .substatus {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        /* RESULTS */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .stat-value {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 36px;
+            font-weight: 800;
+        }
+        
+        .algorithm-list {
+            list-style: none;
+        }
+        
+        .algorithm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .algorithm-item:hover {
+            border-color: var(--primary);
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+        }
+        
+        .algorithm-rank {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .algorithm-name {
+            flex: 1;
+            font-weight: 600;
+            margin: 0 16px;
+            font-size: 15px;
+        }
+        
+        .algorithm-time {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chart-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        /* FILE BUTTONS */
+        .file-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .file-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .file-btn:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* LOG CONSOLE */
+        .log-box {
+            height: 240px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            color: #10b981;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .log-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .log-box::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        /* ALERTS */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        
+        .alert-info {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        /* UTILITIES */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+        
+        .mt-20 {
+            margin-top: 20px;
+        }
+        
+        /* Decorative elements */
+        .bg-decoration {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-decoration-1 {
+            background: var(--primary);
+            top: -200px;
+            right: -200px;
+        }
+        
+        .bg-decoration-2 {
+            background: var(--secondary);
+            bottom: -200px;
+            left: -200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration bg-decoration-1"></div>
+    <div class="bg-decoration bg-decoration-2"></div>
+    
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">🎓</div>
+                <h1>AAS</h1>
+                <p>Academic Analysis System</p>
+            </div>
+            
+            <div class="menu">
+                <div class="menu-item active" onclick="showSection('dashboard')">
+                    <span class="menu-icon">🏠</span>
+                    <span class="menu-text">Dashboard</span>
+                </div>
+                <div class="menu-item" onclick="showSection('pipeline')">
+                    <span class="menu-icon">🔄</span>
+                    <span class="menu-text">Pipeline Completo</span>
+                </div>
+                <div class="menu-item" onclick="showSection('scraping')">
+                    <span class="menu-icon">🔍</span>
+                    <span class="menu-text">Solo Scraping</span>
+                </div>
+                <div class="menu-item" onclick="showSection('cleaning')">
+                    <span class="menu-icon">🧹</span>
+                    <span class="menu-text">Solo Limpieza</span>
+                </div>
+                <div class="menu-item" onclick="showSection('analysis')">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">Solo Algoritmos</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="header">
+                <h2 id="section-title">Dashboard Principal</h2>
+            </div>
+            
+            <div class="content-area">
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="section active">
+                    <div class="card">
+                        <h3>👋 Bienvenido al Sistema de Análisis Académico</h3>
+                        <p style="color: var(--text-muted); line-height: 1.8; font-size: 15px;">
+                            Este sistema te permite realizar scraping de múltiples bases de datos académicas,
+                            limpiar y unificar los datos, y analizar el rendimiento de diferentes algoritmos
+                            de ordenamiento.
+                        </p>
+                        
+                        <div class="results-grid mt-20">
+                            <div class="stat-card">
+                                <div class="stat-label">Bases de Datos</div>
+                                <div class="stat-value">3</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Algoritmos</div>
+                                <div class="stat-value">12</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">Formato</div>
+                                <div class="stat-value">CSV</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🚀 Inicio Rápido</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                            Selecciona una opción para comenzar:
+                        </p>
+                        
+                        <div class="file-buttons">
+                            <button class="btn btn-primary" onclick="showSection('pipeline')">
+                                🔄 Pipeline Completo
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('scraping')">
+                                🔍 Solo Scraping
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('cleaning')">
+                                🧹 Solo Limpieza
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('analysis')">
+                                📊 Solo Algoritmos
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🧭 Consola en vivo</h3>
+                        <div id="global-log" class="log-box"></div>
+                    </div>
+                </div>
+                
+                <!-- PIPELINE COMPLETO -->
+                <div id="pipeline" class="section">
+                    <div class="card">
+                        <h3>🔄 Pipeline Completo</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                            Ejecuta todo el proceso: Scraping → Limpieza → Análisis
+                        </p>
+                        
+                        <div id="login-section">
+                            <div class="form-group">
+                                <label>📧 Email / Usuario:</label>
+                                <input type="email" id="pipeline-email" placeholder="tu@email.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>🔒 Contraseña:</label>
+                                <input type="password" id="pipeline-password" placeholder="••••••••">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="pipeline-show-browser" checked>
+                                    <span>🌐 Mostrar navegador durante el login (recomendado para 2FA)</span>
+                                </label>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <span>ℹ️</span>
+                                <span>Las mismas credenciales se usarán para todas las bases de datos seleccionadas.
+                                Espera aprox. 60 segundos por la autenticación 2FA de Google.</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-20">
+                            <label>🔎 Término de búsqueda:</label>
+                            <input type="text" id="pipeline-query" placeholder="Ej: artificial intelligence" value="artificial intelligence">
+                        </div>
+                        
+                        <button class="btn btn-secondary mb-20" onclick="checkAvailability('pipeline')">
+                            🔍 Verificar disponibilidad
+                        </button>
+                        
+                        <label>Selecciona bases de datos (mínimo 2):</label>
+                        <div class="db-grid" id="pipeline-db-grid">
+                            <div class="db-card" onclick="toggleDB('pipeline', 'ebsco')">
+                                <input type="checkbox" id="pipeline-db-ebsco">
+                                <img class="db-logo" src="assets/images/ebsco_logo.png" alt="EBSCO">
+                                <div class="db-name">EBSCO</div>
+                                <div class="db-count" id="pipeline-count-ebsco">- resultados</div>
+                            </div>
+                            
+                            <div class="db-card" onclick="toggleDB('pipeline', 'ieee')">
+                                <input type="checkbox" id="pipeline-db-ieee">
+                                <img class="db-logo" src="assets/images/ieee_logo.png" alt="IEEE">
+                                <div class="db-name">IEEE Xplore</div>
+                                <div class="db-count" id="pipeline-count-ieee">- resultados</div>
+                            </div>
+                            
+                            <div class="db-card" onclick="toggleDB('pipeline', 'jstor')">
+                                <input type="checkbox" id="pipeline-db-jstor">
+                                <img class="db-logo" src="assets/images/jstor_logo.png" alt="JSTOR">
+                                <div class="db-name">JSTOR</div>
+                                <div class="db-count" id="pipeline-count-jstor">- resultados</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-20">
+                            <label>Cantidad a descargar:</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="pipeline-amount" value="all" checked>
+                                    <span>Descargar todo</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="pipeline-amount" value="custom">
+                                    <span>Cantidad personalizada:</span>
+                                </label>
+                                <input type="number" id="pipeline-custom-amount" value="100" min="1" style="width: 120px;">
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="startFullPipeline()">
+                            🚀 Iniciar Pipeline Completo
+                        </button>
+                        
+                        <div class="progress-container" id="pipeline-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="pipeline-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="pipeline-status">Esperando...</div>
+                            <div class="substatus" id="pipeline-substatus"></div>
+                        </div>
+                        
+                        <div id="pipeline-results" class="hidden mt-20">
+                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                🎉 Resultados
+                            </h3>
+                            
+                            <div class="chart-container" id="pipeline-chart">
+                                <img id="pipeline-chart-img" src="" alt="Gráfico de comparación">
+                            </div>
+                            
+                            <div class="card">
+                                <h3>⏱️ Tiempos de Ejecución</h3>
+                                <ul class="algorithm-list" id="pipeline-algorithm-list"></ul>
+                            </div>
+                            
+                            <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('unified')">
+                                    📄 Abrir CSV Unificado
+                                </button>
+                                <button class="file-btn" onclick="openFile('chart')">
+                                    📊 Abrir Gráfico
+                                </button>
+                                <button class="file-btn" onclick="openFile('authors')">
+                                    👥 Top Autores
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SOLO SCRAPING -->
+                <div id="scraping" class="section">
+                    <div class="card">
+                        <h3>🔍 Solo Scraping</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                            Extrae artículos de las bases de datos académicas
+                        </p>
+                        
+                        <div class="form-group">
+                            <label>📧 Email / Usuario:</label>
+                            <input type="email" id="scraping-email" placeholder="tu@email.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>🔒 Contraseña:</label>
+                            <input type="password" id="scraping-password" placeholder="••••••••">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="scraping-show-browser" checked>
+                                <span>🌐 Mostrar navegador durante el login</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group mt-20">
+                            <label>🔎 Término de búsqueda:</label>
+                            <input type="text" id="scraping-query" placeholder="Ej: machine learning" value="machine learning">
+                        </div>
+                        
+                        <button class="btn btn-secondary mb-20" onclick="checkAvailability('scraping')">
+                            🔍 Verificar disponibilidad
+                        </button>
+                        
+                        <label>Selecciona bases de datos (mínimo 2):</label>
+                        <div class="db-grid">
+                            <div class="db-card" onclick="toggleDB('scraping', 'ebsco')">
+                                <input type="checkbox" id="scraping-db-ebsco">
+                                <img class="db-logo" src="assets/images/ebsco_logo.png" alt="EBSCO">
+                                <div class="db-name">EBSCO</div>
+                                <div class="db-count" id="scraping-count-ebsco">- resultados</div>
+                            </div>
+                            
+                            <div class="db-card" onclick="toggleDB('scraping', 'ieee')">
+                                <input type="checkbox" id="scraping-db-ieee">
+                                <img class="db-logo" src="assets/images/ieee_logo.png" alt="IEEE">
+                                <div class="db-name">IEEE Xplore</div>
+                                <div class="db-count" id="scraping-count-ieee">- resultados</div>
+                            </div>
+                            
+                            <div class="db-card" onclick="toggleDB('scraping', 'jstor')">
+                                <input type="checkbox" id="scraping-db-jstor">
+                                <img class="db-logo" src="assets/images/jstor_logo.png" alt="JSTOR">
+                                <div class="db-name">JSTOR</div>
+                                <div class="db-count" id="scraping-count-jstor">- resultados</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-20">
+                            <label>Cantidad a descargar:</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="scraping-amount" value="all" checked>
+                                    <span>Descargar todo</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="scraping-amount" value="custom">
+                                    <span>Cantidad personalizada:</span>
+                                </label>
+                                <input type="number" id="scraping-custom-amount" value="100" min="1" style="width: 120px;">
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="startScraping()">
+                            🚀 Iniciar Scraping
+                        </button>
+                        
+                        <div class="progress-container" id="scraping-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="scraping-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="scraping-status">Esperando...</div>
+                            <div class="substatus" id="scraping-substatus"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SOLO LIMPIEZA -->
+                <div id="cleaning" class="section">
+                    <div class="card">
+                        <h3>🧹 Solo Limpieza</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                            Limpia y unifica archivos CSV existentes
+                        </p>
+                        
+                        <div class="alert alert-info mb-20">
+                            <span>ℹ️</span>
+                            <span>Selecciona al menos 2 archivos CSV para limpiar y unificar</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📁 Archivo EBSCO (opcional):</label>
+                            <button class="btn btn-secondary" onclick="selectFile('cleaning-ebsco')">
+                                Seleccionar CSV
+                            </button>
+                            <span id="cleaning-ebsco-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📁 Archivo IEEE (opcional):</label>
+                            <button class="btn btn-secondary" onclick="selectFile('cleaning-ieee')">
+                                Seleccionar CSV
+                            </button>
+                            <span id="cleaning-ieee-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📁 Archivo JSTOR (opcional):</label>
+                            <button class="btn btn-secondary" onclick="selectFile('cleaning-jstor')">
+                                Seleccionar CSV
+                            </button>
+                            <span id="cleaning-jstor-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="startCleaning()">
+                            🧹 Iniciar Limpieza
+                        </button>
+                        
+                        <div class="progress-container" id="cleaning-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="cleaning-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="cleaning-status">Esperando...</div>
+                            <div class="substatus" id="cleaning-substatus"></div>
+                        </div>
+                        
+                        <div id="cleaning-results" class="hidden mt-20">
+                            <div class="results-grid">
+                                <div class="stat-card">
+                                    <div class="stat-label">Registros Únicos</div>
+                                    <div class="stat-value" id="cleaning-total">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('unified')">
+                                    📄 Abrir CSV Unificado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SOLO ALGORITMOS -->
+                <div id="analysis" class="section">
+                    <div class="card">
+                        <h3>📊 Solo Análisis de Algoritmos</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
+                            Analiza un archivo CSV con 12 algoritmos de ordenamiento
+                        </p>
+                        
+                        <div class="form-group">
+                            <label>📁 Selecciona archivo CSV a analizar:</label>
+                            <button class="btn btn-secondary" onclick="selectFile('analysis-csv')">
+                                Seleccionar CSV
+                            </button>
+                            <span id="analysis-csv-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="startAnalysis()">
+                            📊 Iniciar Análisis
+                        </button>
+                        
+                        <div class="progress-container" id="analysis-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="analysis-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="analysis-status">Esperando...</div>
+                            <div class="substatus" id="analysis-substatus"></div>
+                        </div>
+                        
+                        <div id="analysis-results" class="hidden mt-20">
+                            <h3 style="background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                                🎉 Resultados del Análisis
+                            </h3>
+                            
+                            <div class="chart-container" id="analysis-chart">
+                                <img id="analysis-chart-img" src="" alt="Gráfico de comparación">
+                            </div>
+                            
+                            <div class="card">
+                                <h3>⏱️ Tiempos de Ejecución</h3>
+                                <ul class="algorithm-list" id="analysis-algorithm-list"></ul>
+                            </div>
+                            
+                            <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('chart')">
+                                    📊 Abrir Gráfico
+                                </button>
+                                <button class="file-btn" onclick="openFile('authors')">
+                                    👥 Top Autores
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Estado global
+        let currentSection = 'dashboard';
+        let selectedFiles = {};
+        let currentResults = {};
+        
+        // Consola global de logs
+        window.appendLog = function(message) {
+            try {
+                const box = document.getElementById('global-log');
+                if (!box) return;
+                const line = document.createElement('div');
+                line.textContent = message;
+                box.appendChild(line);
+                while (box.childNodes.length > 2000) {
+                    box.removeChild(box.firstChild);
+                }
+                box.scrollTop = box.scrollHeight;
+            } catch (e) {
+                // noop
+            }
+        };
+        
+        // Navegación
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.menu-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            document.getElementById(section).classList.add('active');
+            event.target.closest('.menu-item').classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard Principal',
+                'pipeline': 'Pipeline Completo',
+                'scraping': 'Solo Scraping',
+                'cleaning': 'Solo Limpieza',
+                'analysis': 'Solo Análisis de Algoritmos'
+            };
+            document.getElementById('section-title').textContent = titles[section];
+            
+            currentSection = section;
+        }
+        
+        // Toggle database selection
+        function toggleDB(prefix, db) {
+            const checkbox = document.getElementById(`${prefix}-db-${db}`);
+            const card = checkbox.closest('.db-card');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+        
+        // Check availability
+        function checkAvailability(prefix) {
+            const query = document.getElementById(`${prefix}-query`).value;
+            
+            if (!query) {
+                alert('Por favor ingresa un término de búsqueda');
+                return;
+            }
+            
+            const databases = [];
+            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+                if (document.getElementById(`${prefix}-db-${db}`).checked) {
+                    databases.push(db);
+                }
+            });
+            
+            if (databases.length < 2) {
+                alert('Debes seleccionar al menos 2 bases de datos');
+                return;
+            }
+            
+            let email = '';
+            let password = '';
+            let showBrowser = true;
+            if (prefix === 'pipeline') {
+                const emailEl = document.getElementById('pipeline-email');
+                const passEl = document.getElementById('pipeline-password');
+                const showEl = document.getElementById('pipeline-show-browser');
+                email = emailEl ? emailEl.value : '';
+                password = passEl ? passEl.value : '';
+                showBrowser = showEl ? showEl.checked : true;
+            } else if (prefix === 'scraping') {
+                const emailEl = document.getElementById('scraping-email');
+                const passEl = document.getElementById('scraping-password');
+                const showEl = document.getElementById('scraping-show-browser');
+                email = emailEl ? emailEl.value : '';
+                password = passEl ? passEl.value : '';
+                showBrowser = showEl ? showEl.checked : true;
+            }
+
+            databases.forEach(db => {
+                document.getElementById(`${prefix}-count-${db}`).textContent = 'Consultando...';
+            });
+            
+            pywebview.api.get_availability(query, databases, email, password, showBrowser).then(results => {
+                Object.keys(results).forEach(db => {
+                    const count = results[db];
+                    const countElement = document.getElementById(`${prefix}-count-${db}`);
+                    
+                    if (count === -1) {
+                        countElement.textContent = '⚠️ Requiere login';
+                        countElement.style.color = 'var(--warning)';
+                    } else if (count === 0) {
+                        countElement.textContent = '0 resultados';
+                    } else {
+                        countElement.textContent = `${count.toLocaleString()} resultados`;
+                    }
+                });
+            }).catch(error => {
+                alert('Error al verificar disponibilidad: ' + error);
+                databases.forEach(db => {
+                    document.getElementById(`${prefix}-count-${db}`).textContent = 'Error';
+                });
+            });
+        }
+        
+        // Start full pipeline
+        function startFullPipeline() {
+            const email = document.getElementById('pipeline-email').value;
+            const password = document.getElementById('pipeline-password').value;
+            const query = document.getElementById('pipeline-query').value;
+            const showBrowser = document.getElementById('pipeline-show-browser').checked;
+            
+            const databases = [];
+            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+                if (document.getElementById(`pipeline-db-${db}`).checked) {
+                    databases.push(db);
+                }
+            });
+            
+            if (!email || !password) {
+                alert('Por favor ingresa email y contraseña');
+                return;
+            }
+            
+            if (!query) {
+                alert('Por favor ingresa un término de búsqueda');
+                return;
+            }
+            
+            if (databases.length < 2) {
+                alert('Debes seleccionar al menos 2 bases de datos');
+                return;
+            }
+            
+            const downloadAll = document.querySelector('input[name="pipeline-amount"]:checked').value === 'all';
+            const customAmount = parseInt(document.getElementById('pipeline-custom-amount').value);
+            
+            document.getElementById('pipeline-progress').classList.add('active');
+
+            pywebview.api.start_full_pipeline(
+                query,
+                databases,
+                downloadAll,
+                customAmount,
+                query.replace(/ /g, '_'),
+                email,
+                password,
+                showBrowser
+            ).then(res => {
+                console.log('Pipeline iniciado:', res);
+            });
+        }
+        
+        // Start scraping only
+        function startScraping() {
+            const email = document.getElementById('scraping-email').value;
+            const password = document.getElementById('scraping-password').value;
+            const query = document.getElementById('scraping-query').value;
+            const showBrowser = document.getElementById('scraping-show-browser').checked;
+            
+            const databases = [];
+            ['ebsco', 'ieee', 'jstor'].forEach(db => {
+                if (document.getElementById(`scraping-db-${db}`).checked) {
+                    databases.push(db);
+                }
+            });
+            
+            if (!email || !password) {
+                alert('Por favor ingresa email y contraseña');
+                return;
+            }
+            
+            if (!query) {
+                alert('Por favor ingresa un término de búsqueda');
+                return;
+            }
+            
+            if (databases.length < 2) {
+                alert('Debes seleccionar al menos 2 bases de datos');
+                return;
+            }
+            
+            const downloadAll = document.querySelector('input[name="scraping-amount"]:checked').value === 'all';
+            const customAmount = parseInt(document.getElementById('scraping-custom-amount').value);
+            
+            document.getElementById('scraping-progress').classList.add('active');
+
+            pywebview.api.start_scraping(
+                query,
+                databases,
+                downloadAll,
+                customAmount,
+                email,
+                password,
+                showBrowser
+            ).then(res => {
+                console.log('Scraping iniciado:', res);
+            });
+        }
+        
+        // Start cleaning
+        function startCleaning() {
+            const files = {
+                ebsco: selectedFiles['cleaning-ebsco'],
+                ieee: selectedFiles['cleaning-ieee'],
+                jstor: selectedFiles['cleaning-jstor']
+            };
+            
+            const validFiles = Object.values(files).filter(f => f);
+            
+            if (validFiles.length < 2) {
+                alert('Debes seleccionar al menos 2 archivos CSV');
+                return;
+            }
+            
+            document.getElementById('cleaning-progress').classList.add('active');
+            
+            pywebview.api.start_cleaning('cleaned_data', files).then(response => {
+                console.log('Limpieza iniciada:', response);
+            });
+        }
+        
+        // Start analysis
+        function startAnalysis() {
+            const file = selectedFiles['analysis-csv'];
+            
+            if (!file) {
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+            
+            document.getElementById('analysis-progress').classList.add('active');
+            
+            pywebview.api.start_analysis('analysis_results', file).then(response => {
+                console.log('Análisis iniciado:', response);
+            });
+        }
+        
+        // Select file
+        function selectFile(id) {
+            pywebview.api.select_csv_file().then(filepath => {
+                if (filepath) {
+                    selectedFiles[id] = filepath;
+                    const filename = filepath.split(/[\\/]/).pop();
+                    document.getElementById(`${id}-file`).textContent = filename;
+                }
+            });
+        }
+        
+        // Open file
+        function openFile(type) {
+            let filepath = '';
+            
+            if (type === 'unified') {
+                filepath = currentResults.unified_file;
+            } else if (type === 'chart') {
+                filepath = currentResults.chart_file;
+            } else if (type === 'authors') {
+                filepath = currentResults.authors_file;
+            }
+            
+            if (filepath) {
+                pywebview.api.open_file(filepath);
+            }
+        }
+        
+        // Update status from backend
+        window.updateStatus = function(status) {
+            const phase = status.phase;
+            const progress = status.progress;
+            const message = status.message;
+            const substatus = status.substatus;
+            
+            let prefix = currentSection;
+            if (phase === 'login' || phase === 'scraping' || phase === 'cleaning' || phase === 'analysis') {
+                if (currentSection === 'pipeline') {
+                    prefix = 'pipeline';
+                } else {
+                    prefix = phase;
+                }
+            }
+            
+            const fillElement = document.getElementById(`${prefix}-fill`);
+            const statusElement = document.getElementById(`${prefix}-status`);
+            const substatusElement = document.getElementById(`${prefix}-substatus`);
+            
+            if (fillElement) {
+                fillElement.style.width = progress + '%';
+                fillElement.textContent = progress + '%';
+            }
+            
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+            
+            if (substatusElement) {
+                substatusElement.textContent = substatus;
+            }
+            
+            if (progress === 100) {
+                if (phase === 'analysis' && status.results.algorithm_times) {
+                    showAnalysisResults(prefix, status.results);
+                    currentResults = status.results;
+                } else if (phase === 'cleaning' && status.results.total_records) {
+                    showCleaningResults(prefix, status.results);
+                    currentResults = status.results;
+                }
+            }
+        };
+        
+        // Show analysis results
+        function showAnalysisResults(prefix, results) {
+            const resultsDiv = document.getElementById(`${prefix}-results`);
+            resultsDiv.classList.remove('hidden');
+            
+            if (results.chart_base64) {
+                const chartImg = document.getElementById(`${prefix}-chart-img`);
+                chartImg.src = 'data:image/png;base64,' + results.chart_base64;
+            }
+            
+            const list = document.getElementById(`${prefix}-algorithm-list`);
+            list.innerHTML = '';
+            
+            let rank = 1;
+            for (const [name, time] of Object.entries(results.algorithm_times)) {
+                const li = document.createElement('li');
+                li.className = 'algorithm-item';
+                li.innerHTML = `
+                    <span class="algorithm-rank">#${rank}</span>
+                    <span class="algorithm-name">${name}</span>
+                    <span class="algorithm-time">${time.toFixed(3)} ms</span>
+                `;
+                list.appendChild(li);
+                rank++;
+            }
+        }
+        
+        // Show cleaning results
+        function showCleaningResults(prefix, results) {
+            const resultsDiv = document.getElementById(`${prefix}-results`);
+            resultsDiv.classList.remove('hidden');
+            
+            document.getElementById(`${prefix}-total`).textContent = results.total_records.toLocaleString();
+        }
+    </script>
+</body>
+</html>

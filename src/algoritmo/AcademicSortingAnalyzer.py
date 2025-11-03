@@ -1977,7 +1977,7 @@ class AcademicSortingAnalyzer:
 # FUNCIÓN DE CONVENIENCIA
 # ============================================================================
 
-def analyze_academic_data(csv_file: str, output_base: str = "academic_analysis"):
+def analyze_academic_data(csv_file: str, output_base: str = "src/data/csv/academic_analysis"):
     """
     Función de conveniencia para analizar datos académicos con un solo comando.
     
@@ -2024,45 +2024,3 @@ def analyze_academic_data(csv_file: str, output_base: str = "academic_analysis")
     analyzer.generate_complete_report(output_base)
     
     return analyzer
-
-
-# ============================================================================
-# EJEMPLO DE USO / SCRIPT PRINCIPAL
-# ============================================================================
-
-if __name__ == "__main__":
-    """
-    Script principal para ejecutar el analizador de forma interactiva.
-    
-    Solicita al usuario la ruta del archivo CSV y ejecuta el análisis completo,
-    mostrando resultados en consola y generando todos los archivos de salida.
-    """
-    print("=== ANALIZADOR DE ORDENAMIENTO ACADÉMICO ===")
-    print()
-    
-    # Solicitar archivo CSV al usuario
-    csv_file = input("Ingresa la ruta del archivo CSV: ").strip()
-    
-    # Validar que se proporcionó un archivo
-    if not csv_file:
-        print("❌ Debes proporcionar un archivo CSV")
-        exit(1)
-    
-    try:
-        # Ejecutar análisis completo
-        analyzer = analyze_academic_data(csv_file)
-        
-        # Mostrar resumen final
-        print("\n" + "="*60)
-        print("✅ ANÁLISIS COMPLETADO")
-        print("📁 Revisa los archivos generados:")
-        print("   📊 Gráfico de tiempos de ejecución")
-        print("   📝 Top 15 autores más frecuentes")
-        print("   📋 Datos ordenados por cada algoritmo")
-        print("   📄 Reporte detallado de tiempos")
-        print("="*60)
-        
-    except Exception as e:
-        print(f"❌ Error durante el análisis: {e}")
-        import traceback
-        traceback.print_exc()

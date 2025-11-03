@@ -254,7 +254,7 @@ class EBSCOScraper:
                 
                 # Navegar a EBSCO si no estamos ahí ya
                 if "ebsco" not in page.url.lower():
-                    page.goto("https://research-ebsco-com.crai.referencistas.com/")
+                    page.goto("https://research-ebsco-com.crai.referencistas.com/c/rfbjy2/search")
                     page.wait_for_timeout(3000)
                 
                 # Extraer cookies del contexto persistente
@@ -1392,42 +1392,3 @@ class EBSCOScraper:
             json.dump(articles, f, indent=2, ensure_ascii=False)
         print(f"Datos guardados en JSON: {fullpath}")
 
-
-# ============================================================================
-# EJEMPLO DE USO
-# ============================================================================
-
-if __name__ == "__main__":
-    """
-    Ejemplo de uso del scraper de EBSCO.
-    
-    Este bloque demuestra cómo usar la clase EBSCOScraper para extraer
-    artículos académicos de manera automatizada.
-    """
-    
-    # Crear instancia del scraper (auto_login=True hace login automático)
-    scraper = EBSCOScraper(auto_login=True)
-    
-    # Definir búsqueda
-    search_query = "artificial intelligence in healthcare"
-    
-    # Extraer artículos (máximo 100 resultados, en batches de 50)
-    articles = scraper.scrape_all(
-        query=search_query,
-        max_results=100,
-        batch_size=50,
-        delay=1.0  # 1 segundo entre peticiones
-    )
-    
-    # Guardar resultados en ambos formatos
-    if articles:
-        scraper.save_to_csv(articles, "ai_healthcare_articles.csv")
-        scraper.save_to_json(articles, "ai_healthcare_articles.json")
-        
-        # Mostrar estadísticas
-        print("\nESTADÍSTICAS:")
-        print(f"Total de artículos extraídos: {len(articles)}")
-        print(f"Primer artículo: {articles[0]['title']}")
-        print(f"Último artículo: {articles[-1]['title']}")
-    else:
-        print("No se extrajeron artículos.")
