@@ -1448,12 +1448,14 @@
                 </div>
             </div> <!-- 🔹 cierre correcto de #analysis -->
 
-            <!-- ===================== SECCIÓN: GRAFOS DE CITACIONES ===================== -->
             <section id="graphs" class="section">
-            <h2>Análisis de Grafos de Citaciones</h2>
+                <h2>Análisis de Grafos de Citaciones</h2>
 
+                <!-- ===================== GRAFO DE CITACIONES (Req.1) ===================== -->
                 <div class="card">
-                    <p>Construye una red de citaciones entre artículos científicos a partir de los datos unificados.</p>
+                    <p>
+                        Construye una red de citaciones entre artículos científicos a partir de los datos unificados.
+                    </p>
 
                     <label>📂 Fuente de artículos:</label>
                     <div class="input-row">
@@ -1469,7 +1471,24 @@
                         <p>⚙️ Esperando generación del grafo...</p>
                     </div>
                 </div>
+
+                <!-- ===================== NUEVO: GRAFO DE COOCURRENCIA (Req.2) ===================== -->
+                <div class="card" style="margin-top: 28px;">
+                    <h3>🔗 Grafo de Coocurrencia de Términos</h3>
+                    <p style="color: var(--text-muted);">
+                        Construye un grafo no dirigido de coocurrencia entre términos, utilizando las palabras clave y términos frecuentes del análisis de conceptos (Req. 3 y 4).
+                    </p>
+
+                    <div class="button-row" style="margin-top: 10px;">
+                        <button class="btn-primary" onclick="generateCoocGraph()">Generar Grafo de Coocurrencia</button>
+                    </div>
+
+                    <div id="cooc-results" class="results-box" style="margin-top: 12px;">
+                        <p>⚙️ Esperando generación del grafo de coocurrencia...</p>
+                    </div>
+                </div>
             </section>
+
             <script>
         // Estado global
         let currentSection = 'dashboard';
@@ -2247,6 +2266,53 @@
       </div>`;
         }
         }
-    </script>
-</body>
+
+        async function generateCoocGraph() {
+            const out = document.getElementById('cooc-results');
+            out.innerHTML = '<p>🧠 Generando grafo de coocurrencia...</p>';
+            try {
+                const result = await pywebview.api.analyze_term_cooccurrence_graph(selectedGraphFile, 40, 2);
+                if (!result || !result.success) {
+                    out.innerHTML = `<div class="alert alert-warning">⚠️ ${ (result && result.message) || 'Error al generar el grafo.' }</div>`;
+                    return;
+                }
+
+                const s = result.summary || {};
+                const topDeg = (s.top_degree || []).map(([t, d]) => `<li>${t} — grado=${d}</li>`).join('');
+                const topStr = (s.top_strength || []).map(([t, d]) => `<li>${t} — fuerza=${d}</li>`).join('');
+                const comps = (s.components || []).map((c,i)=>`<li><b>Componente ${i+1} (${c.length} términos):</b> ${c.join(', ')}</li>`).join('');
+
+                out.innerHTML = `
+      <div class="results-grid">
+        <div class="stat-card"><div class="stat-label">Términos</div><div class="stat-value">${s.n_nodes||0}</div></div>
+        <div class="stat-card"><div class="stat-label">Relaciones</div><div class="stat-value">${s.n_edges||0}</div></div>
+        <div class="stat-card"><div class="stat-label">Componentes</div><div class="stat-value">${s.n_components||0}</div></div>
+      </div>
+
+      <div class="card-sub">
+        <h3>🔹 Términos más conectados (grado)</h3>
+        <ul>${topDeg || '<li>—</li>'}</ul>
+      </div>
+
+      <div class="card-sub">
+        <h3>🔹 Términos con mayor fuerza (suma de pesos)</h3>
+        <ul>${topStr || '<li>—</li>'}</ul>
+      </div>
+
+      <div class="card-sub">
+        <h3>🔹 Componentes conexas (posibles temas)</h3>
+        <ul>${comps || '<li>—</li>'}</ul>
+      </div>
+
+      <div class="chart-container">
+        <img src="data:image/png;base64,${result.graph_base64}" alt="Grafo de Coocurrencia" />
+      </div>
+    `;
+            } catch (err) {
+                out.innerHTML = `<div class="alert alert-warning">⚠️ ${String(err)}</div>`;
+            }
+        }
+
+            </script>
+    </body>
 </html>

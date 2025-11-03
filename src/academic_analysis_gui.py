@@ -1198,6 +1198,102 @@ class AcademicAnalysisAPI:
         except Exception as e:
             return {"success": False, "message": str(e)}
 
+    """REQUERIMENTO 2 DEL SEGUIMIENTO 2"""
+    def analyze_term_cooccurrence_graph(self, csv_file: str | None = None,
+                                        top_k_terms: int = 40,
+                                        min_cooc: int = 2):
+        """
+        Requerimiento 2:
+        - Construye un grafo NO dirigido de coocurrencia de términos (a partir de abstracts).
+        - Devuelve grados/fuerza por nodo y componentes conexas.
+
+        Usa los términos producidos por ConceptsCategoryAnalyzer (Req. 3)
+        como vocabulario base.
+        """
+        try:
+            import os, io, base64
+            from pathlib import Path as _P
+            import pandas as pd
+            from src.algoritmo.ConceptsCategoryAnalyzer import ConceptsCategoryAnalyzer
+            from src.grafos.seguimiento2_req2 import Seguimiento2Req2
+
+            filepath = csv_file or self.unified_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV seleccionado ni CSV unificado disponible.'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            if 'abstract' not in df.columns:
+                return {'success': False, 'message': 'El CSV no contiene columna "abstract".'}
+
+            abstracts = [str(x) if pd.notna(x) else '' for x in df['abstract'].tolist()]
+
+            # 1) Términos (Req. 3)
+            cca = ConceptsCategoryAnalyzer()
+            c_res = cca.analyze(abstracts, top_k=top_k_terms)
+            # Combina semillas + generados si tu analyzer los expone por separado
+            terms = []
+            if 'all_terms' in c_res:
+                terms = list(c_res['all_terms'])
+            else:
+                # alternativas razonables según tu implementacion
+                if 'generated_terms' in c_res:
+                    terms.extend([t['term'] if isinstance(t, dict) else str(t)
+                                  for t in c_res['generated_terms']])
+                if 'seed_stats' in c_res:
+                    terms.extend([s['term'] if isinstance(s, dict) else str(s)
+                                  for s in c_res['seed_stats']])
+                # deduplicar preservando orden
+                seen = set(); dedup = []
+                for t in terms:
+                    if t not in seen:
+                        seen.add(t)
+                        dedup.append(t)
+                terms = dedup
+
+            if not terms:
+                return {'success': False, 'message': 'No se pudo obtener un vocabulario de términos desde ConceptsCategoryAnalyzer.'}
+
+            # 2) Construir grafo de coocurrencia (Req. 2)
+            co = Seguimiento2Req2(min_cooc=min_cooc)
+            co.build_from_documents(abstracts, terms)
+
+            summary = co.summary(top_k=15)
+
+            # 3) Imagen a base64
+            out_dir = _P(self.__class__.__module__).resolve()
+            out_dir = _P(__file__).parent / "src" / "data" / "screenshots" / "cooc"
+            try:
+                os.makedirs(out_dir, exist_ok=True)
+            except Exception:
+                pass
+            base_name = _P(filepath).stem
+            out_png = out_dir / f"{base_name}_COOC.png"
+            co.draw(str(out_png))
+
+            with open(out_png, 'rb') as f:
+                graph_b64 = base64.b64encode(f.read()).decode('utf-8')
+
+            # Guardar en status si quieres que quede disponible desde pipeline
+            existing = self.status.get('results', {})
+            existing['cooccurrence'] = {
+                'summary': summary,
+                'image_file': str(out_png)
+            }
+            self.status['results'] = existing
+
+            return {
+                'success': True,
+                'summary': summary,
+                'graph_base64': graph_b64,
+                'image_file': str(out_png)
+            }
+
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+
 
 def load_html():
     """Cargar HTML desde archivo externo."""
