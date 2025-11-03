@@ -91,7 +91,7 @@ def _scrape_db_job(db: str, query: str, download_all: bool, custom_amount: int,
     """
     # Capturar toda la salida de consola de este proceso (incluye prints de scrapers)
     log_capture = StringIO()
-    
+
     # Stream live logs to parent via a queue while also capturing them
     import io as _io
     class _StreamTee(_io.TextIOBase):
@@ -229,7 +229,7 @@ class AcademicAnalysisAPI:
     API Backend para la interfaz gráfica.
     Expone métodos Python al frontend JavaScript.
     """
-    
+
     def __init__(self):
         self.window = None
         self.status = {
@@ -239,13 +239,13 @@ class AcademicAnalysisAPI:
             'substatus': '',
             'results': {}
         }
-        
+
         # Instancias de scrapers
         self.scrapers: Dict[str, Any] = {
             'ebsco': None,
             'ieee': None,
         }
-        
+
         # Datos del proceso
         self.scraped_files = {}
         self.unified_file = None
@@ -254,11 +254,11 @@ class AcademicAnalysisAPI:
         # Buffer simple de logs para UI
         self.log_buffer: list[str] = []
         self.max_log_lines = 1000
-        
+
     def set_window(self, window):
         """Asignar referencia a la ventana."""
         self.window = window
-    
+
     def update_status(self, phase, progress, message, substatus=''):
         """Actualizar estado y notificar al frontend."""
         self.status = {
@@ -291,30 +291,30 @@ class AcademicAnalysisAPI:
             return
         for raw_line in blob.splitlines():
             self.log(raw_line)
-    
+
     def get_status(self):
         """Obtener estado actual."""
         return self.status
-    
+
     def check_cookies(self, databases):
         """
         Verificar si existen cookies válidas para las bases de datos seleccionadas.
-        
+
         Args:
             databases: Lista de bases de datos ['ebsco', 'ieee']
-        
+
         Returns:
             dict: {database: bool} indicando si las cookies son válidas
         """
         results = {}
-        
+
         for db in databases:
             cookie_file = str(COOKIES_DIR / f"{db}_cookies.json")
-            
+
             if not os.path.exists(cookie_file):
                 results[db] = False
                 continue
-            
+
             try:
                 # Intentar crear scraper SIN auto_login y validar cookies
                 if db == 'ebsco':
@@ -323,24 +323,24 @@ class AcademicAnalysisAPI:
                         results[db] = scraper.test_cookies()
                     else:
                         results[db] = False
-                        
+
                 elif db == 'ieee':
                     scraper = IEEEScraper(auto_login=False)
                     if scraper.load_cookies(str(COOKIES_DIR / f"{db}_cookies.json")):
                         results[db] = scraper.test_cookies()
                     else:
                         results[db] = False
-                        
+
             except Exception as e:
                 print(f"Error verificando cookies de {db}: {e}")
                 results[db] = False
-        
+
         return results
-    
+
     def login_databases(self, databases, email, password, show_browser):
         """
         Realizar login en las bases de datos seleccionadas.
-        
+
         Args:
             databases: Lista de bases de datos
             email: Email de usuario
@@ -354,18 +354,18 @@ class AcademicAnalysisAPI:
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Login iniciado'}
-    
+
     def _login_worker(self, databases, email, password, show_browser):
         """Worker para proceso de login."""
         try:
             total = len(databases)
             headless = not show_browser  # Invertir: si show=True, headless=False
-            
+
             for i, db in enumerate(databases):
                 progress = int((i / total) * 100)
-                self.update_status('login', progress, f'Autenticando en {db.upper()}...', 
+                self.update_status('login', progress, f'Autenticando en {db.upper()}...',
                                  'Espera aprox. 60 segundos para 2FA')
-                
+
                 try:
                     if db == 'ebsco':
                         scraper = EBSCOScraper(auto_login=False)
@@ -377,37 +377,37 @@ class AcademicAnalysisAPI:
                         scraper.login_and_get_cookies(email, password, headless=headless)
                         scraper.save_cookies(str(COOKIES_DIR / "ieee_cookies.json"))
                         self.scrapers['ieee'] = scraper
-                    
-                    self.update_status('login', progress + int(100/total), 
+
+                    self.update_status('login', progress + int(100/total),
                                      f'✅ {db.upper()} autenticado', '')
                     time.sleep(2)
-                    
+
                 except Exception as e:
                     self.update_status('error', 0, f'❌ Error en {db.upper()}: {str(e)}', '')
                     return
-            
+
             self.update_status('login', 100, '✅ Login completado en todas las bases de datos', '')
-            
+
         except Exception as e:
             self.update_status('error', 0, f'❌ Error general: {str(e)}', '')
-    
+
     def get_availability(self, query, databases, email=None, password=None, show_browser=True):
         """
         Obtener cantidad de resultados disponibles en cada base de datos.
         REQUIERE login previo o cookies válidas.
-        
+
         Args:
             query: Término de búsqueda
             databases: Lista de bases de datos
             email: Correo para autenticación (opcional)
             password: Contraseña para autenticación (opcional)
             show_browser: Si True muestra navegador (headless=False)
-        
+
         Returns:
             dict: {database: total_items} (-1 si requiere login)
         """
         results = {}
-        
+
         for db in databases:
             try:
                 headless = not show_browser
@@ -454,17 +454,17 @@ class AcademicAnalysisAPI:
                 # 4) Con sesión válida, consultar disponibilidad
                 total = scraper.get_total_items(query)
                 results[db] = total
-                        
+
             except Exception as e:
                 results[db] = -1  # Error = requiere login
                 print(f"Error obteniendo disponibilidad de {db}: {e}")
-        
+
         return results
-    
+
     def start_scraping(self, query, databases, download_all, custom_amount, email=None, password=None, show_browser=True):
         """
         Iniciar proceso de scraping.
-        
+
         Args:
             query: Término de búsqueda
             databases: Lista de bases de datos
@@ -478,7 +478,7 @@ class AcademicAnalysisAPI:
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Scraping iniciado'}
-    
+
     def _scraping_worker(self, query, databases, download_all, custom_amount, email=None, password=None, show_browser=True, stop_on_auth_failure: bool = False):
         """Worker thread para scraping."""
         try:
@@ -556,20 +556,20 @@ class AcademicAnalysisAPI:
                         t.join(timeout=2.0)
                     except Exception:
                         pass
-            
+
             if self.scraped_files:
                 self.status['results']['scraped_files'] = self.scraped_files
                 self.update_status('scraping', 100, '✅ Scraping completado', '')
             else:
                 self.update_status('error', 0, '❌ No se pudo obtener datos', '')
-                
+
         except Exception as e:
             self.update_status('error', 0, f'❌ Error: {str(e)}', '')
-    
+
     def start_cleaning(self, output_name, csv_files=None):
         """
         Iniciar limpieza y unificación.
-        
+
         Args:
             output_name: Nombre base para archivos de salida
             csv_files: Dict opcional con archivos a limpiar
@@ -581,44 +581,44 @@ class AcademicAnalysisAPI:
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Limpieza iniciada'}
-    
+
     def _cleaning_worker(self, output_name, csv_files):
         """Worker thread para limpieza."""
         try:
-            self.update_status('cleaning', 10, '🧹 Iniciando limpieza...', 
+            self.update_status('cleaning', 10, '🧹 Iniciando limpieza...',
                              'Cargando datos...')
-            
+
             files_to_clean = csv_files if csv_files else self.scraped_files
-            
+
             if not files_to_clean:
                 self.update_status('error', 0, '❌ No hay archivos para limpiar', '')
                 return
-            
-            self.update_status('cleaning', 30, '🔄 Unificando bases de datos...', 
+
+            self.update_status('cleaning', 30, '🔄 Unificando bases de datos...',
                              'Eliminando duplicados...')
-            
+
             unified_df, output_files = clean_and_unify_databases(
                 ebsco_file=files_to_clean.get('ebsco'),
                 ieee_file=files_to_clean.get('ieee'),
                 output_name=output_name
             )
-            
+
             self.unified_file = output_files['unified']
-            
-            self.update_status('cleaning', 100, 
+
+            self.update_status('cleaning', 100,
                              f'✅ Limpieza completa: {len(unified_df)} artículos únicos', '')
-            
+
             self.status['results']['unified_file'] = self.unified_file
             self.status['results']['total_records'] = len(unified_df)
             self.status['results']['output_files'] = output_files
-            
+
         except Exception as e:
             self.update_status('error', 0, f'❌ Error: {str(e)}', '')
-    
+
     def start_analysis(self, output_name, csv_file=None):
         """
         Iniciar análisis con algoritmos.
-        
+
         Args:
             output_name: Nombre base para archivos de salida
             csv_file: Archivo CSV opcional a analizar
@@ -630,45 +630,45 @@ class AcademicAnalysisAPI:
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Análisis iniciado'}
-    
+
     def _analysis_worker(self, output_name, csv_file):
         """Worker thread para análisis."""
         try:
-            self.update_status('analysis', 10, '📊 Iniciando análisis...', 
+            self.update_status('analysis', 10, '📊 Iniciando análisis...',
                              'Cargando datos...')
-            
+
             file_to_analyze = csv_file if csv_file else self.unified_file
-            
+
             if not file_to_analyze:
                 self.update_status('error', 0, '❌ No hay archivo para analizar', '')
                 return
-            
-            self.update_status('analysis', 20, '🔢 Ejecutando algoritmos...', 
+
+            self.update_status('analysis', 20, '🔢 Ejecutando algoritmos...',
                              'Esto puede tomar varios minutos...')
-            
+
             analyzer = AcademicSortingAnalyzer(file_to_analyze)
             results = analyzer.run_all_algorithms()
-            
-            self.update_status('analysis', 60, '📈 Generando visualizaciones...', 
+
+            self.update_status('analysis', 60, '📈 Generando visualizaciones...',
                              'Creando gráficos...')
-            
+
             chart_path = str(CSV_DIR / f"{output_name}_comparison.png")
             analyzer.create_time_comparison_chart(results, chart_path)
-            
+
             self.update_status('analysis', 80, '👥 Analizando autores...', '')
-            
+
             top_authors = analyzer.get_top_authors(15)
             authors_path = str(CSV_DIR / f"{output_name}_top_authors.csv")
             top_authors.to_csv(authors_path, index=False)
-            
+
             # Convertir imagen a base64 para mostrar en interfaz
             with open(chart_path, 'rb') as f:
                 img_data = base64.b64encode(f.read()).decode()
-            
+
             # Preparar resultados
             times = {name: time*1000 for name, (df, time) in results.items() if time != float('inf')}
             sorted_times = dict(sorted(times.items(), key=lambda x: x[1]))
-            
+
             self.status['results']['algorithm_times'] = sorted_times
             self.status['results']['chart_base64'] = img_data
             self.status['results']['chart_file'] = chart_path
@@ -718,9 +718,9 @@ class AcademicAnalysisAPI:
                     self.log('⚠️ No hubo resultados válidos de ordenamiento para generar CSV ordenado.')
             except Exception as _e:
                 self.log(f"⚠️ No se pudo generar el CSV ordenado del mejor algoritmo: {_e}")
-            
+
             self.update_status('analysis', 100, '✅ Análisis completado', '')
-            
+
         except Exception as e:
             self.update_status('error', 0, f'❌ Error: {str(e)}', '')
 
@@ -804,7 +804,7 @@ class AcademicAnalysisAPI:
             return {'success': True, 'results': res, 'file': filepath}
         except Exception as e:
             return {'success': False, 'message': str(e)}
-    
+
     def start_full_pipeline(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True,
                             sim_enable: bool = False, sim_limit: int = 50, sim_only_abstracts: bool = True,
                             sim_use_classic: bool = True, sim_use_ai: bool = True,
@@ -820,7 +820,7 @@ class AcademicAnalysisAPI:
         thread.daemon = True
         thread.start()
         return {'success': True, 'message': 'Pipeline completo iniciado'}
-    
+
     def _full_pipeline_worker(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True,
                               sim_enable: bool = False, sim_limit: int = 50, sim_only_abstracts: bool = True,
                               sim_use_classic: bool = True, sim_use_ai: bool = True,
@@ -829,20 +829,20 @@ class AcademicAnalysisAPI:
         try:
             # FASE 1: Scraping (modo estricto: detener si una base falla)
             self._scraping_worker(query, databases, download_all, custom_amount, email, password, show_browser, stop_on_auth_failure=True)
-            
+
             if not self.scraped_files:
                 return
-            
+
             time.sleep(2)
-            
+
             # FASE 2: Limpieza
             self._cleaning_worker(output_name, None)
-            
+
             if not self.unified_file:
                 return
-            
+
             time.sleep(2)
-            
+
             # FASE 3: Análisis (algoritmos de ordenamiento, tiempos, autores)
             self._analysis_worker(output_name, None)
 
@@ -950,10 +950,10 @@ class AcademicAnalysisAPI:
                         self.log('⚠️ ' + hc_res.get('message','Error en clustering jerárquico'))
             except Exception as e:
                 self.log(f'⚠️ Error en Clustering Jerárquico: {e}')
-            
+
         except Exception as e:
             self.update_status('error', 0, f'❌ Error en pipeline: {str(e)}', '')
-    
+
     def open_file(self, filepath):
         """Abrir archivo con aplicación predeterminada del sistema."""
         try:
@@ -968,7 +968,7 @@ class AcademicAnalysisAPI:
             return {'success': False, 'error': 'Archivo no encontrado'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
-    
+
     def select_csv_file(self):
         """Abrir diálogo para seleccionar archivo CSV."""
         if self.window:
@@ -1098,85 +1098,105 @@ class AcademicAnalysisAPI:
             return {'success': True, 'labels': labels, 'results': results}
         except Exception as e:
                 return {'success': False, 'message': str(e)}
+
     # ===================== NUEVO: Análisis de Grafos de Citaciones =====================
     def analyze_citation_graph(self, csv_file: Optional[str] = None):
         """
-        Construye y analiza la red de citaciones entre artículos científicos y genera una imagen PNG del grafo.
+        Construye y analiza la red de citaciones entre artículos científicos,
+        calcula métricas, caminos mínimos y componentes fuertemente conexas.
         """
         try:
-            from grafos.seguimiento2_req1 import Seguimiento2Req1
-            import pandas as pd
-            import os
-            import io
-            import base64
+            from src.grafos.seguimiento2_req1 import Seguimiento2Req1
             import matplotlib.pyplot as plt
+            import base64, io, os
+            import pandas as pd
+            import networkx as nx
 
+            # Seleccionar CSV
             filepath = csv_file or self.unified_file
             if not filepath:
                 return {'success': False, 'message': 'No hay CSV seleccionado ni unificado disponible.'}
             if not os.path.exists(filepath):
                 return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
 
+            # Leer CSV
             df = pd.read_csv(filepath, encoding='utf-8')
-            if not {'title', 'authors', 'keywords'}.issubset(df.columns):
-                return {'success': False, 'message': 'El CSV debe tener columnas title, authors y keywords.'}
+            cols = list(df.columns)
+            title_col = 'title' if 'title' in cols else 'titulo'
+            authors_col = 'authors' if 'authors' in cols else 'autores'
+            keywords_col = 'keywords' if 'keywords' in cols else 'palabras_clave'
 
-            # Construir lista de artículos
+            # Crear artículos
             articulos = []
             for i, row in df.iterrows():
                 articulos.append({
                     'id': f"A{i}",
-                    'titulo': str(row['title']),
-                    'autores': [a.strip() for a in str(row['authors']).split(',') if a.strip()],
-                    'palabras_clave': [k.strip() for k in str(row['keywords']).split(',') if k.strip()]
+                    'titulo': str(row.get(title_col, '')),
+                    'autores': [a.strip() for a in str(row.get(authors_col, '')).split(',') if a.strip()],
+                    'palabras_clave': [k.strip() for k in str(row.get(keywords_col, '')).split(',') if k.strip()]
                 })
 
+            # === Construcción automática del grafo ===
             grafo = Seguimiento2Req1()
             grafo.construir_red(articulos)
+
+            # === Cálculo de caminos mínimos (Dijkstra) ===
+            caminos_minimos = {}
+            nodos = list(grafo.grafo.nodes())
+            for i in range(min(3, len(nodos))):  # solo algunos ejemplos
+                for j in range(i + 1, min(3, len(nodos))):
+                    origen, destino = nodos[i], nodos[j]
+                    ruta, distancia = grafo.camino_minimo(origen, destino)
+                    if ruta:
+                        caminos_minimos[f"{origen} → {destino}"] = {
+                            "ruta": ruta,
+                            "distancia": round(distancia, 3)
+                        }
+
+            # === Componentes fuertemente conexas ===
             componentes = grafo.componentes_fuertemente_conexas()
 
-            # Dibujar grafo
-            plt.figure(figsize=(8, 6))
-            pos = None
-            try:
-                import networkx as nx
-                pos = nx.spring_layout(grafo.grafo, seed=42)
-                nx.draw(
-                    grafo.grafo, pos,
-                    with_labels=True,
-                    node_size=500,
-                    node_color="#6366f1",
-                    font_size=7,
-                    font_color="white",
-                    edge_color="#94a3b8"
-                )
-            except Exception as e:
-                print("Error al dibujar el grafo:", e)
-
-            buffer = io.BytesIO()
+            # === Dibujar el grafo ===
+            plt.figure(figsize=(9, 7))
+            pos = nx.spring_layout(grafo.grafo, seed=42)
+            pesos = nx.get_edge_attributes(grafo.grafo, 'weight')
+            nx.draw_networkx(
+                grafo.grafo, pos,
+                with_labels=True,
+                node_size=700,
+                node_color="#3b82f6",
+                font_size=8,
+                font_color="white",
+                edge_color="#a5b4fc",
+                arrows=True
+            )
+            nx.draw_networkx_edge_labels(grafo.grafo, pos, edge_labels={k: f"{v:.2f}" for k, v in pesos.items()}, font_size=6)
+            plt.title("Red de Citaciones (Dirigida y Ponderada)", fontsize=12)
             plt.tight_layout()
-            plt.savefig(buffer, format='png')
-            plt.close()
-            buffer.seek(0)
-            img_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', bbox_inches='tight')
+            plt.close()
+            buf.seek(0)
+            img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+            # === Resumen de métricas ===
             resumen = {
-                'n_nodos': grafo.grafo.number_of_nodes(),
-                'n_aristas': grafo.grafo.number_of_edges(),
-                'n_componentes': len(componentes)
+                "n_nodos": grafo.grafo.number_of_nodes(),
+                "n_aristas": grafo.grafo.number_of_edges(),
+                "n_componentes": len(componentes),
+                "caminos_ejemplo": caminos_minimos
             }
 
             return {
-                'success': True,
-                'resumen': resumen,
-                'componentes': componentes,
-                'graph_base64': img_base64
+                "success": True,
+                "resumen": resumen,
+                "componentes": componentes,
+                "graph_base64": img_base64
             }
 
         except Exception as e:
-            return {'success': False, 'message': str(e)}
-
-
+            return {"success": False, "message": str(e)}
 
 
 def load_html():
@@ -1207,10 +1227,10 @@ def main():
     """
     # Crear API
     api = AcademicAnalysisAPI()
-    
+
     # Cargar HTML desde archivo
     html_content = load_html()
-    
+
     # Crear ventana con suppress_stderr
     with suppress_stderr():
         window = webview.create_window(
@@ -1223,10 +1243,10 @@ def main():
             frameless=False,
             background_color='#0f172a'
         )
-    
+
     # Asignar ventana a API
     api.set_window(window)
-    
+
     # Iniciar aplicación SIN DEBUG
     webview.start(debug=False)
 

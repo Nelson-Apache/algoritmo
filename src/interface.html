@@ -806,6 +806,28 @@
             background: var(--primary);
             border-radius: 4px;
         }
+        #graphs .card {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .card-sub {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-top: 20px;
+        }
+
+        .card-sub h3 {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
 
     </style>
 </head>
@@ -1426,31 +1448,29 @@
                 </div>
             </div> <!-- 🔹 cierre correcto de #analysis -->
 
-            <!-- SECCIÓN GRAFOS -->
+            <!-- ===================== SECCIÓN: GRAFOS DE CITACIONES ===================== -->
+            <section id="graphs" class="section">
+            <h2>Análisis de Grafos de Citaciones</h2>
 
-            <div id="graphs" class="section">
                 <div class="card">
-                    <h3>🕸️ Análisis de Grafos de Citaciones</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
-                        Construye una red de citaciones entre artículos científicos a partir de los datos unificados.
-                    </p>
+                    <p>Construye una red de citaciones entre artículos científicos a partir de los datos unificados.</p>
 
-                    <div class="form-group">
-                        <label>📁 Fuente de artículos:</label>
-                        <button class="btn btn-secondary" onclick="selectFile('graphs-csv')">Seleccionar CSV</button>
-                        <span id="graphs-csv-file" style="color: var(--text-muted); margin-left: 15px;">Ninguno seleccionado</span>
+                    <label>📂 Fuente de artículos:</label>
+                    <div class="input-row">
+                        <button class="btn-primary" onclick="selectGraphCSV()">Seleccionar CSV</button>
+                        <span id="selected-graph-file" class="file-label">No hay CSV seleccionado</span>
                     </div>
 
-                    <button class="btn btn-primary" onclick="generateGraph()">🔗 Generar Grafo</button>
+                    <div class="button-row">
+                        <button class="btn-primary" onclick="generateGraph()">Generar Grafo</button>
+                    </div>
 
-                    <div id="graph-results" class="mt-20"></div>
+                    <div id="graph-results" class="results-box">
+                        <p>⚙️ Esperando generación del grafo...</p>
+                    </div>
                 </div>
-            </div>
-        </div>
-        </div>
-    </div>
-    
-    <script>
+            </section>
+            <script>
         // Estado global
         let currentSection = 'dashboard';
         let selectedFiles = {};
@@ -1474,32 +1494,43 @@
         };
         
         // Navegación
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(el => {
-                el.classList.remove('active');
+                function showSection(section) {
+                // Oculta todas las secciones
+                document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+                // Quita la clase activa de todos los ítems de menú
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+
+                // Muestra la sección correspondiente
+                const sectionEl = document.getElementById(section);
+                if (sectionEl) sectionEl.classList.add('active');
+
+                // Activa el menú correcto usando el atributo onclick
+                const allMenuItems = document.querySelectorAll('.menu-item');
+                allMenuItems.forEach(mi => {
+                const onclickAttr = mi.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${section}'`)) {
+                mi.classList.add('active');
+            }
             });
-            
-            document.querySelectorAll('.menu-item').forEach(el => {
-                el.classList.remove('active');
-            });
-            
-            document.getElementById(section).classList.add('active');
-            event.target.closest('.menu-item').classList.add('active');
-            
-            const titles = {
+
+                // Cambia el título de la cabecera
+                const titles = {
                 'dashboard': 'Dashboard Principal',
                 'pipeline': 'Pipeline Completo',
                 'scraping': 'Solo Scraping',
                 'cleaning': 'Solo Limpieza',
                 'analysis': 'Solo Análisis de Algoritmos',
-                'graphs': 'Análisis de Grafos de Citaciones',
+                'graphs': 'Análisis de Grafos de Citaciones'
             };
-            document.getElementById('section-title').textContent = titles[section];
-            
-            currentSection = section;
-        }
-        
-        // Toggle database selection
+                const titleEl = document.getElementById('section-title');
+                if (titleEl) titleEl.textContent = titles[section] || 'Sección';
+
+                // Guarda la sección activa
+                currentSection = section;
+            }
+
+
+    // Toggle database selection
         function toggleDB(prefix, db) {
             const checkbox = document.getElementById(`${prefix}-db-${db}`);
             const card = checkbox.closest('.db-card');
@@ -2147,54 +2178,75 @@
             cont.innerHTML = '';
             cont.appendChild(frag);
         }
-        // ==================== NUEVO: Análisis de Grafos ====================
-        function generateGraph() {
-            const file = selectedFiles['graphs-csv'] || (currentResults && currentResults.unified_file) || null;
-            const output = document.getElementById('graph-results');
-            output.innerHTML = 'Construyendo grafo...';
 
-            pywebview.api.analyze_citation_graph(file).then(result => {
-                if (!result || !result.success) {
-                    output.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${(result && result.message) || 'Error al generar el grafo.'}</span></div>`;
-                    return;
-                }
+            let selectedGraphFile = null;
 
-                const res = result.resumen;
-                output.innerHTML = `
-    <div class="results-grid">
-        <div class="stat-card">
-            <div class="stat-label">Nodos</div>
-            <div class="stat-value">${res.n_nodos}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Aristas</div>
-            <div class="stat-value">${res.n_aristas}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Componentes</div>
-            <div class="stat-value">${res.n_componentes}</div>
-        </div>
-    </div>
-
-    <div class="chart-container">
-        <img src="data:image/png;base64,${result.graph_base64}" alt="Grafo de citaciones" />
-    </div>
-
-    <div class="card">
-        <h3>🔍 Componentes Fuertemente Conexas</h3>
-        ${result.componentes.map((c, i) => `
-            <div style="margin-bottom: 10px;">
-                <strong>Grupo ${i + 1}:</strong> ${c.join(', ')}
-            </div>
-        `).join('')}
-    </div>
-`;
-
-            }).catch(err => {
-                output.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err)}</span></div>`;
-            });
+            /* === Seleccionar CSV === */
+            async function selectGraphCSV() {
+            const file = await pywebview.api.select_csv_file();
+            if (file) {
+            selectedGraphFile = file;
+            document.getElementById("selected-graph-file").textContent = file.split('/').pop();
+        } else {
+            selectedGraphFile = null;
+            document.getElementById("selected-graph-file").textContent = "No hay CSV seleccionado";
+        }
         }
 
+            /* === Generar Grafo === */
+            async function generateGraph() {
+            const output = document.getElementById("graph-results");
+            output.innerHTML = '<p>🧠 Generando red de citaciones...</p>';
+
+            try {
+            const result = await pywebview.api.analyze_citation_graph(selectedGraphFile);
+            if (!result.success) {
+            output.innerHTML = `
+        <div class="alert alert-warning">
+          ⚠️ ${result.message || "Error al generar el grafo"}
+        </div>`;
+            return;
+        }
+
+            const res = result.resumen;
+            const comps = result.componentes.map(
+            (c, i) => `<li><b>Componente ${i + 1}:</b> [${c.join(', ')}]</li>`
+            ).join('');
+
+            const paths = res.caminos_ejemplo
+            ? Object.entries(res.caminos_ejemplo).map(([k, v]) =>
+            `<li>${k}: ${v.ruta.join(' → ')} (distancia = ${v.distancia})</li>`
+            ).join('')
+            : '<li>No se calcularon caminos mínimos</li>';
+
+            output.innerHTML = `
+      <div class="results-grid">
+        <div class="stat-card"><div class="stat-label">Nodos</div><div class="stat-value">${res.n_nodos}</div></div>
+        <div class="stat-card"><div class="stat-label">Aristas</div><div class="stat-value">${res.n_aristas}</div></div>
+        <div class="stat-card"><div class="stat-label">Componentes</div><div class="stat-value">${res.n_componentes}</div></div>
+      </div>
+
+      <div class="card-sub">
+        <h3>🔹 Caminos mínimos (Dijkstra)</h3>
+        <ul>${paths}</ul>
+      </div>
+
+      <div class="card-sub">
+        <h3>🔹 Componentes fuertemente conexas</h3>
+        <ul>${comps}</ul>
+      </div>
+
+      <div class="chart-container">
+        <img src="data:image/png;base64,${result.graph_base64}" alt="Grafo de Citaciones" />
+      </div>
+    `;
+        } catch (err) {
+            output.innerHTML = `
+      <div class="alert alert-warning">
+        ⚠️ Error: ${String(err)}
+      </div>`;
+        }
+        }
     </script>
 </body>
 </html>
