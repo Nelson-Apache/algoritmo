@@ -70,6 +70,7 @@ import pandas as pd
 from algoritmo.AcademicSortingAnalyzer import AcademicSortingAnalyzer
 from algoritmo.ConceptsCategoryAnalyzer import ConceptsCategoryAnalyzer
 from algoritmo.HierarchicalClusteringAnalyzer import HierarchicalClusteringAnalyzer
+from algoritmo.CitationNetworkAnalyzer import CitationNetworkAnalyzer
 
 # Directorios de datos centralizados bajo src/data
 ROOT_DIR = Path(__file__).parent
@@ -254,6 +255,9 @@ class AcademicAnalysisAPI:
         # Buffer simple de logs para UI
         self.log_buffer: list[str] = []
         self.max_log_lines = 1000
+        # Estado de red de citaciones
+        self.citation_analyzer = None  # type: Optional[CitationNetworkAnalyzer]
+        self.citation_nodes = []       # type: list[dict]
         
     def set_window(self, window):
         """Asignar referencia a la ventana."""
@@ -804,6 +808,412 @@ class AcademicAnalysisAPI:
             return {'success': True, 'results': res, 'file': filepath}
         except Exception as e:
             return {'success': False, 'message': str(e)}
+
+    # ===================== NUEVO: Red de Citaciones =====================
+    def analyze_citation_network(self, csv_file: Optional[str] = None,
+                                 backend: str = 'classic', infer_threshold: float = 0.6,
+                                 infer_top_k: int = 3, use_concepts: bool = False,
+                                 text_field: str = 'abstract', limit: int = 120,
+                                 classic_options: Optional[dict] = None,
+                                 ai_options: Optional[dict] = None):
+        """
+        Construye la red de citaciones a partir de un CSV y retorna nodos/aristas/estadísticas.
+        Si no hay relaciones explícitas, las infiere por similitud (título/autores/keywords).
+        """
+        try:
+            filepath = csv_file or self.unified_file or self.sorted_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV disponible (selecciona uno o ejecuta pipeline).'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+            # Preparar artículos
+            # Campos tolerantes: title, authors, keywords, citations (opcional), abstract
+            rows = df.head(limit) if (limit and len(df) > limit) else df
+            articles = []
+            seen_titles = {}
+            for idx, row in rows.iterrows():
+                title = str(row.get('title', '') if pd.notna(row.get('title', '')) else '').strip()
+                # Usar el título como identificador único del nodo (según requisito)
+                if not title:
+                    # si no hay título, saltar fila
+                    continue
+                # Asegurar unicidad del id basado en el título
+                if title in seen_titles:
+                    seen_titles[title] += 1
+                    aid = f"{title} ({seen_titles[title]})"
+                else:
+                    seen_titles[title] = 1
+                    aid = title
+                # autores: admitir separador ';' o ','
+                raw_auth = row.get('authors', None)
+                if pd.isna(raw_auth):
+                    authors = []
+                else:
+                    s = str(raw_auth)
+                    if ';' in s:
+                        authors = [a.strip() for a in s.split(';') if a.strip()]
+                    elif ',' in s:
+                        authors = [a.strip() for a in s.split(',') if a.strip()]
+                    else:
+                        authors = [s.strip()] if s.strip() else []
+                # keywords
+                raw_kw = row.get('keywords', None)
+                if pd.isna(raw_kw):
+                    keywords = []
+                else:
+                    s = str(raw_kw)
+                    if ';' in s:
+                        keywords = [k.strip() for k in s.split(';') if k.strip()]
+                    elif ',' in s:
+                        keywords = [k.strip() for k in s.split(',') if k.strip()]
+                    else:
+                        keywords = [s.strip()] if s.strip() else []
+                # citations explícitas: si viene una columna con ids referenciados, intentar parsear lista
+                citations = []
+                for cand in ['citations', 'references', 'cited_ids']:
+                    val = row.get(cand, None)
+                    if val is not None and not pd.isna(val):
+                        try:
+                            # admitir JSON-like o lista separada por comas/; 
+                            txt = str(val).strip()
+                            if txt.startswith('[') and txt.endswith(']'):
+                                import json as _json
+                                parsed = _json.loads(txt)
+                                citations = [str(x) for x in parsed]
+                            else:
+                                sep = ';' if ';' in txt else (',' if ',' in txt else None)
+                                if sep:
+                                    citations = [t.strip() for t in txt.split(sep) if t.strip()]
+                                else:
+                                    citations = [txt]
+                        except Exception:
+                            citations = []
+                        break
+
+                article = {
+                    'id': aid,
+                    'title': title,
+                    'authors': authors,
+                    'keywords': keywords,
+                    'citations': citations,
+                    'abstract': str(row.get('abstract', '') if pd.notna(row.get('abstract', '')) else ''),
+                }
+                articles.append(article)
+
+            # Normalizar referencias de 'citations' para que apunten a nuestros IDs basados en título
+            # Mapa: título exacto -> lista de IDs (por si hay duplicados)
+            title_to_ids = {}
+            for a in articles:
+                title_to_ids.setdefault(a['title'], []).append(a['id'])
+
+            def _map_citation_token(tok: str):
+                s = (tok or '').strip()
+                if not s:
+                    return None
+                # 1) Si ya coincide con un ID exacto (incluye sufijos), mantener
+                for a in articles:
+                    if s == a['id']:
+                        return a['id']
+                # 2) Si coincide con un título exacto, tomar el primer ID asociado a ese título
+                ids = title_to_ids.get(s)
+                if ids:
+                    return ids[0]
+                return None
+
+            for a in articles:
+                mapped = []
+                for tok in (a.get('citations') or []):
+                    mid = _map_citation_token(tok)
+                    if mid and mid != a['id']:
+                        mapped.append(mid)
+                a['citations'] = mapped
+
+            # Preparar listas de métodos según opciones
+            classic_methods = []
+            if backend != 'ia':
+                co = classic_options or {}
+                if co.get('levenshtein', True): classic_methods.append('levenshtein')
+                if co.get('jarowinkler', True): classic_methods.append('jarowinkler')
+                if co.get('tfidf', True): classic_methods.append('tfidf')
+                if co.get('coseno', True): classic_methods.append('coseno')
+                if not classic_methods:
+                    classic_methods = ['coseno']
+            ai_methods = []
+            if backend == 'ia':
+                ao = ai_options or {}
+                if ao.get('sbert', True): ai_methods.append('sbert')
+                if ao.get('hf', True): ai_methods.append('hf')
+                if not ai_methods:
+                    ai_methods = ['hf']
+
+            cna = CitationNetworkAnalyzer(
+                similarity_backend=('ia' if backend == 'ia' else 'classic'),
+                classic_methods=classic_methods,
+                ai_methods=ai_methods
+            )
+            # Aplicar parámetros dinámicos
+            try:
+                cna.infer_threshold = float(infer_threshold)
+                cna.infer_top_k = int(infer_top_k) if infer_top_k is not None else None
+                if backend == 'ia':
+                    # establecer timeout razonable por comparación IA
+                    _tmo = getattr(cna, 'ia_timeout_sec', None)
+                    if not isinstance(_tmo, (int, float)) or _tmo <= 0:
+                        cna.ia_timeout_sec = 15.0
+            except Exception:
+                pass
+
+            # Progreso en vivo hacia la UI mientras se construye el grafo
+            def _progress_cb(pct: float, msg: str):
+                try:
+                    self.update_status('citation', int(max(0, min(99, pct))), '🔗 Construyendo red de citaciones…', msg or '')
+                    if pct % 10 < 1:  # log cada ~10%
+                        self.log(msg)
+                except Exception:
+                    pass
+
+            cna.build_graph(
+                articles,
+                infer_if_missing=True,
+                enrich_with_concepts=bool(use_concepts),
+                text_field=text_field,
+                concepts_top_k=15,
+                progress_callback=_progress_cb
+            )
+
+            # Exportar nodos y aristas (id y label serán el título)
+            nodes = [{'id': str(nid), 'label': (cna.nodes[nid].get('title') or str(nid))} for nid in cna.nodes.keys()]
+            edges = [{'source': str(u), 'target': str(v), 'weight': float(w)} for (u, v, w) in cna.edges()]
+            sccs = cna.strongly_connected_components()
+
+            # Persistir en estado para consultas subsecuentes
+            self.citation_analyzer = cna
+            self.citation_nodes = nodes
+
+            # Top 10 caminos mínimos globales y Top SCCs desde el analizador
+            top_paths_out = cna.top_k_shortest_paths_global(10)
+            top_sccs_out = cna.top_sccs(10)
+
+            # Resumen
+            result = {
+                'nodes': nodes,
+                'edges': edges,
+                'sccs': sccs,
+                'node_count': len(nodes),
+                'edge_count': len(edges),
+                'scc_count': len(sccs),
+                'top_paths': top_paths_out,
+                'top_sccs': top_sccs_out,
+            }
+
+            # Generar imagen del grafo (como el gráfico de ordenamiento)
+            try:
+                from pathlib import Path as _P
+                base_name = _P(filepath).stem
+                out_dir = DATA_DIR / 'screenshots' / 'citation_graphs'
+                os.makedirs(out_dir, exist_ok=True)
+                img_path = str(out_dir / f'{base_name}_citation_graph.png')
+                graph_b64 = self._render_citation_graph_image(cna, nodes, edges, sccs, img_path)
+                result['graph_file'] = img_path
+                result['graph_base64'] = graph_b64
+            except Exception as _img_err:
+                # No bloquear por errores de render; solo registrar en resultado
+                result['graph_error'] = str(_img_err)
+
+            # Adjuntar a status (por si lo llamamos desde pipeline)
+            existing = self.status.get('results', {})
+            existing['citation_network'] = result
+            self.status['results'] = existing
+
+            # Notificar finalización a la UI
+            try:
+                self.update_status('citation', 100, '✅ Red de citaciones construida', f"{len(nodes)} nodos, {len(edges)} aristas")
+            except Exception:
+                pass
+
+            return {'success': True, 'results': result, 'file': filepath}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    def _render_citation_graph_image(self, cna, nodes, edges, sccs, out_path: str) -> str:
+        """
+        Renderiza un PNG de la red de citaciones con layout por fuerzas (force-directed),
+        colores por SCC, flechas y grosor/arrowsize según peso. Devuelve la imagen en base64.
+        """
+        import io
+        import base64
+        import math
+        import numpy as np
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        from matplotlib.patches import FancyArrowPatch
+
+        # Preparar layout por fuerzas (fallback a circular si el grafo es muy grande)
+        N = max(1, len(nodes))
+        pos = {}
+        node_ids = [str(n['id']) for n in nodes]
+
+        if N <= 300:
+            # Construir índices y listas de aristas con pesos
+            idx_of = {nid: i for i, nid in enumerate(node_ids)}
+            E = []
+            for e in edges:
+                s = str(e.get('source'))
+                t = str(e.get('target'))
+                if s in idx_of and t in idx_of and s != t:
+                    w = float(e.get('weight', 0.5) or 0.5)
+                    E.append((idx_of[s], idx_of[t], w))
+
+            # Estados iniciales
+            rng = np.random.default_rng(42)
+            P = rng.uniform(low=-1.0, high=1.0, size=(N, 2)).astype(float)  # posiciones
+            V = np.zeros((N, 2), dtype=float)  # velocidades
+
+            # Parámetros del sistema de fuerzas (calibrados para parecerse al canvas)
+            iters = 200 if N <= 150 else (120 if N <= 250 else 90)
+            k_rep = 0.04  # repulsión entre todos los pares
+            k_attr = 0.015  # atracción por arista
+            rest_len = 0.5  # longitud de reposo de los “resortes”
+            damping = 0.85
+            dt = 0.02
+            eps = 1e-6
+
+            # Precompute vecinos por nodo para acelerar fuerza atractiva
+            neigh = [[] for _ in range(N)]
+            for i, j, w in E:
+                neigh[i].append((j, w))
+                # Para el layout, también ayuda que la atracción sea “bidireccional”
+                neigh[j].append((i, w))
+
+            for _ in range(iters):
+                # Fuerza de repulsión O(N^2)
+                F = np.zeros((N, 2), dtype=float)
+                for i in range(N):
+                    pi = P[i]
+                    # vectorizado parcial: resta a todos, excepto i
+                    d = pi - P
+                    dist2 = np.sum(d*d, axis=1) + eps
+                    inv = k_rep / dist2
+                    inv[i] = 0.0  # sin auto-fuerza
+                    # normalizar y acumular
+                    F[i] += np.sum((d * inv[:, None]), axis=0)
+
+                # Fuerza de atracción por aristas (grafos dirigidos pero usamos atracción simétrica)
+                for i in range(N):
+                    pi = P[i]
+                    for j, w in neigh[i]:
+                        if j == i:
+                            continue
+                        d = P[j] - pi
+                        dist = math.sqrt(float(d[0]*d[0] + d[1]*d[1]) + eps)
+                        # Hooke hacia longitud objetivo
+                        force_mag = k_attr * w * (dist - rest_len)
+                        F[i] += (d / dist) * force_mag
+
+                # Integración simple con amortiguamiento
+                V = (V + dt * F) * damping
+                P = P + dt * V
+
+            # Normalizar a [-1, 1] aproximadamente
+            min_xy = P.min(axis=0)
+            max_xy = P.max(axis=0)
+            center = (min_xy + max_xy) / 2.0
+            span = (max_xy - min_xy)
+            max_span = float(max(span[0], span[1], 1e-6))
+            P = (P - center) / max_span * 1.6  # escalar para que quepa bien
+
+            for i, nid in enumerate(node_ids):
+                pos[nid] = (float(P[i, 0]), float(P[i, 1]))
+        else:
+            # Fallback: circular para N grande
+            angles = np.linspace(0, 2*math.pi, N, endpoint=False)
+            r = 1.0
+            for i, nid in enumerate(node_ids):
+                pos[nid] = (r*math.cos(angles[i]), r*math.sin(angles[i]))
+
+        # Mapa de SCC para colores
+        scc_map = {}
+        for idx, comp in enumerate(sccs or []):
+            for nid in comp:
+                scc_map[str(nid)] = idx
+        try:
+            _cmap = plt.get_cmap('tab10')
+            colors = getattr(_cmap, 'colors', None) or [
+                (0.368,0.507,0.710), (0.880,0.611,0.142), (0.560,0.692,0.195), (0.922,0.388,0.208),
+                (0.528,0.470,0.701), (0.772,0.432,0.102), (0.364,0.619,0.782), (0.571,0.586,0.0),
+                (0.916,0.596,0.478), (0.765,0.616,0.784)
+            ]
+        except Exception:
+            colors = [
+                (0.368,0.507,0.710), (0.880,0.611,0.142), (0.560,0.692,0.195), (0.922,0.388,0.208),
+                (0.528,0.470,0.701), (0.772,0.432,0.102), (0.364,0.619,0.782), (0.571,0.586,0.0),
+                (0.916,0.596,0.478), (0.765,0.616,0.784)
+            ]
+
+        fig, ax = plt.subplots(figsize=(10, 8), dpi=150)
+        ax.set_facecolor('#0b1220')
+        fig.patch.set_facecolor('#0b1220')
+        ax.axis('off')
+
+        # Dibujar aristas
+        for e in edges:
+            a = pos.get(e['source'])
+            b = pos.get(e['target'])
+            if not a or not b:
+                continue
+            w = float(e.get('weight', 0.5) or 0.5)
+            lw = 0.8 + 2.2*w
+            arr = FancyArrowPatch(a, b, arrowstyle='-|>', color=(0.75,0.8,0.9,0.85),
+                                  mutation_scale=8 + 6*w, linewidth=lw, shrinkA=10, shrinkB=10)
+            ax.add_patch(arr)
+            # etiqueta de peso
+            mx = (a[0]+b[0])/2; my = (a[1]+b[1])/2
+            ax.text(mx, my, f"{w:.2f}", color='#cbd5e1', fontsize=7)
+
+        # Dibujar nodos y etiquetas
+        for i, n in enumerate(nodes):
+            x, y = pos[n['id']]
+            comp = scc_map.get(str(n['id']), i)
+            color = colors[comp % len(colors)] if len(colors) else (0.39,0.4,0.95)
+            ax.scatter([x], [y], s=90, c=[color], edgecolors='#e5e7eb', linewidths=0.7, zorder=3)
+            label = (n.get('label') or n['id'])
+            if len(label) > 48:
+                label = label[:45] + '…'
+            ax.text(x+0.05, y+0.02, label, color='#e2e8f0', fontsize=8)
+
+        # Guardar a archivo
+        plt.tight_layout()
+        fig.savefig(out_path, facecolor=fig.get_facecolor(), bbox_inches='tight')
+        plt.close(fig)
+
+        # Devolver base64
+        with open(out_path, 'rb') as f:
+            b64 = base64.b64encode(f.read()).decode('utf-8')
+        return b64
+
+    def citation_shortest_path(self, source_id: str, target_id: str):
+        try:
+            if not self.citation_analyzer:
+                return {'success': False, 'message': 'No hay red de citaciones cargada.'}
+            dist, path = self.citation_analyzer.shortest_path_dijkstra(source_id, target_id)
+            return {'success': True, 'distance': (None if dist == float('inf') else dist), 'path': path}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    def citation_all_pairs_fw(self):
+        try:
+            if not self.citation_analyzer:
+                return {'success': False, 'message': 'No hay red de citaciones cargada.'}
+            n = len(self.citation_analyzer.nodes)
+            if n > 180:
+                return {'success': False, 'message': 'Demasiados nodos para Floyd–Warshall interactivo (>180).'}
+            dist = self.citation_analyzer.all_pairs_floyd_warshall()
+            return {'success': True, 'dist': dist}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
     
     def start_full_pipeline(self, query, databases, download_all, custom_amount, output_name, email=None, password=None, show_browser=True,
                             sim_enable: bool = False, sim_limit: int = 50, sim_only_abstracts: bool = True,
@@ -950,6 +1360,23 @@ class AcademicAnalysisAPI:
                         self.log('⚠️ ' + hc_res.get('message','Error en clustering jerárquico'))
             except Exception as e:
                 self.log(f'⚠️ Error en Clustering Jerárquico: {e}')
+
+            # FASE 7: Red de Citaciones (limitada para visualización)
+            try:
+                source_for_cn = data_source_for_next or self.unified_file
+                if source_for_cn and os.path.exists(source_for_cn):
+                    self.update_status('analysis', 97, '🔗 Construyendo red de citaciones…', '')
+                    cn_res = self.analyze_citation_network(source_for_cn, backend='classic', infer_threshold=0.6,
+                                                           infer_top_k=3, use_concepts=False, text_field='abstract', limit=100)
+                    if cn_res.get('success'):
+                        existing = self.status.get('results', {})
+                        existing['citation_network'] = cn_res['results']
+                        self.status['results'] = existing
+                        self.update_status('analysis', 100, '✅ Análisis completado (incluye red de citaciones)', '')
+                    else:
+                        self.log('⚠️ ' + cn_res.get('message', 'Error en red de citaciones'))
+            except Exception as e:
+                self.log(f'⚠️ Error en Red de Citaciones: {e}')
             
         except Exception as e:
             self.update_status('error', 0, f'❌ Error en pipeline: {str(e)}', '')

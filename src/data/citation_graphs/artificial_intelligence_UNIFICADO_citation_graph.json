@@ -1,0 +1,1022 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "title": "Artificial Intelligence: Advances, Ethics and Strategies",
+      "year": null
+    },
+    {
+      "id": 1,
+      "title": "Artificial Intelligence : Ethical, Social, and Security Impacts for the Present and the Future, Second Edition",
+      "year": null
+    },
+    {
+      "id": 2,
+      "title": "Artificial Intelligence: Background, Risks and Policies",
+      "year": null
+    },
+    {
+      "id": 3,
+      "title": "Artificial Intelligence : Ethical, Social, and Security Impacts for the Present and the Future",
+      "year": null
+    },
+    {
+      "id": 4,
+      "title": "Artificial Intelligence: Crime, War, and Justice",
+      "year": null
+    },
+    {
+      "id": 5,
+      "title": "Artificial Intelligence: Work, Machines and Human Interaction",
+      "year": null
+    },
+    {
+      "id": 6,
+      "title": "Artificial Intelligence",
+      "year": null
+    },
+    {
+      "id": 7,
+      "title": "Artificial Intelligence : Reflections in Philosophy, Theology, and the Social Sciences",
+      "year": null
+    },
+    {
+      "id": 8,
+      "title": "Artificial Intelligence : Its Philosophy and Neural Context",
+      "year": null
+    },
+    {
+      "id": 9,
+      "title": "Lower Artificial Intelligence Literacy Predicts Greater AI Receptivity.",
+      "year": null
+    },
+    {
+      "id": 10,
+      "title": "Corporate artificial intelligence readiness and its contribution to supply chain resilience: insights from complexity theory.",
+      "year": null
+    },
+    {
+      "id": 11,
+      "title": "Exploring undiscovered country: AI-empowered collective and collaborative epistemic reflexivity (i-CCER)",
+      "year": null
+    },
+    {
+      "id": 12,
+      "title": "Artificial Intelligence: Approaches, Tools, and Applications",
+      "year": null
+    },
+    {
+      "id": 13,
+      "title": "ARTIFICIAL INTELLIGENCE, TRUST, AND PERCEPTIONS OF AGENCY.",
+      "year": null
+    },
+    {
+      "id": 14,
+      "title": "FIND THE GOOD. SEEK THE UNITY: A HIDDEN MARKOV MODEL OF HUMAN-AI DELEGATION DYNAMICS.",
+      "year": null
+    },
+    {
+      "id": 15,
+      "title": "The Impact of AI-Powered Ad Customization: Exploring the Impact of Engagement, Psychological Ownership, Responsibility, and Attitude on Behavioral Intentions.",
+      "year": null
+    },
+    {
+      "id": 16,
+      "title": "An AI Method to Score Celebrity Visual Potential.",
+      "year": null
+    },
+    {
+      "id": 17,
+      "title": "Can a troubleshooting AI assistant improve task performance in industrial contexts?",
+      "year": null
+    },
+    {
+      "id": 18,
+      "title": "A review of explainable artificial intelligence in smart manufacturing.",
+      "year": null
+    },
+    {
+      "id": 19,
+      "title": "Artificial Intelligence in Networking Research in the Arab World.",
+      "year": null
+    },
+    {
+      "id": 20,
+      "title": "AI-enabled vision systems for human-centered order picking – A design science research approach.",
+      "year": null
+    },
+    {
+      "id": 21,
+      "title": "Generative AI and its Transformative Value for Digital Platforms.",
+      "year": null
+    },
+    {
+      "id": 22,
+      "title": "Reinventing AI: Is It the Time for a New Paradigm?",
+      "year": null
+    },
+    {
+      "id": 23,
+      "title": "AI-Driven Disaster Response and Displacement Monitoring.",
+      "year": null
+    },
+    {
+      "id": 24,
+      "title": "McKINSEY ALUMS DOMINATE THE WORLD'S C-SUITES. WILL AI DRY UP THE FIRM'S CEO PIPELINE?",
+      "year": null
+    },
+    {
+      "id": 25,
+      "title": "Concerning the Responsible Use of AI in the U.S. Criminal Justice System.",
+      "year": null
+    },
+    {
+      "id": 26,
+      "title": "Discovering AI-driven purposeful political brand content to influence the voters' attitude.",
+      "year": null
+    },
+    {
+      "id": 27,
+      "title": "Teaching with AI : A Practical Guide to a New Era of Human Learning",
+      "year": null
+    },
+    {
+      "id": 28,
+      "title": "Towards trustworthy AI for link prediction in supply chain knowledge graph: a neurosymbolic reasoning approach.",
+      "year": null
+    },
+    {
+      "id": 29,
+      "title": "ARE THE FUTURES COMPUTABLE? KNIGHTIAN UNCERTAINTY AND ARTIFICIAL INTELLIGENCE.",
+      "year": null
+    },
+    {
+      "id": 30,
+      "title": "Redesigning AI",
+      "year": null
+    },
+    {
+      "id": 31,
+      "title": "Six ways AI could cause the next big war, and why it probably won't.",
+      "year": null
+    },
+    {
+      "id": 32,
+      "title": "Human-AI Alignment in Ad Targeting: Addressing Misestimation for Vulnerable Groups.",
+      "year": null
+    },
+    {
+      "id": 33,
+      "title": "Star Advantage: Employee Value Creation and Capture in the Age of Artificial Intelligence.",
+      "year": null
+    },
+    {
+      "id": 34,
+      "title": "WE'RE NOT IN AN 'AI WINTER'—BUT HERE'S HOW TO SURVIVE A COLD SNAP.",
+      "year": null
+    },
+    {
+      "id": 35,
+      "title": "Three AI Futures.",
+      "year": null
+    },
+    {
+      "id": 36,
+      "title": "AI Teams Contend with Synthetic Data's Jekyll/Hyde Roles.",
+      "year": null
+    },
+    {
+      "id": 37,
+      "title": "AI at War : How Big Data, Artificial Intelligence, and Machine Learning Are Changing Naval Warfare",
+      "year": null
+    },
+    {
+      "id": 38,
+      "title": "How AI Could Supercharge AR and VR.",
+      "year": null
+    },
+    {
+      "id": 39,
+      "title": "Can AI Expand the Human Mind?",
+      "year": null
+    },
+    {
+      "id": 40,
+      "title": "AI for Senior Citizens.",
+      "year": null
+    },
+    {
+      "id": 41,
+      "title": "Don't Let an AI Failure Harm Your Brand.",
+      "year": null
+    },
+    {
+      "id": 42,
+      "title": "AI and Trust.",
+      "year": null
+    },
+    {
+      "id": 43,
+      "title": "Proposing a maturity model for assessing Artificial Intelligence and Big data in the process industry.",
+      "year": null
+    },
+    {
+      "id": 44,
+      "title": "Artificial intelligence for sense making in survival supply chains.",
+      "year": null
+    },
+    {
+      "id": 45,
+      "title": "THE EFFECT OF AI-ENABLED CREDIT SCORING ON FINANCIAL INCLUSION: EVIDENCE FROM AN UNDERSERVED POPULATION OF OVER ONE MILLION.",
+      "year": null
+    },
+    {
+      "id": 46,
+      "title": "Emergency medical supplies scheduling during public health emergencies: algorithm design based on AI techniques.",
+      "year": null
+    },
+    {
+      "id": 47,
+      "title": "How Pioneering Boards Are Using AI.",
+      "year": null
+    },
+    {
+      "id": 48,
+      "title": "Can Alexandr Wang Bring Meta AI Supremacy?",
+      "year": null
+    },
+    {
+      "id": 49,
+      "title": "Toward Environmentally Equitable AI.",
+      "year": null
+    },
+    {
+      "id": 50,
+      "title": "Making AI Less 'Thirsty'.",
+      "year": null
+    },
+    {
+      "id": 51,
+      "title": "Malicious AI Models Undermine Software Supply-Chain Security.",
+      "year": null
+    },
+    {
+      "id": 52,
+      "title": "AI事典 : Encyclopedia of artificial intelligence",
+      "year": null
+    },
+    {
+      "id": 53,
+      "title": "The Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence.",
+      "year": null
+    },
+    {
+      "id": 54,
+      "title": "AN ASSEMBLAGE PERSPECTIVE ON HYBRID AGENCY: A COMMENTARY ON RAISCH AND FOMINA'S \"COMBINING HUMAN AND ARTIFICIAL INTELLIGENCE\".",
+      "year": null
+    },
+    {
+      "id": 55,
+      "title": "The AI-Enabled Marketer: Reclaiming Strategic Influence in the Age of AI.",
+      "year": null
+    },
+    {
+      "id": 56,
+      "title": "Behavioral Intention to Use Artificial Intelligence (AI) Among Accounting Students: Evaluating the Effect of Job Relevance.",
+      "year": null
+    },
+    {
+      "id": 57,
+      "title": "Belief triggers to action in artificial intelligence arenas: Exploring the role of AI intention and top management support in multi-level investigation.",
+      "year": null
+    },
+    {
+      "id": 58,
+      "title": "AI vs academia: Experimental study on AI text detectors' accuracy in behavioral health academic writing.",
+      "year": null
+    },
+    {
+      "id": 59,
+      "title": "The Evolution of Financial Analysis: From Manual Methods to AI and AI Agents.",
+      "year": null
+    },
+    {
+      "id": 60,
+      "title": "Let's Talk about AI: Talking about AI is Positively Associated with AI Crafting.",
+      "year": null
+    },
+    {
+      "id": 61,
+      "title": "AI transformation and AI adoption intention in B2B environment.",
+      "year": null
+    },
+    {
+      "id": 62,
+      "title": "What Is Your AI Strategy? Systematically Integrating Self-Learning Technologies into Your Business Strategy.",
+      "year": null
+    },
+    {
+      "id": 63,
+      "title": "DO ANDROIDS DREAM OF ENTREPRENEURIAL POSSIBILITIES? A REPLY TO RAMOGLOU ET AL.'S \"ARTIFICIAL INTELLIGENCE FORCES US TO RETHINK KNIGHTIAN UNCERTAINTY\".",
+      "year": null
+    },
+    {
+      "id": 64,
+      "title": "ARTIFICIAL INTELLIGENCE FORCES US TO RETHINK KNIGHTIAN UNCERTAINTY: A COMMENTARY ON TOWNSEND ET AL.'S \"ARE THE FUTURES COMPUTABLE?\".",
+      "year": null
+    },
+    {
+      "id": 65,
+      "title": "Embracing the digital shift: Leveraging AI to foster employee well-being and engagement in remote workplace settings in the Asia Pacific region.",
+      "year": null
+    },
+    {
+      "id": 66,
+      "title": "Unethical Consumer Behavior Following Artificial Intelligence Agent Encounters: The Differential Effect of AI Agent Roles and its Boundary Conditions.",
+      "year": null
+    },
+    {
+      "id": 67,
+      "title": "Holixec Education: From Atomistic and Artificial Intelligence (AI) to Holixec Intelligence (HI) for Human-Centric Leadership in the Phygital Age.",
+      "year": null
+    },
+    {
+      "id": 68,
+      "title": "Featured Article: The Next Evolution of Work: Artificial Intelligence (AI) and Sociotechnical Synergy.",
+      "year": null
+    },
+    {
+      "id": 69,
+      "title": "BRIGHT AND DARK IMAGINING: HOW CREATORS NAVIGATE MORAL CONSEQUENCES OF DEVELOPING IDEAS FOR ARTIFICIAL INTELLIGENCE.",
+      "year": null
+    },
+    {
+      "id": 70,
+      "title": "Addressing Gen AI's Quality-Control Problem.",
+      "year": null
+    },
+    {
+      "id": 71,
+      "title": "Enhancing corporate governance through AI: a systematic literature review.",
+      "year": null
+    },
+    {
+      "id": 72,
+      "title": "Artificial Intelligence and Influencer Marketing: Mapping the Field of Knowledge.",
+      "year": null
+    },
+    {
+      "id": 73,
+      "title": "Managing Ethical Risks in Artificial Intelligence: A Project Management Framework for Responsible Innovation.",
+      "year": null
+    },
+    {
+      "id": 74,
+      "title": "Identification of Indicators for Personalized Marketing with an Artificial Intelligence Approach in the Fourth Industrial Revolution.",
+      "year": null
+    },
+    {
+      "id": 75,
+      "title": "Does AI change everything in data licensing?",
+      "year": null
+    },
+    {
+      "id": 76,
+      "title": "How does artificial intelligence affect human capital structure? Evidence from Chinese listed enterprises.",
+      "year": null
+    },
+    {
+      "id": 77,
+      "title": "Artificial Intelligence and Corporate Customer Stability: Evidence from Industrial Robot Adoption in China.",
+      "year": null
+    },
+    {
+      "id": 78,
+      "title": "AI-Enabled Entrepreneurship: A Review Based on the Structural Topic Model.",
+      "year": null
+    },
+    {
+      "id": 79,
+      "title": "AI-Based Intelligent Supply Chains: Theoretical Exploration and Prospects.",
+      "year": null
+    },
+    {
+      "id": 80,
+      "title": "Artificial Intelligence Disclosure in Cause-Related Marketing: A Persuasion Knowledge Perspective.",
+      "year": null
+    },
+    {
+      "id": 81,
+      "title": "Extractive Artificial Intelligence and Its Challenge to Technical Communication.",
+      "year": null
+    },
+    {
+      "id": 82,
+      "title": "Artificial Intelligence in ERP Quality Management Modules: A Comparative Analysis of SAP and Infor.",
+      "year": null
+    },
+    {
+      "id": 83,
+      "title": "THE IMPACT OF ARTIFICIAL INTELLIGENCE ON RESPONSIBLE HUMAN RESOURCE MANAGEMENT.",
+      "year": null
+    },
+    {
+      "id": 84,
+      "title": "THE USE OF AI IN CUSTOMER RELATIONSHIP MANAGEMENT IN THE LOGISTICS INDUSTRY.",
+      "year": null
+    },
+    {
+      "id": 85,
+      "title": "ARTIFICIAL INTELLIGENCE AND HUMANS IN THE MANUFACTURING SECTOR: WORKING IN SYMBIOSIS OR SEPARATELY?",
+      "year": null
+    },
+    {
+      "id": 86,
+      "title": "MARKETING COMMUNICATION AS A TOOL SUPPORTING ARTIFICIAL INTELLIGENCE ACCEPTANCE IN MEDICAL SERVICES.",
+      "year": null
+    },
+    {
+      "id": 87,
+      "title": "Fashion AI across the value chain: A comprehensive literature review and future agenda.",
+      "year": null
+    },
+    {
+      "id": 88,
+      "title": "The AI Delusion",
+      "year": null
+    },
+    {
+      "id": 89,
+      "title": "Open Innovation in the Age of AI.",
+      "year": null
+    },
+    {
+      "id": 90,
+      "title": "AI in fashion: a literature review.",
+      "year": null
+    },
+    {
+      "id": 91,
+      "title": "THE USE OF ARTIFICIAL INTELLIGENCE TOOLS IN COMMUNICATION WITH INTERNATIONAL CLIENTS BASED ON SELECTED EXAMPLES.",
+      "year": null
+    },
+    {
+      "id": 92,
+      "title": "AI-DRIVEN DECISION SUPPORT SYSTEMS IN STRATEGIC BUSINESS MANAGEMENT: A CASE-BASED ANALYSIS.",
+      "year": null
+    },
+    {
+      "id": 93,
+      "title": "НАПРЯМИ ІНТЕГРАЦІЇ ШТУЧНОГО ІНТЕЛЕКТУ У ВІЙСЬКОВУ ОСВІТУ.",
+      "year": null
+    },
+    {
+      "id": 94,
+      "title": "الذكاء الاصطناعي وأثره في الفتاوى الفقهية المعاصرة.",
+      "year": null
+    },
+    {
+      "id": 95,
+      "title": "\" الذكاء الإصطناعي والتلوث الفضائي: نحو مسؤولية جنائية عن الإبادة البيئية\".",
+      "year": null
+    },
+    {
+      "id": 96,
+      "title": "Vertical common ownership and AI diffusion in supply chains: evidence from peer effects.",
+      "year": null
+    },
+    {
+      "id": 97,
+      "title": "Investor's satisfaction in artificial intelligence-supported share trading apps: mediation and parallel moderation analysis.",
+      "year": null
+    },
+    {
+      "id": 98,
+      "title": "The evolution of CCP risk management : A tale of automation, but artificial intelligence?",
+      "year": null
+    },
+    {
+      "id": 99,
+      "title": "User acceptance of AI-powered training: extending the technology acceptance model (TAM).",
+      "year": null
+    },
+    {
+      "id": 100,
+      "title": "Following the Light of the Sun: Humanity in the New (Work) World of AI.",
+      "year": null
+    },
+    {
+      "id": 101,
+      "title": "Artificial Intelligence and the Reconfiguration of Organizational Communication in the Context of the Knowledge Society.",
+      "year": null
+    },
+    {
+      "id": 102,
+      "title": "Redefining the Digital Frontier: Digital Leadership, AI, and Innovation Driving Next-Generation Tourism and Hospitality.",
+      "year": null
+    },
+    {
+      "id": 103,
+      "title": "Future Trend of Artificial Intelligence and Stock Market: A Comprehensive Bibliometric Analysis.",
+      "year": null
+    },
+    {
+      "id": 104,
+      "title": "From experimentation to scaling: what shapes the funnel of AI adoption?",
+      "year": null
+    },
+    {
+      "id": 105,
+      "title": "The Influence of Artificial Intelligence on Talent Management.",
+      "year": null
+    },
+    {
+      "id": 106,
+      "title": "Value propositions of artificial intelligence in retailing.",
+      "year": null
+    },
+    {
+      "id": 107,
+      "title": "The Influence of AI-Driven Sustainable Human Resource Management on Employee Creative Performance: Analyzing Idiosyncratic Deals in the Indian Information Technology Sector.",
+      "year": null
+    },
+    {
+      "id": 108,
+      "title": "Economic Policy Instruments for Innovative Growth in the European Union - The Case of AI.",
+      "year": null
+    },
+    {
+      "id": 109,
+      "title": "تطور وظائف إدارة الموارد البشرية في ظل الذكاء الاصطناعي : دراسة استطلاعية من وجهة نظر العاملين في عمادة الموارد البشرية في جامعة الملك سعود.",
+      "year": null
+    },
+    {
+      "id": 110,
+      "title": "When AI Meets Livestreaming: Exploring the Impact of Virtual Anchor on Tourist Travel Intention.",
+      "year": null
+    },
+    {
+      "id": 111,
+      "title": "The Role of AI Technologies in E-Commerce Development: A European Comparative Study.",
+      "year": null
+    },
+    {
+      "id": 112,
+      "title": "Using Artificial Intelligence to Determine the Impact of E-Commerce on the Digital Economy.",
+      "year": null
+    },
+    {
+      "id": 113,
+      "title": "The Role of Artificial Intelligence in Customer Engagement and Social Media Marketing—Implications from a Systematic Review for the Tourism and Hospitality Sectors.",
+      "year": null
+    },
+    {
+      "id": 114,
+      "title": "Innovative Pathways: Leveraging AI Adoption and Team Dynamics for Multinational Corporation Success.",
+      "year": null
+    },
+    {
+      "id": 115,
+      "title": "Corporate Governance and Artificial Intelligence: Transforming Corporate Standard and Practices.",
+      "year": null
+    },
+    {
+      "id": 116,
+      "title": "THE ROLE OF ARTIFICIAL INTELLIGENCE IN THE INTERNAL AUDIT FUNCTION.",
+      "year": null
+    },
+    {
+      "id": 117,
+      "title": "The Role of Artificial Intelligence in Investment Decision Making and Financial Planning: an Analysis Based on the Theory of Planned Behavior.",
+      "year": null
+    },
+    {
+      "id": 118,
+      "title": "A sustainable advanced artificial intelligence-based framework for analysis of COVID-19 spread.",
+      "year": null
+    },
+    {
+      "id": 119,
+      "title": "The application of artificial intelligence technologies in the resilience and the viability of supply chains: a systematic literature review.",
+      "year": null
+    },
+    {
+      "id": 120,
+      "title": "ARTIFICIAL INTELLIGENCE AND THE SUSTAINABLE CITY: HOW TECHNOLOGY TRANSFORMS URBAN FUTURES.",
+      "year": null
+    },
+    {
+      "id": 121,
+      "title": "LEADERSHIP IN THE AGE OF AI IN THE CONTEXT OF EFFECTIVELY CONNECTING TECHNOLOGY TO TEAMS.",
+      "year": null
+    },
+    {
+      "id": 122,
+      "title": "ARTIFICIAL INTELLIGENCE IN HUMAN RESOURCES MANAGEMENT: A MOMENTARY TREND OR NECESSITY?",
+      "year": null
+    },
+    {
+      "id": 123,
+      "title": "RECRUITMENT IN THE DIGITALIZATION AND AI ERA – AWARENESS AND ATTITUDES OF HR PRACTIONIONERS TOWARDS CYBERVETTING.",
+      "year": null
+    },
+    {
+      "id": 124,
+      "title": "ARTIFICIAL INTELLIGENCE IN CANDIDATE SCREENING: OPPORTUNITIES AND CHALLENGES.",
+      "year": null
+    },
+    {
+      "id": 125,
+      "title": "AI, FEAR AND EMPLOYMENT: A NATIONWIDE STUDY OF PERCEIVED JOB DISPLACEMENT.",
+      "year": null
+    },
+    {
+      "id": 126,
+      "title": "EXPLORING THE ACCEPTANCE OF THE CHATGPT ARTIFICIAL INTELLIGENCE TOOL IN TEACHING PROGRAMMING.",
+      "year": null
+    },
+    {
+      "id": 127,
+      "title": "INTELLIGENCE–EMOTIONAL VS. ARTIFICIAL INTELLIGENCE IN DECISION MAKING.",
+      "year": null
+    },
+    {
+      "id": 128,
+      "title": "Islamic vs. Conventional Banking in the Age of FinTech and AI: Evolving Business Models, Efficiency, and Stability (2020–2024).",
+      "year": null
+    },
+    {
+      "id": 129,
+      "title": "Nexus Between Artificial Intelligence, Renewable Energy, and Economic Development: A Multi-Method Approach.",
+      "year": null
+    },
+    {
+      "id": 130,
+      "title": "Applications of Artificial Intelligence and Machine Learning-based Supervisory Technology in Financial Markets Surveillance: A Review of Literature.",
+      "year": null
+    },
+    {
+      "id": 131,
+      "title": "AI adoption and turnover intentions in knowledge-intensive sectors: a SEM-based conceptual framework.",
+      "year": null
+    },
+    {
+      "id": 132,
+      "title": "Deep-learning based artificial intelligence tool for melt pools and defect segmentation.",
+      "year": null
+    },
+    {
+      "id": 133,
+      "title": "Understanding How AI in Portfolio Management Can Boost Investment Gains by Spotting Patterns and Trends.",
+      "year": null
+    },
+    {
+      "id": 134,
+      "title": "Toward Energy Transition: Exploring the Effects of Artificial Intelligence and Global Supply Chain Pressure.",
+      "year": null
+    },
+    {
+      "id": 135,
+      "title": "Could AI and Sustainable Finance Drive Energy Sustainability? A Wavelet Quantile Correlation Analysis.",
+      "year": null
+    },
+    {
+      "id": 136,
+      "title": "The Regulation of Artificial Intelligence in Brazil.",
+      "year": null
+    },
+    {
+      "id": 137,
+      "title": "Varieties of AI Regulations: The United States Perspective.",
+      "year": null
+    },
+    {
+      "id": 138,
+      "title": "The potential of AI-enabled quality control facing high inspection standard in resilient cross-border operations.",
+      "year": null
+    },
+    {
+      "id": 139,
+      "title": "Forecasting Energy Commodity Prices Amidst Worldwide Energy Transitions Using Artificial Intelligence Models.",
+      "year": null
+    },
+    {
+      "id": 140,
+      "title": "Using AI in the informal currency market: evidence from Cuba.",
+      "year": null
+    },
+    {
+      "id": 141,
+      "title": "ARTIFICIAL INTELLIGENCE IN SMALL ENTERPRISE MANAGEMENT – CYBERSECURITY CHALLENGES.",
+      "year": null
+    },
+    {
+      "id": 142,
+      "title": "Two Decades of Automated AI Planning Methods in Construction and Fabrication: a Systematic Review.",
+      "year": null
+    },
+    {
+      "id": 143,
+      "title": "America's Artificial Intelligence (AI) Action Plan: President Trump's Race to Achieve Global Dominance in AI.",
+      "year": null
+    },
+    {
+      "id": 144,
+      "title": "THE GREAT COMPUTE CRAPSHOOT.",
+      "year": null
+    },
+    {
+      "id": 145,
+      "title": "THE SEER.",
+      "year": null
+    },
+    {
+      "id": 146,
+      "title": "PERSON-to-PERSON.",
+      "year": null
+    },
+    {
+      "id": 147,
+      "title": "Reciprocal learning in human–machine collaboration: a systematic literature review and implications for production and logistics.",
+      "year": null
+    },
+    {
+      "id": 148,
+      "title": "The Caring Machine: Feeling AI for Customer Care.",
+      "year": null
+    },
+    {
+      "id": 149,
+      "title": "Application of artificial intelligence to enhance manufacturing quality and zero-defect using CRISP-DM framework.",
+      "year": null
+    },
+    {
+      "id": 150,
+      "title": "How prevalent are suggestive brand names and Distinctive Assets? An AI-human approach.",
+      "year": null
+    },
+    {
+      "id": 151,
+      "title": "An analysis of trends, challenges, and opportunities in retail analytics.",
+      "year": null
+    },
+    {
+      "id": 152,
+      "title": "On Efficiency, Fairness and Security in AI Accelerator Resource Sharing: A Survey.",
+      "year": null
+    },
+    {
+      "id": 153,
+      "title": "How AI can slow the rise of antibiotic-resistant \"superbugs\".",
+      "year": null
+    },
+    {
+      "id": 154,
+      "title": "Should Artificial Intelligence Be Regulated to Better Protect Consumers?",
+      "year": null
+    },
+    {
+      "id": 155,
+      "title": "The Business Case for Human-Centric Organizing: Implications for Artificial Intelligence (AI) adoption.",
+      "year": null
+    },
+    {
+      "id": 156,
+      "title": "Is AI my co-author? The ethics of using artificial intelligence in scientific publishing.",
+      "year": null
+    },
+    {
+      "id": 157,
+      "title": "REWIRING CULTURE FOR THE AI ERA: How to build an AI-ready organizational culture.",
+      "year": null
+    },
+    {
+      "id": 158,
+      "title": "Challenge accepted! or not: impact of artificial intelligence (AI)-based matchmaking on motivation to re-engage with fantasy sports applications.",
+      "year": null
+    },
+    {
+      "id": 159,
+      "title": "From Algorithms to Altruism: Mapping the Human-Tech Synergy for Sustainable Workplaces Through Artificial Intelligence (AI), Innovative Work Behavior, Leader-Member Exchange, Organizational Citizenship Behavior and Role Clarity.",
+      "year": null
+    },
+    {
+      "id": 160,
+      "title": "AI RISKS AND REWARDS: How the internal audit team can lead the way during AI adoption.",
+      "year": null
+    },
+    {
+      "id": 161,
+      "title": "Concurrence of artificial intelligence and additive manufacturing: a bibliometric analysis.",
+      "year": null
+    },
+    {
+      "id": 162,
+      "title": "Smart Road Traffic Monitoring: Unveiling the Synergy of IoT and AI for Enhanced Urban Mobility.",
+      "year": null
+    },
+    {
+      "id": 163,
+      "title": "Data Readiness for AI: A 360-Degree Survey.",
+      "year": null
+    },
+    {
+      "id": 164,
+      "title": "Bringing AI to the Edge.",
+      "year": null
+    },
+    {
+      "id": 165,
+      "title": "AI and Art.",
+      "year": null
+    },
+    {
+      "id": 166,
+      "title": "Thoughts about Some Surprising AI-Era Technology Readiness Findings.",
+      "year": null
+    },
+    {
+      "id": 167,
+      "title": "Taming Artificial Intelligence: A Theory of Control-Accountability Alignment among AI Developers and Users.",
+      "year": null
+    },
+    {
+      "id": 168,
+      "title": "ESPIONAGE ENTERS THE CHAT.",
+      "year": null
+    },
+    {
+      "id": 169,
+      "title": "RAMP WANTS TO SHAKE UP CORPORATE CREDIT CARDS. INVESTORS BELIEVE THAT'S A $22.5 BILLION IDEA.",
+      "year": null
+    },
+    {
+      "id": 170,
+      "title": "AI Made His Marketing. He Made $70K on the Promotion.",
+      "year": null
+    },
+    {
+      "id": 171,
+      "title": "Why CEOs Should Think Twice Before Using AI to Write Messages.",
+      "year": null
+    },
+    {
+      "id": 172,
+      "title": "The Pollution of AI.",
+      "year": null
+    },
+    {
+      "id": 173,
+      "title": "Does AI Prediction Scale to Decision Making?",
+      "year": null
+    },
+    {
+      "id": 174,
+      "title": "تحويل العدالة في عصر الذكاء الاصطناعي.",
+      "year": null
+    },
+    {
+      "id": 175,
+      "title": "Artificial intelligence: reflecting on the past and looking towards the next paradigm shift.",
+      "year": null
+    },
+    {
+      "id": 176,
+      "title": "AI-Evolved Marketing Research Methods: Industry and Academic Considerations via a Technology Reflexivity Framework.",
+      "year": null
+    },
+    {
+      "id": 177,
+      "title": "Relationship Between Trust in the Artificial Intelligence Creator and Trust in Artificial Intelligence Systems: The Crucial Role of Artificial Intelligence Alignment and Steerability.",
+      "year": null
+    },
+    {
+      "id": 178,
+      "title": "Artificial Intelligence : Strategies, Applications, and Models Through Search",
+      "year": null
+    },
+    {
+      "id": 179,
+      "title": "Global Perspectives on AI Competence Development: Analyzing National AI Strategies in Education and Workforce Policies.",
+      "year": null
+    },
+    {
+      "id": 180,
+      "title": "الذكاء الاصطناعي في الصيرفة الإسلامية الفرص والتحديات.",
+      "year": null
+    },
+    {
+      "id": 181,
+      "title": "AI and ML patent intensity and firm performance: A machine learning-based lagged analysis.",
+      "year": null
+    },
+    {
+      "id": 182,
+      "title": "Artificial intelligence and autonomy at work: empirical insights from Germany.",
+      "year": null
+    },
+    {
+      "id": 183,
+      "title": "Mode 3 knowledge production and exchange processes of research and innovation networks in AI-based research environments.",
+      "year": null
+    },
+    {
+      "id": 184,
+      "title": "AI Won't Replace You--But Those Who Wield It Might.",
+      "year": null
+    },
+    {
+      "id": 185,
+      "title": "Navigating AI-Driven Financial Forecasting: A Systematic Review of Current Status and Critical Research Gaps.",
+      "year": null
+    },
+    {
+      "id": 186,
+      "title": "The adoption of artificial intelligence and enterprises’ breakthrough innovation: an analysis based on China’s patent citation network.",
+      "year": null
+    },
+    {
+      "id": 187,
+      "title": "Editor's introduction: special issue on the anomie of AI in finance; financial markets &amp; investments; economic &amp; policy analysis; corporate governance &amp; related market dynamics.",
+      "year": null
+    },
+    {
+      "id": 188,
+      "title": "How AI can help project managers improve project performance: Part 2.",
+      "year": null
+    },
+    {
+      "id": 189,
+      "title": "Engineering Synergy: The Role of Context and Prompt Design in AI-Enhanced Project Management.",
+      "year": null
+    },
+    {
+      "id": 190,
+      "title": "Artificial Intelligence and Project Management: An Integrated Approach to Knowledge-based Evaluation.",
+      "year": null
+    },
+    {
+      "id": 191,
+      "title": "Agentic AI and the Future of Institutional Asset Management.",
+      "year": null
+    },
+    {
+      "id": 192,
+      "title": "Outward foreign direct investment in the artificial intelligence era: productivity enhancement versus asset-light expansion.",
+      "year": null
+    },
+    {
+      "id": 193,
+      "title": "Explainable AI for Diabetic Retinopathy Detection Based on a Hybrid-stacked Model.",
+      "year": null
+    },
+    {
+      "id": 194,
+      "title": "A Closer Look at AI and the Compliance Profession.",
+      "year": null
+    },
+    {
+      "id": 195,
+      "title": "The present and future of artificial intelligence in people management research: A bibliometric approach.",
+      "year": null
+    },
+    {
+      "id": 196,
+      "title": "Artificial intelligence and central bank communication: the case of the ECB.",
+      "year": null
+    },
+    {
+      "id": 197,
+      "title": "bridging ai skills gaps in marketing education: prompt engineering as a key competency.",
+      "year": null
+    },
+    {
+      "id": 198,
+      "title": "“AI-Driven Industrial Coordination”: A New Pathway to Enhance the Export Technological Complexity of China’s Manufacturing Industry.",
+      "year": null
+    },
+    {
+      "id": 199,
+      "title": "USING ARTIFICIAL INTELLIGENCE IN THE DEVELOPMENT OF SHARING SMART CITIES: THE GENERATION C PERSPECTIVE.",
+      "year": null
+    }
+  ],
+  "edges": [
+    {
+      "source": 1,
+      "target": 3,
+      "weight": 0.9213194141994439
+    },
+    {
+      "source": 3,
+      "target": 1,
+      "weight": 0.9213194141994439
+    }
+  ],
+  "threshold": 0.6,
+  "weights": {
+    "title": 0.5,
+    "keywords": 0.3,
+    "authors": 0.2
+  }
+}

@@ -667,6 +667,49 @@
             height: auto;
             border-radius: 10px;
         }
+
+        /* Tooltips accesibles */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+        }
+        .info-icon {
+            width: 18px; height: 18px; line-height: 18px;
+            margin-left: 6px; border-radius: 50%;
+            background: rgba(99,102,241,0.18);
+            color: var(--primary);
+            -webkit-text-fill-color: var(--primary); /* corrige icono invisible si el padre usa text-fill transparente */
+            font-size: 12px; font-weight: 700;
+            text-align: center;
+            user-select: none;
+        }
+        .tooltip:focus::after, .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%; transform: translateX(-50%);
+            background: rgba(15,23,42,0.95);
+            color: #e5e7eb; 
+            -webkit-text-fill-color: #e5e7eb; /* evita heredar texto transparente de encabezados con gradient */
+            border: 1px solid var(--border);
+            padding: 8px 10px; border-radius: 8px;
+            white-space: normal; width: max-content; max-width: 320px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            z-index: 2000; font-size: 12px; font-weight: 500;
+            display: block; pointer-events: none;
+        }
+        .tooltip:focus::before, .tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100%);
+            left: 50%; transform: translateX(-50%);
+            border-width: 6px; border-style: solid;
+            border-color: rgba(15,23,42,0.95) transparent transparent transparent;
+            z-index: 2001; pointer-events: none;
+        }
         
         /* FILE BUTTONS */
         .file-buttons {
@@ -1064,6 +1107,9 @@
                                 <button class="file-btn" onclick="openFile('authors')">
                                     👥 Top Autores
                                 </button>
+                                <button class="file-btn" onclick="openFile('citation_graph')">
+                                    🔗 Grafo Citaciones (PNG)
+                                </button>
                             </div>
 
                             <div class="card" id="pipeline-sim-card" style="margin-top:16px;">
@@ -1077,6 +1123,40 @@
                             <div class="card" id="pipeline-hc-card" style="margin-top:16px;">
                                 <h3>🌳 Dendrogramas (Clustering Jerárquico)</h3>
                                 <div id="pipeline-hc-results"></div>
+                            </div>
+
+                            <div class="card" id="pipeline-citation-card" style="margin-top:16px;">
+                                <h3>🔗 Red de Citaciones (Pipeline)</h3>
+                                <div class="results-grid">
+                                    <div class="stat-card"><div class="stat-label">Nodos</div><div class="stat-value" id="pl-cn-nodes">-</div></div>
+                                    <div class="stat-card"><div class="stat-label">Aristas</div><div class="stat-value" id="pl-cn-edges">-</div></div>
+                                    <div class="stat-card"><div class="stat-label">SCC</div><div class="stat-value" id="pl-cn-scc">-</div></div>
+                                </div>
+                                <div class="chart-container" style="background: rgba(255,255,255,0.02); overflow:hidden;">
+                                    <canvas id="pipeline-citation-canvas" style="width:100%; height:auto; display:block; background: rgba(15,23,42,0.6); border-radius: 12px;"></canvas>
+                                </div>
+                                <div class="form-group">
+                                    <label>🧭 Camino mínimo (Dijkstra)</label>
+                                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                                        <select id="pl-cn-source" style="min-width:260px;"></select>
+                                        <span style="color: var(--text-muted)">→</span>
+                                        <select id="pl-cn-target" style="min-width:260px;"></select>
+                                        <button class="btn" onclick="computePipelineCitationShortestPath()">Calcular</button>
+                                    </div>
+                                    <div id="pl-cn-path-result" style="margin-top:8px; color: var(--text-muted);"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>🧩 Componentes fuertemente conexas</label>
+                                    <div id="pl-cn-scc-list" class="log-box" style="height: 160px; overflow:auto;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>🏁 Top 10 caminos mínimos (Dijkstra)</label>
+                                    <div id="pl-cn-top-paths" class="log-box" style="height: 160px; overflow:auto;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>🧩 SCC más grandes</label>
+                                    <div id="pl-cn-top-sccs" class="log-box" style="height: 140px; overflow:auto;"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1252,8 +1332,12 @@
                 
                 <!-- SOLO ALGORITMOS -->
                 <div id="analysis" class="section">
-                    <div class="card">
-                        <h3>📊 Solo Análisis de Algoritmos</h3>
+                    <div class="card" style="overflow: visible;">
+                        <h3>📊 Algoritmo de ordenamiento 
+                            <span class="tooltip info-icon" tabindex="0" 
+                                aria-label="Organiza los artículos de tu investigación en orden (por ejemplo, del más antiguo al más reciente, o alfabéticamente por título). Probamos 12 formas diferentes de hacerlo y te mostramos cuál es más rápida, junto con un gráfico fácil de entender." 
+                                data-tip="Organiza los artículos de tu investigación en orden (por ejemplo, del más antiguo al más reciente, o alfabéticamente por título). Probamos 12 formas diferentes de hacerlo y te mostramos cuál es más rápida, junto con un gráfico fácil de entender.">ⓘ</span>
+                        </h3>
                         <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 15px;">
                             Analiza un archivo CSV con 12 algoritmos de ordenamiento
                         </p>
@@ -1308,8 +1392,8 @@
                     </div>
 
                     <!-- NUEVO: Análisis de Conceptos (GAIE) -->
-                    <div class="card">
-                        <h3>🧩 Conceptos GAIE (Generative AI in Education)</h3>
+                    <div class="card" style="overflow: visible;">
+                        <h3>🧩 Conceptos GAIE (Generative AI in Education) <span class="tooltip info-icon" tabindex="0" aria-label="Lee los resúmenes (abstracts) y detecta los términos y frases más representativos con TF‑IDF. Esto te ayuda a descubrir temas, mejorar tus palabras clave y apoyar la categorización en el dominio de IA generativa en educación." data-tip="Lee los resúmenes (abstracts) y detecta los términos y frases más representativos con TF‑IDF. Esto te ayuda a descubrir temas, mejorar tus palabras clave y apoyar la categorización en el dominio de IA generativa en educación.">ⓘ</span></h3>
                         <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
                             Cuenta la frecuencia de términos semilla de la categoría y extrae hasta 15 términos asociados; además estima la precisión de los términos generados.
                         </p>
@@ -1321,16 +1405,22 @@
                             </div>
                         </div>
                         <button class="btn btn-primary" onclick="runConceptsAnalysis()">Analizar Conceptos</button>
-                    </div>
-
-                    <div class="card">
-                        <h3>📈 Resultados de Conceptos</h3>
-                        <div id="concepts-results"></div>
+                        <div class="progress-container" id="concepts-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="concepts-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="concepts-status">Esperando...</div>
+                            <div class="substatus" id="concepts-substatus"></div>
+                        </div>
+                        <div class="mt-20">
+                            <h3>📈 Resultados de Conceptos</h3>
+                            <div id="concepts-results"></div>
+                        </div>
                     </div>
 
                     <!-- NUEVO: Similitud Textual (selección múltiple) -->
-                    <div class="card">
-                        <h3>🌳 Clustering Jerárquico (Dendrogramas)</h3>
+                    <div class="card" style="overflow: visible;">
+                        <h3>🌳 Clustering Jerárquico (Dendrogramas) <span class="tooltip info-icon" tabindex="0" aria-label="Agrupa artículos que se parecen entre sí según sus resúmenes. El resultado es un árbol (dendrograma) para ver grupos y subgrupos. Puedes cambiar el criterio (single, complete, average) para ajustar cómo se forman los grupos." data-tip="Agrupa artículos que se parecen entre sí según sus resúmenes. El resultado es un árbol (dendrograma) para ver grupos y subgrupos. Puedes cambiar el criterio (single, complete, average) para ajustar cómo se forman los grupos.">ⓘ</span></h3>
                         <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
                             Genera dendrogramas usando enlaces Single, Complete y Average sobre los abstracts.
                         </p>
@@ -1351,13 +1441,21 @@
                             </div>
                         </div>
                         <button class="btn btn-primary" onclick="runClusteringAnalysis()">Generar dendrogramas</button>
+                        <div class="progress-container" id="hc-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="hc-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="hc-status">Esperando...</div>
+                            <div class="substatus" id="hc-substatus"></div>
+                        </div>
+                        <div class="mt-20">
+                            <h3>🖼️ Resultados de Dendrogramas</h3>
+                            <div id="hc-results"></div>
+                        </div>
                     </div>
-
-                    <div class="card">
-                        <h3>🖼️ Resultados de Dendrogramas</h3>
-                        <div id="hc-results"></div>
-                    </div>
-                        <h3>🧠 Similitud Textual (Abstracts)</h3>
+                    <!-- NUEVO: Similitud Textual (selección múltiple) -->
+                    <div class="card" style="overflow: visible;">
+                        <h3>🧠 Similitud Textual (Abstracts) <span class="tooltip info-icon" tabindex="0" aria-label="Compara el texto de los resúmenes para medir qué tan parecidos son los artículos. Usa métodos clásicos (TF‑IDF y similitudes de cadenas) y de IA (embeddings) y te muestra qué documentos están más relacionados." data-tip="Compara el texto de los resúmenes para medir qué tan parecidos son los artículos. Usa métodos clásicos (TF‑IDF y similitudes de cadenas) y de IA (embeddings) y te muestra qué documentos están más relacionados.">ⓘ</span></h3>
                         <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
                             Selecciona 2 o más artículos, extrae sus abstracts y calcula similitud con algoritmos clásicos e IA.
                         </p>
@@ -1397,11 +1495,98 @@
                         </div>
 
                         <button class="btn btn-primary" onclick="runSimilarityAnalysis()">Calcular similitud</button>
+                        <div class="progress-container" id="algo-sim-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="algo-sim-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="algo-sim-status">Esperando...</div>
+                            <div class="substatus" id="algo-sim-substatus"></div>
+                        </div>
+                        <div class="mt-20">
+                            <h3>📈 Resultados de Similitud</h3>
+                            <div id="algo-results"></div>
+                        </div>
                     </div>
 
-                    <div class="card">
-                        <h3>📈 Resultados de Similitud</h3>
-                        <div id="algo-results"></div>
+                    <!-- NUEVO: Red de Citaciones (Solo Algoritmos) -->
+                    <div class="card" style="overflow: visible;">
+                        <h3>🔗 Red de Citaciones (Grafo dirigido) <span class="tooltip info-icon" tabindex="0" aria-label="Crea un mapa donde cada artículo es un punto y las citaciones son flechas. Si no hay citaciones explícitas, las deduce por similitud (título, autores y palabras clave). Luego permite ver grupos muy conectados (SCC) y el camino más corto entre dos artículos." data-tip="Crea un mapa donde cada artículo es un punto y las citaciones son flechas. Si no hay citaciones explícitas, las deduce por similitud (título, autores y palabras clave). Luego permite ver grupos muy conectados (SCC) y el camino más corto entre dos artículos.">ⓘ</span></h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">
+                            Construye un grafo dirigido de citaciones; si no hay citaciones explícitas, las infiere por similitud (título/autores/keywords).
+                        </p>
+                        <div class="form-group">
+                            <label>📁 Fuente de artículos</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                                <button class="btn btn-secondary" onclick="selectFile('analysis-csv')">Elegir CSV…</button>
+                                <span style="color: var(--text-muted);">Usa el CSV seleccionado o el unificado/ordenado del pipeline.</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>⚙️ Opciones</label>
+                            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                                <label class="checkbox-label"><input type="radio" name="cn-backend" value="classic" checked> <span title="Usa TF‑IDF/coseno y comparaciones de texto clásicas; es más simple y suele ser más rápido.">Clásico</span></label>
+                                <label class="checkbox-label"><input type="radio" name="cn-backend" value="ia"> <span title="Usa embeddings (SBERT/Transformers) para captar mejor el significado de los textos.">IA</span></label>
+                                <label class="checkbox-label"><span title="Valor entre 0 y 1: solo crea flechas si la similitud alcanza este valor. Más alto = menos conexiones.">Umbral:</span> <input type="number" id="cn-threshold" step="0.05" min="0" max="1" value="0.6" style="width:100px; margin-left:8px;"></label>
+                                <label class="checkbox-label"><span title="Límite de flechas salientes por artículo al inferir por similitud; evita grafos demasiado densos.">Top-K por nodo:</span> <input type="number" id="cn-topk" min="1" value="3" style="width:100px; margin-left:8px;"></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cn-use-concepts"> <span title="Añade términos detectados en resúmenes para mejorar las comparaciones entre artículos.">Enriquecer con conceptos (GAIE)</span></label>
+                                <label class="checkbox-label"><span title="Número máximo de artículos a procesar; aumentarlo puede requerir más tiempo y memoria.">Límite:</span> <input type="number" id="cn-limit" min="2" value="120" style="width:100px; margin-left:8px;"></label>
+                            </div>
+                            <div id="cn-classic-options" style="margin:8px 0 0 0; display:flex; gap:12px; flex-wrap:wrap;">
+                                <label class="checkbox-label"><input type="checkbox" id="cn-cl-lev" checked> <span>Levenshtein</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cn-cl-jw" checked> <span>Jaro-Winkler</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cn-cl-tfidf" checked> <span>TF‑IDF</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cn-cl-cos" checked> <span>Coseno</span></label>
+                            </div>
+                            <div id="cn-ai-options" style="margin:8px 0 0 0; display:none; gap:12px; flex-wrap:wrap;">
+                                <label class="checkbox-label"><input type="checkbox" id="cn-ai-sbert" checked> <span>SBERT</span></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cn-ai-hf" checked> <span>HF-MeanPooling</span></label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="runCitationNetworkAnalysis()">Construir red</button>
+                        <div class="progress-container" id="citation-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="citation-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="citation-status">Esperando...</div>
+                            <div class="substatus" id="citation-substatus"></div>
+                        </div>
+                        <div class="mt-20">
+                            <h3>🖼️ Grafo y métricas de citaciones</h3>
+                            <div class="results-grid">
+                                <div class="stat-card"><div class="stat-label">Nodos</div><div class="stat-value" id="cn-nodes">-</div></div>
+                                <div class="stat-card"><div class="stat-label">Aristas</div><div class="stat-value" id="cn-edges">-</div></div>
+                                <div class="stat-card"><div class="stat-label">SCC</div><div class="stat-value" id="cn-scc">-</div></div>
+                            </div>
+                            <!-- Imagen generada por backend (igual flujo que gráfico de ordenamiento) -->
+                            <div class="chart-container hidden" id="citation-chart" style="margin-top: 10px;">
+                                <img id="citation-graph-img" src="" alt="Grafo de citaciones (PNG)"/>
+                            </div>
+                            <div class="chart-container" style="background: rgba(255,255,255,0.02); overflow:hidden;">
+                                <canvas id="citation-graph-canvas" style="width:100%; height:auto; display:block; background: rgba(15,23,42,0.6); border-radius: 12px;"></canvas>
+                            </div>
+                            <div class="form-group">
+                                <label>🧭 Camino mínimo (Dijkstra)</label>
+                                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                                    <select id="cn-source" style="min-width:260px;"></select>
+                                    <span style="color: var(--text-muted)">→</span>
+                                    <select id="cn-target" style="min-width:260px;"></select>
+                                    <button class="btn" onclick="computeCitationShortestPath()">Calcular</button>
+                                </div>
+                                <div id="cn-path-result" style="margin-top:8px; color: var(--text-muted);"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>🧩 Componentes fuertemente conexas</label>
+                                <div id="cn-scc-list" class="log-box" style="height: 200px; overflow:auto;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>🏁 Top 10 caminos mínimos (Dijkstra)</label>
+                                <div id="cn-top-paths" class="log-box" style="height: 200px; overflow:auto;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>🧩 SCC más grandes</label>
+                                <div id="cn-top-sccs" class="log-box" style="height: 160px; overflow:auto;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1470,6 +1655,23 @@
             }
         }
         
+        // Helper: gestionar barras de progreso por sección
+        function setSectionProgress(prefix, active, percent = 0, statusText = '', subText = '') {
+            const wrap = document.getElementById(prefix + '-progress');
+            if (!wrap) return;
+            if (active) wrap.classList.add('active'); else wrap.classList.remove('active');
+            const fill = document.getElementById(prefix + '-fill');
+            if (fill) {
+                const p = Math.max(0, Math.min(100, percent|0));
+                fill.style.width = p + '%';
+                fill.textContent = p + '%';
+            }
+            const st = document.getElementById(prefix + '-status');
+            if (st && statusText) st.textContent = statusText;
+            const sub = document.getElementById(prefix + '-substatus');
+            if (sub) sub.textContent = subText || '';
+        }
+
         // Check availability
         function checkAvailability(prefix) {
             const query = document.getElementById(`${prefix}-query`).value;
@@ -1717,6 +1919,9 @@
                 filepath = currentResults.chart_file;
             } else if (type === 'authors') {
                 filepath = currentResults.authors_file;
+            } else if (type === 'citation_graph') {
+                const cn = currentResults.citation_network || {};
+                filepath = cn.graph_file || '';
             }
             
             if (filepath) {
@@ -1814,6 +2019,26 @@
             if (results.clustering && prefix === 'pipeline') {
                 renderClusteringResults(results.clustering, 'pipeline-hc-results');
             }
+
+            // Renderizar red de citaciones (pipeline)
+            if (results.citation_network && prefix === 'pipeline') {
+                const statsRefs = {
+                    nodes: document.getElementById('pl-cn-nodes'),
+                    edges: document.getElementById('pl-cn-edges'),
+                    scc: document.getElementById('pl-cn-scc'),
+                };
+                renderCitationResults(results.citation_network, 'pipeline-citation-canvas', 'pl-cn-source', 'pl-cn-target', 'pl-cn-path-result', 'pl-cn-scc-list', statsRefs);
+            }
+
+            // Renderizar red de citaciones (pipeline)
+            if (results.citation_network && prefix === 'pipeline') {
+                const statsRefs = {
+                    nodes: document.getElementById('pl-cn-nodes'),
+                    edges: document.getElementById('pl-cn-edges'),
+                    scc: document.getElementById('pl-cn-scc')
+                };
+                renderCitationResults(results.citation_network, 'pipeline-citation-canvas', 'pl-cn-source', 'pl-cn-target', 'pl-cn-path-result', 'pl-cn-scc-list', statsRefs);
+            }
         }
         
         // Show cleaning results
@@ -1898,6 +2123,7 @@
                 window.appendLog('⚠️ Selecciona al menos 2 artículos para analizar.');
                 return;
             }
+            setSectionProgress('algo-sim', true, 10, 'Calculando similitud…', 'Comparando textos seleccionados');
             const useClassic = document.getElementById('algoUseClassic').checked;
             const useAI = document.getElementById('algoUseAI').checked;
             // Opciones granulares
@@ -1916,9 +2142,13 @@
             pywebview.api.analyze_similarity(indices, algoCSVPath, useClassic, useAI, classicOptions, aiOptions).then(resp => {
                 if (!resp.success) {
                     resDiv.innerHTML = `<div class="alert alert-warning">${resp.message || 'Error en el análisis'}</div>`;
+                    setSectionProgress('algo-sim', true, 100, 'Error en similitud', 'Revisa las opciones o el archivo fuente');
+                    setTimeout(() => setSectionProgress('algo-sim', false, 0, 'Esperando...', ''), 900);
                     return;
                 }
                 renderSimilarityResults(resp.labels || [], resp.results || {}, 'algo-results');
+                setSectionProgress('algo-sim', true, 100, 'Completado', 'Resultados generados');
+                setTimeout(() => setSectionProgress('algo-sim', false, 0, 'Esperando...', ''), 800);
             });
         }
 
@@ -1983,14 +2213,21 @@
             const maxdocs = parseInt(document.getElementById('hc-maxdocs').value) || 120;
             const cont = document.getElementById('hc-results');
             if (cont) cont.innerHTML = 'Generando…';
+            setSectionProgress('hc', true, 12, 'Generando dendrogramas…', 'Calculando distancias y estructura jerárquica');
             pywebview.api.analyze_hierarchical_clustering(file, maxdocs, algos).then(resp => {
                 if (!resp || !resp.success) {
                     cont.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp && resp.message) || 'Error en clustering').replace(/</g,'&lt;')}</span></div>`;
+                    setSectionProgress('hc', true, 100, 'Error en clustering', 'Revisa los parámetros o el archivo');
+                    setTimeout(() => setSectionProgress('hc', false, 0, 'Esperando...', ''), 900);
                     return;
                 }
                 renderClusteringResults(resp.results, 'hc-results');
+                setSectionProgress('hc', true, 100, 'Completado', 'Dendrogramas generados');
+                setTimeout(() => setSectionProgress('hc', false, 0, 'Esperando...', ''), 800);
             }).catch(err => {
                 cont.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+                setSectionProgress('hc', true, 100, 'Error en clustering', 'Consulta la consola para más detalles');
+                setTimeout(() => setSectionProgress('hc', false, 0, 'Esperando...', ''), 1000);
             });
         }
 
@@ -2037,16 +2274,23 @@
             const file = selectedFiles['analysis-csv'] || (currentResults && currentResults.unified_file) || null;
             const cont = document.getElementById('concepts-results');
             if (cont) cont.innerHTML = 'Analizando…';
+            setSectionProgress('concepts', true, 8, 'Analizando conceptos…', 'Extrayendo términos y TF‑IDF');
             pywebview.api.analyze_concepts(file, 15).then(resp => {
                 const c = document.getElementById('concepts-results');
                 if (!resp || !resp.success) {
                     if (c) c.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp && resp.message) || 'Error en análisis de conceptos').replace(/</g,'&lt;')}</span></div>`;
+                    setSectionProgress('concepts', true, 100, 'Error en conceptos', 'Revisa el archivo o el tamaño del conjunto');
+                    setTimeout(() => setSectionProgress('concepts', false, 0, 'Esperando...', ''), 900);
                     return;
                 }
                 renderConceptsResults(resp.results, 'concepts-results');
+                setSectionProgress('concepts', true, 100, 'Completado', 'Términos y métricas generadas');
+                setTimeout(() => setSectionProgress('concepts', false, 0, 'Esperando...', ''), 800);
             }).catch(err => {
                 const c = document.getElementById('concepts-results');
                 if (c) c.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+                setSectionProgress('concepts', true, 100, 'Error en conceptos', 'Consulta la consola para más detalles');
+                setTimeout(() => setSectionProgress('concepts', false, 0, 'Esperando...', ''), 1000);
             });
         }
 
@@ -2103,6 +2347,455 @@
 
             cont.innerHTML = '';
             cont.appendChild(frag);
+        }
+
+        // ==================== NUEVO: Red de Citaciones ====================
+        const citationState = {
+            nodes: [],
+            edges: [],
+            positions: {},
+            sccMap: {}, // nodeId -> compIndex
+            colors: ['#60a5fa','#34d399','#f472b6','#fbbf24','#a78bfa','#fb7185','#4ade80','#22d3ee','#f59e0b','#c084fc'],
+            lastHighlight: null,
+            // pan & zoom
+            tx: 0, ty: 0, scale: 1,
+            // dragging
+            dragging: null, dragDX: 0, dragDY: 0,
+            // layout config
+            layout: { iterations: 180, repulsion: 6000, stiffness: 0.02, damping: 0.85, idealLen: 120 },
+            canvasListeners: {}
+        };
+
+        function runCitationNetworkAnalysis() {
+            const file = selectedFiles['analysis-csv'] || (currentResults && (currentResults.unified_file || (currentResults.best_sorted && currentResults.best_sorted.sorted_file))) || null;
+            const backend = (document.querySelector('input[name="cn-backend"]:checked') || {value:'classic'}).value;
+            const threshold = parseFloat(document.getElementById('cn-threshold').value) || 0.6;
+            const topk = parseInt(document.getElementById('cn-topk').value) || 3;
+            const limit = parseInt(document.getElementById('cn-limit').value) || 120;
+            const useConcepts = document.getElementById('cn-use-concepts').checked;
+            const classicOptions = {
+                levenshtein: document.getElementById('cn-cl-lev')?.checked ?? true,
+                jarowinkler: document.getElementById('cn-cl-jw')?.checked ?? true,
+                tfidf: document.getElementById('cn-cl-tfidf')?.checked ?? true,
+                coseno: document.getElementById('cn-cl-cos')?.checked ?? true,
+            };
+            const aiOptions = {
+                sbert: document.getElementById('cn-ai-sbert')?.checked ?? true,
+                hf: document.getElementById('cn-ai-hf')?.checked ?? true,
+            };
+            const contStats = { nodes: document.getElementById('cn-nodes'), edges: document.getElementById('cn-edges'), scc: document.getElementById('cn-scc') };
+            if (contStats.nodes) contStats.nodes.textContent = '…';
+            if (contStats.edges) contStats.edges.textContent = '…';
+            if (contStats.scc) contStats.scc.textContent = '…';
+            const sccDiv = document.getElementById('cn-scc-list');
+            if (sccDiv) sccDiv.innerHTML = 'Construyendo…';
+            setSectionProgress('citation', true, 12, 'Construyendo red de citaciones…', 'Generando nodos, aristas y métricas');
+            pywebview.api.analyze_citation_network(file, backend, threshold, topk, useConcepts, 'abstract', limit, classicOptions, aiOptions).then(resp => {
+                if (!resp || !resp.success) {
+                    if (sccDiv) sccDiv.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp && resp.message) || 'Error construyendo la red').replace(/</g,'&lt;')}</span></div>`;
+                    setSectionProgress('citation', true, 100, 'Error en la red', 'Revisa parámetros o el archivo');
+                    setTimeout(() => setSectionProgress('citation', false, 0, 'Esperando...', ''), 900);
+                    return;
+                }
+                renderCitationResults(resp.results, 'citation-graph-canvas', 'cn-source', 'cn-target', 'cn-path-result', 'cn-scc-list', contStats);
+                setSectionProgress('citation', true, 100, 'Completado', 'Grafo generado');
+                setTimeout(() => setSectionProgress('citation', false, 0, 'Esperando...', ''), 800);
+            }).catch(err => {
+                if (sccDiv) sccDiv.innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+                setSectionProgress('citation', true, 100, 'Error en la red', 'Consulta la consola para más detalles');
+                setTimeout(() => setSectionProgress('citation', false, 0, 'Esperando...', ''), 1000);
+            });
+        }
+
+        // Toggle de opciones según backend seleccionado
+        (function() {
+            function updateCNBackendOptions() {
+                const backend = (document.querySelector('input[name="cn-backend"]:checked') || {value:'classic'}).value;
+                const cl = document.getElementById('cn-classic-options');
+                const ai = document.getElementById('cn-ai-options');
+                if (backend === 'ia') {
+                    if (cl) cl.style.display = 'none';
+                    if (ai) ai.style.display = 'flex';
+                } else {
+                    if (cl) cl.style.display = 'flex';
+                    if (ai) ai.style.display = 'none';
+                }
+            }
+            const radios = document.querySelectorAll('input[name="cn-backend"]');
+            radios.forEach(r => r.addEventListener('change', updateCNBackendOptions));
+            // Inicializar estado
+            setTimeout(updateCNBackendOptions, 0);
+        })();
+
+        function renderCitationResults(data, canvasId, srcSelId, dstSelId, pathOutId, sccListId, statsRefs) {
+            // Asegurar canvas responsivo
+            resizeGraphCanvas(canvasId);
+            ensureCanvasResizeHandler(canvasId);
+            // Imagen (como gráfico de ordenamiento)
+            const img = document.getElementById('citation-graph-img');
+            const imgWrap = document.getElementById('citation-chart');
+            if (img) {
+                if (data.graph_base64) {
+                    img.src = 'data:image/png;base64,' + data.graph_base64;
+                    if (imgWrap) imgWrap.classList.remove('hidden');
+                } else {
+                    img.src = '';
+                    if (imgWrap) imgWrap.classList.add('hidden');
+                }
+            }
+            // Stats
+            if (statsRefs && statsRefs.nodes) statsRefs.nodes.textContent = (data.node_count||0);
+            if (statsRefs && statsRefs.edges) statsRefs.edges.textContent = (data.edge_count||0);
+            if (statsRefs && statsRefs.scc) statsRefs.scc.textContent = (data.scc_count||0);
+            // Guardar estado
+            citationState.nodes = data.nodes || [];
+            citationState.edges = data.edges || [];
+            // Mapa SCC para colorear
+            const sccMap = {};
+            (data.sccs||[]).forEach((comp, idx) => comp.forEach(id => { sccMap[String(id)] = idx; }));
+            citationState.sccMap = sccMap;
+            // Posiciones iniciales aleatorias (mejora: layout por fuerzas)
+            const W = (document.getElementById(canvasId)?.width || 980);
+            const H = (document.getElementById(canvasId)?.height || 520);
+            const pos = {};
+            const N = citationState.nodes.length || 1;
+            for (let i=0; i<N; i++) {
+                const n = citationState.nodes[i];
+                pos[n.id] = { x: (W*0.5) + 220*Math.cos(2*Math.PI*i/N), y: (H*0.5) + 220*Math.sin(2*Math.PI*i/N), vx:0, vy:0 };
+            }
+            citationState.positions = pos;
+            // Ejecutar layout de fuerzas (rápido)
+            runForceLayout(canvasId, 140);
+            drawCitationGraph(canvasId);
+            attachCanvasInteractions(canvasId);
+
+            // Llenar selects
+            const srcSel = document.getElementById(srcSelId);
+            const dstSel = document.getElementById(dstSelId);
+            if (srcSel && dstSel) {
+                srcSel.innerHTML = '';
+                dstSel.innerHTML = '';
+                citationState.nodes.forEach(n => {
+                    const o1 = document.createElement('option'); o1.value = n.id; o1.textContent = (n.label||n.id); srcSel.appendChild(o1);
+                    const o2 = document.createElement('option'); o2.value = n.id; o2.textContent = (n.label||n.id); dstSel.appendChild(o2);
+                });
+            }
+
+            // SCCs
+            const sccDiv = document.getElementById(sccListId);
+            if (sccDiv) {
+                if (!data.sccs || !data.sccs.length) {
+                    sccDiv.innerHTML = '<span style="color: var(--text-muted)">Sin SCC</span>';
+                } else {
+                    const frag = document.createDocumentFragment();
+                    data.sccs.forEach((comp, idx) => {
+                        const d = document.createElement('div');
+                        d.style.padding = '6px 8px';
+                        d.style.borderBottom = '1px solid var(--border)';
+                        const names = comp.map(id => {
+                            const n = citationState.nodes.find(x => x.id===String(id));
+                            return (n && n.label) ? n.label : String(id);
+                        });
+                        d.innerHTML = `<strong>Componente #${idx+1}</strong> · ${names.join(', ').replace(/</g,'&lt;')}`;
+                        frag.appendChild(d);
+                    });
+                    sccDiv.innerHTML = '';
+                    sccDiv.appendChild(frag);
+                }
+            }
+
+            // Top 10 caminos mínimos (Dijkstra) si existen
+            const topPathsBlocks = [document.getElementById('cn-top-paths'), document.getElementById('pl-cn-top-paths')];
+            topPathsBlocks.forEach(tpDiv => {
+                if (!tpDiv) return;
+                const tp = data.top_paths || [];
+                if (!tp.length) {
+                    tpDiv.innerHTML = '<span style="color: var(--text-muted)">Sin resultados</span>';
+                    return;
+                }
+                const frag = document.createDocumentFragment();
+                tp.forEach((e, i) => {
+                    const d = document.createElement('div');
+                    d.style.padding = '6px 8px';
+                    d.style.borderBottom = '1px solid var(--border)';
+                    const pathText = (e.path||[]).join(' → ').replace(/</g,'&lt;');
+                    d.innerHTML = `<strong>#${i+1}</strong> · costo=${Number(e.cost).toFixed(3)} · ${pathText}`;
+                    frag.appendChild(d);
+                });
+                tpDiv.innerHTML = '';
+                tpDiv.appendChild(frag);
+            });
+
+            // Top SCCs por tamaño si existen
+            const topSccBlocks = [document.getElementById('cn-top-sccs'), document.getElementById('pl-cn-top-sccs')];
+            topSccBlocks.forEach(tsDiv => {
+                if (!tsDiv) return;
+                const ts = data.top_sccs || [];
+                if (!ts.length) {
+                    tsDiv.innerHTML = '<span style="color: var(--text-muted)">Sin resultados</span>';
+                    return;
+                }
+                const frag = document.createDocumentFragment();
+                ts.forEach((e, i) => {
+                    const d = document.createElement('div');
+                    d.style.padding = '6px 8px';
+                    d.style.borderBottom = '1px solid var(--border)';
+                    const names = (e.nodes||[]).join(', ').replace(/</g,'&lt;');
+                    d.innerHTML = `<strong>#${i+1}</strong> · tamaño=${Number(e.size||0)} · ${names}`;
+                    frag.appendChild(d);
+                });
+                tsDiv.innerHTML = '';
+                tsDiv.appendChild(frag);
+            });
+            // Limpiar resultado de camino
+            const pathOut = document.getElementById(pathOutId);
+            if (pathOut) pathOut.innerHTML = '';
+        }
+
+        function drawCitationGraph(canvasId, highlightPath=null) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            // Ajustar dimensiones reales del canvas según CSS/parent
+            resizeGraphCanvas(canvasId);
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width, H = canvas.height;
+            ctx.clearRect(0,0,W,H);
+            ctx.save();
+            ctx.translate(W/2 + citationState.tx, H/2 + citationState.ty);
+            ctx.scale(citationState.scale, citationState.scale);
+            ctx.translate(-W/2, -H/2);
+            // Edges
+            ctx.lineWidth = 1.2;
+            citationState.edges.forEach(e => {
+                const a = citationState.positions[e.source];
+                const b = citationState.positions[e.target];
+                if (!a || !b) return;
+                const isHL = (highlightPath && highlightPath.some(p => p.source===e.source && p.target===e.target));
+                const base = isHL ? '#ef4444' : 'rgba(148,163,184,0.8)';
+                ctx.strokeStyle = base;
+                ctx.fillStyle = ctx.strokeStyle;
+                // line
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                // arrowhead
+                const ang = Math.atan2(b.y - a.y, b.x - a.x);
+                const ah = 8 + 4*((+e.weight||0));
+                ctx.beginPath();
+                ctx.moveTo(b.x, b.y);
+                ctx.lineTo(b.x - ah*Math.cos(ang - Math.PI/6), b.y - ah*Math.sin(ang - Math.PI/6));
+                ctx.lineTo(b.x - ah*Math.cos(ang + Math.PI/6), b.y - ah*Math.sin(ang + Math.PI/6));
+                ctx.closePath(); ctx.fill();
+                // weight label
+                const mx = (a.x + b.x)/2, my = (a.y + b.y)/2;
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '12px Inter, sans-serif';
+                if (e.weight!=null) ctx.fillText((+e.weight).toFixed(2), mx+4, my-4);
+            });
+            // Nodes
+            citationState.nodes.forEach((n, i) => {
+                const p = citationState.positions[n.id];
+                if (!p) return;
+                const r = 9;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, r, 0, Math.PI*2);
+                const comp = citationState.sccMap[n.id] ?? i;
+                const color = citationState.colors[comp % citationState.colors.length] || '#6366f1';
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+                ctx.stroke();
+                // label
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '12px Inter, sans-serif';
+                const label = (n.label || n.id);
+                const txt = (label.length>42 ? (label.slice(0,39)+'…') : label);
+                ctx.fillText(txt, p.x+10, p.y+4);
+            });
+            ctx.restore();
+        }
+
+        // -------------------- Responsividad del canvas --------------------
+        function resizeGraphCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const parent = canvas.parentElement || canvas;
+            const dpr = window.devicePixelRatio || 1;
+            // ancho CSS disponible
+            const cssW = Math.max(320, parent.clientWidth || 980);
+            const cssH = Math.max(260, Math.round(cssW * 0.52)); // relación ~ 1.92:1
+            // aplicar tamaño CSS
+            canvas.style.width = cssW + 'px';
+            canvas.style.height = cssH + 'px';
+            // aplicar tamaño real para dibujo (HiDPI)
+            const realW = Math.floor(cssW * dpr);
+            const realH = Math.floor(cssH * dpr);
+            if (canvas.width !== realW || canvas.height !== realH) {
+                canvas.width = realW;
+                canvas.height = realH;
+            }
+        }
+        function ensureCanvasResizeHandler(canvasId) {
+            if (!citationState.canvasListeners['resize_'+canvasId]) {
+                const handler = () => { resizeGraphCanvas(canvasId); drawCitationGraph(canvasId); };
+                window.addEventListener('resize', handler);
+                citationState.canvasListeners['resize_'+canvasId] = handler;
+            }
+        }
+
+        // -------------------- Layout por fuerzas (simple) --------------------
+        function runForceLayout(canvasId, iters= citationState.layout.iterations) {
+            const W = (document.getElementById(canvasId)?.width || 980);
+            const H = (document.getElementById(canvasId)?.height || 520);
+            const nodes = citationState.nodes;
+            const edges = citationState.edges;
+            const pos = citationState.positions;
+            const cfg = citationState.layout;
+            const areaK = Math.sqrt((W*H)/Math.max(1, nodes.length));
+            const idealLen = cfg.idealLen || (2*areaK);
+            for (let it=0; it<iters; it++) {
+                // repulsión O(N^2)
+                for (let i=0; i<nodes.length; i++) {
+                    const a = nodes[i]; const pa = pos[a.id];
+                    pa.fx = 0; pa.fy = 0;
+                }
+                for (let i=0; i<nodes.length; i++) {
+                    const a = nodes[i]; const pa = pos[a.id];
+                    for (let j=i+1; j<nodes.length; j++) {
+                        const b = nodes[j]; const pb = pos[b.id];
+                        const dx = pa.x - pb.x; const dy = pa.y - pb.y;
+                        const d2 = dx*dx + dy*dy + 0.01; // evitar div/0
+                        const d = Math.sqrt(d2);
+                        const force = cfg.repulsion / d2;
+                        const fx = force * dx / d; const fy = force * dy / d;
+                        pa.fx += fx; pa.fy += fy;
+                        pb.fx -= fx; pb.fy -= fy;
+                    }
+                }
+                // atracción por aristas
+                edges.forEach(e => {
+                    const pa = pos[e.source]; const pb = pos[e.target]; if (!pa || !pb) return;
+                    const dx = pb.x - pa.x; const dy = pb.y - pa.y; const d = Math.sqrt(dx*dx + dy*dy) + 0.01;
+                    const w = (+e.weight || 0.5);
+                    const spring = cfg.stiffness * (d - idealLen) * w;
+                    const fx = spring * dx / d; const fy = spring * dy / d;
+                    pa.fx += fx; pa.fy += fy; pb.fx -= fx; pb.fy -= fy;
+                });
+                // integrar
+                for (let i=0; i<nodes.length; i++) {
+                    const a = nodes[i]; const p = pos[a.id];
+                    p.vx = (p.vx + p.fx) * cfg.damping;
+                    p.vy = (p.vy + p.fy) * cfg.damping;
+                    p.x += p.vx * 0.02; p.y += p.vy * 0.02;
+                }
+            }
+        }
+
+        // -------------------- Interacción: zoom/pan y arrastre --------------------
+        function attachCanvasInteractions(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || citationState.canvasListeners[canvasId]) return;
+            function toWorld(x, y) {
+                const W = canvas.width, H = canvas.height;
+                const sx = (x - (W/2 + citationState.tx)) / citationState.scale + W/2;
+                const sy = (y - (H/2 + citationState.ty)) / citationState.scale + H/2;
+                return {x: sx, y: sy};
+            }
+            function hitNode(mx, my) {
+                const p = toWorld(mx, my);
+                for (let i=citationState.nodes.length-1; i>=0; i--) {
+                    const n = citationState.nodes[i]; const q = citationState.positions[n.id];
+                    if (!q) continue; const dx = p.x - q.x; const dy = p.y - q.y; if (dx*dx + dy*dy <= 11*11) return n.id;
+                }
+                return null;
+            }
+            const onWheel = (ev) => {
+                ev.preventDefault();
+                const delta = Math.sign(ev.deltaY);
+                const factor = (delta>0)? 0.9 : 1.1;
+                citationState.scale = Math.min(3, Math.max(0.2, citationState.scale * factor));
+                drawCitationGraph(canvasId);
+            };
+            let isPanning = false, panStart = {x:0, y:0};
+            const onDown = (ev) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
+                const nid = hitNode(x, y);
+                if (nid) {
+                    citationState.dragging = nid; const p = citationState.positions[nid];
+                    const world = toWorld(x, y); citationState.dragDX = world.x - p.x; citationState.dragDY = world.y - p.y;
+                } else {
+                    isPanning = true; panStart = {x: ev.clientX, y: ev.clientY};
+                }
+            };
+            const onMove = (ev) => {
+                if (citationState.dragging) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = ev.clientX - rect.left; const y = ev.clientY - rect.top;
+                    const world = toWorld(x, y);
+                    const p = citationState.positions[citationState.dragging];
+                    p.x = world.x - citationState.dragDX; p.y = world.y - citationState.dragDY;
+                    drawCitationGraph(canvasId);
+                } else if (isPanning) {
+                    citationState.tx += (ev.clientX - panStart.x); citationState.ty += (ev.clientY - panStart.y);
+                    panStart = {x: ev.clientX, y: ev.clientY};
+                    drawCitationGraph(canvasId);
+                }
+            };
+            const onUp = () => { citationState.dragging = null; isPanning = false; };
+            canvas.addEventListener('wheel', onWheel, {passive: false});
+            canvas.addEventListener('mousedown', onDown);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+            citationState.canvasListeners[canvasId] = { onWheel, onDown, onMove, onUp };
+        }
+
+        function computeCitationShortestPath() {
+            const s = document.getElementById('cn-source').value;
+            const t = document.getElementById('cn-target').value;
+            const out = document.getElementById('cn-path-result');
+            if (out) out.innerHTML = 'Calculando…';
+            pywebview.api.citation_shortest_path(s, t).then(resp => {
+                if (!resp || !resp.success) {
+                    if (out) out.innerHTML = `<span style="color: var(--text-muted)">${((resp && resp.message) || 'Sin camino o error').replace(/</g,'&lt;')}</span>`;
+                    return;
+                }
+                const path = resp.path || [];
+                const names = path.map(id => {
+                    const n = citationState.nodes.find(x => x.id===String(id));
+                    return (n && n.label) ? n.label : String(id);
+                });
+                if (out) out.innerHTML = `Distancia: <strong>${resp.distance==null? '∞' : resp.distance.toFixed? resp.distance.toFixed(3): resp.distance}</strong><br>Camino: ${names.join(' → ').replace(/</g,'&lt;')}`;
+                // Highlight path on graph
+                const pairs = [];
+                for (let i=0; i+1<path.length; i++) pairs.push({source: String(path[i]), target: String(path[i+1])});
+                drawCitationGraph('citation-graph-canvas', pairs);
+            }).catch(err => {
+                if (out) out.innerHTML = `<span style="color: var(--text-muted)">${String(err).replace(/</g,'&lt;')}</span>`;
+            });
+        }
+
+        function computePipelineCitationShortestPath() {
+            const s = document.getElementById('pl-cn-source').value;
+            const t = document.getElementById('pl-cn-target').value;
+            const out = document.getElementById('pl-cn-path-result');
+            if (out) out.innerHTML = 'Calculando…';
+            pywebview.api.citation_shortest_path(s, t).then(resp => {
+                if (!resp || !resp.success) {
+                    if (out) out.innerHTML = `<span style=\"color: var(--text-muted)\">${((resp && resp.message) || 'Sin camino o error').replace(/</g,'&lt;')}</span>`;
+                    return;
+                }
+                const path = resp.path || [];
+                const names = path.map(id => {
+                    const n = citationState.nodes.find(x => x.id===String(id));
+                    return (n && n.label) ? n.label : String(id);
+                });
+                if (out) out.innerHTML = `Distancia: <strong>${resp.distance==null? '∞' : resp.distance.toFixed? resp.distance.toFixed(3): resp.distance}</strong><br>Camino: ${names.join(' → ').replace(/</g,'&lt;')}`;
+                const pairs = [];
+                for (let i=0; i+1<path.length; i++) pairs.push({source: String(path[i]), target: String(path[i+1])});
+                drawCitationGraph('pipeline-citation-canvas', pairs);
+            }).catch(err => {
+                if (out) out.innerHTML = `<span style=\"color: var(--text-muted)\">${String(err).replace(/</g,'&lt;')}</span>`;
+            });
         }
     </script>
 </body>
