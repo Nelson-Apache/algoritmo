@@ -1,21 +1,31 @@
+# --- Dependencias principales ---
 requests==2.32.3
 pandas>=2.2.0
-playwright>=1.47.0
-# Opcional (mejor rendimiento en IO de datos)
-pyarrow>=17.0.0
-# Para análisis y visualización en ordenamiento
 numpy>=1.26.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
+folium>=0.17.0
+wordcloud>=1.9.4
+pycountry>=23.12.11
+
+# --- GUI y automatización web ---
 pywebview>=4.0.0
+playwright>=1.47.0
 playwright-stealth>=1.0.5
 
-# IA - Similitud de textos (Modelos de lenguaje)
+# --- IO y procesamiento ---
+pyarrow>=17.0.0
+
+# --- Machine Learning y NLP ---
 sentence-transformers>=2.7.0
 transformers>=4.44.0
-# PyTorch CPU (para embeddings y modelos HF/SBERT)
 torch>=2.2.0
-
-# Clustering jerárquico y TF-IDF
 scikit-learn>=1.3.0
 scipy>=1.11.0
+
+# --- Reportes PDF ---
+reportlab>=4.2.0
+
+# --- Geolocalización ---
+geopy>=2.4.1
+selenium>=4.25.0

@@ -2,33 +2,33 @@
 ======================================================================
 REPORTE DE LIMPIEZA Y UNIFICACIÓN DE DATOS ACADÉMICOS
 ======================================================================
-Fecha: 2025-11-03 01:24:49
+Fecha: 2025-11-08 14:27:19
 
 BASES DE DATOS PROCESADAS:
 ---------------------------
 
 EBSCO:
-  - Registros originales: 5,000
-  - Duplicados intra-base eliminados: 74
-  - Registros después de limpieza: 4,926
+  - Registros originales: 18
+  - Duplicados intra-base eliminados: 0
+  - Registros después de limpieza: 18
 
 IEEE:
-  - Registros originales: 5,000
-  - Duplicados intra-base eliminados: 2
-  - Registros después de limpieza: 4,998
+  - Registros originales: 18
+  - Duplicados intra-base eliminados: 0
+  - Registros después de limpieza: 18
 
 ESTADÍSTICAS GENERALES:
 -----------------------
-- Total de registros originales: 10,000
-- Total después de limpieza individual: 9,924
-- Duplicados entre bases de datos: 20
-- Total en dataset unificado: 9,904
-- Registros consolidados (fusionados): 20
+- Total de registros originales: 36
+- Total después de limpieza individual: 36
+- Duplicados entre bases de datos: 0
+- Total en dataset unificado: 36
+- Registros consolidados (fusionados): 0
 
 TASA DE REDUCCIÓN:
 ------------------
-- Porcentaje final: 99.04%
-- Registros eliminados/consolidados: 96
+- Porcentaje final: 100.00%
+- Registros eliminados/consolidados: 0
 
 CRITERIOS DE DUPLICACIÓN:
 --------------------------

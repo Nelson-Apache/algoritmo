@@ -72,6 +72,29 @@ from algoritmo.ConceptsCategoryAnalyzer import ConceptsCategoryAnalyzer
 from algoritmo.HierarchicalClusteringAnalyzer import HierarchicalClusteringAnalyzer
 from algoritmo.CitationNetworkAnalyzer import CitationNetworkAnalyzer
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
+import folium
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
+import tempfile
+# Agrego imports para geocodificación y screenshots
+try:
+    import geopy
+    from geopy.geocoders import Nominatim
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+except ImportError:
+    geopy = None
+    Nominatim = None
+    webdriver = None
+    Options = None
+
+# Importar la clase en el encabezado
+from src.algoritmo.BibliometricVisualizer import BibliometricVisualizer
+
 # Directorios de datos centralizados bajo src/data
 ROOT_DIR = Path(__file__).parent
 DATA_DIR = ROOT_DIR / "src" / "data"
@@ -1088,13 +1111,13 @@ class AcademicAnalysisAPI:
                 # Para el layout, también ayuda que la atracción sea “bidireccional”
                 neigh[j].append((i, w))
 
+            # Simulación de fuerzas
             for _ in range(iters):
-                # Fuerza de repulsión O(N^2)
                 F = np.zeros((N, 2), dtype=float)
+                # Fuerza de repulsión entre todos los pares
                 for i in range(N):
                     pi = P[i]
-                    # vectorizado parcial: resta a todos, excepto i
-                    d = pi - P
+                    d = P - pi
                     dist2 = np.sum(d*d, axis=1) + eps
                     inv = k_rep / dist2
                     inv[i] = 0.0  # sin auto-fuerza
@@ -1377,10 +1400,21 @@ class AcademicAnalysisAPI:
                         self.log('⚠️ ' + cn_res.get('message', 'Error en red de citaciones'))
             except Exception as e:
                 self.log(f'⚠️ Error en Red de Citaciones: {e}')
-            
+                
+            # === NUEVO: Exportar visualizaciones científicas automáticamente ===
+            try:
+                if self.unified_file and os.path.exists(self.unified_file):
+                    pdf_path = str(Path(self.unified_file).parent / f'{output_name}_visualizaciones.pdf')
+                    visualizer = BibliometricVisualizer(self.unified_file, pdf_path)
+                    visualizer.export_pdf()
+                    self.log(f'Visualizaciones científicas exportadas a PDF: {pdf_path}')
+            except Exception as e:
+                self.log(f'Error exportando PDF de visualizaciones: {e}')
         except Exception as e:
             self.update_status('error', 0, f'❌ Error en pipeline: {str(e)}', '')
-    
+
+
+
     def open_file(self, filepath):
         """Abrir archivo con aplicación predeterminada del sistema."""
         try:
@@ -1525,6 +1559,9 @@ class AcademicAnalysisAPI:
             return {'success': True, 'labels': labels, 'results': results}
         except Exception as e:
             return {'success': False, 'message': str(e)}
+
+
+
 
 
 def load_html():
