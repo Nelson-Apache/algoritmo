@@ -202,34 +202,44 @@ class CitationNetworkAnalyzer:
                 if callable(comp_multi):
                     if progress_callback:
                         progress_callback(2.0, 'Calculando matriz IA por lotes (títulos)…')
-                    use_sbert = True if ('sbert' in self.ai_methods) else False
-                    use_hf = True if ('hf' in self.ai_methods) else False
-                    res = comp_multi(
+                    use_sbert = 'sbert' in self.ai_methods
+                    use_hf = 'hf' in self.ai_methods
+                    # Resultado esperado: Dict[str, Any]; el analizador marcaba errores por tratarlo como object
+                    raw_res: Any = comp_multi(
                         titles,
                         usar_sbert=use_sbert,
                         usar_transformer=use_hf,
                         top_k=10  # no crítico; la matriz es lo que usamos
                     )
-                    S = None
-                    if use_sbert and isinstance(res.get('SBERT', {}).get('matrix'), list):
-                        Sm = res['SBERT']['matrix']
-                        S = _np.array(Sm, dtype=float) if _np is not None else Sm
-                    if use_hf and isinstance(res.get('HF-MeanPooling', {}).get('matrix'), list):
-                        Sh = res['HF-MeanPooling']['matrix']
-                        Sh = _np.array(Sh, dtype=float) if _np is not None else Sh
-                        if S is None:
-                            S = Sh
-                        else:
-                            # promedio simple entre matrices disponibles
-                            if _np is not None:
-                                S = (S + Sh) / 2.0
-                            else:
-                                # fallback sin numpy: promedio elemento a elemento
-                                nS = [[0.0]*n for _ in range(n)]
-                                for i in range(n):
-                                    for j in range(n):
-                                        nS[i][j] = float((S[i][j] + Sh[i][j]) / 2.0)  # type: ignore[index]
-                                S = nS
+                    res: Dict[str, Any] = raw_res if isinstance(raw_res, dict) else {}
+                    S = None  # matriz combinada de similitud de títulos
+                    # ----- SBERT -----
+                    if use_sbert:
+                        sbert_data = res.get('SBERT')
+                        if isinstance(sbert_data, dict):
+                            sb_matrix = sbert_data.get('matrix')
+                            if isinstance(sb_matrix, list):
+                                S = _np.array(sb_matrix, dtype=float) if _np is not None else sb_matrix  # type: ignore[assignment]
+                    # ----- HF MeanPooling -----
+                    if use_hf:
+                        hf_data = res.get('HF-MeanPooling')
+                        if isinstance(hf_data, dict):
+                            hf_matrix = hf_data.get('matrix')
+                            if isinstance(hf_matrix, list):
+                                hf_arr = _np.array(hf_matrix, dtype=float) if _np is not None else hf_matrix
+                                if S is None:
+                                    S = hf_arr
+                                else:
+                                    # promedio simple entre matrices disponibles
+                                    if _np is not None and isinstance(S, _np.ndarray):
+                                        S = (S + hf_arr) / 2.0  # type: ignore[operator]
+                                    else:
+                                        # fallback sin numpy: promedio elemento a elemento
+                                        nS = [[0.0]*n for _ in range(n)]
+                                        for i in range(n):
+                                            for j in range(n):
+                                                nS[i][j] = float((S[i][j] + hf_arr[i][j]) / 2.0)  # type: ignore[index]
+                                        S = nS
                     if S is not None:
                         # Normalizar a [0,1] con (x+1)/2 y clip
                         if _np is not None and isinstance(S, _np.ndarray):

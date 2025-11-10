@@ -1031,6 +1031,29 @@ class AcademicAnalysisAPI:
                 'top_sccs': top_sccs_out,
             }
 
+            # ====================== NUEVO: Grafo de Coocurrencia de Términos ======================
+            try:
+                # Usar analizador dedicado de coocurrencias
+                from algoritmo.CooccurrenceNetworkAnalyzer import CooccurrenceNetworkAnalyzer
+                coan = CooccurrenceNetworkAnalyzer(min_doc_freq=1, min_term_len=3, top_tokens_per_doc=None)
+                coan.build_graph(articles)
+                co_export = coan.export()
+                result['cooccurrence'] = co_export
+                # Renderizar imagen
+                try:
+                    from pathlib import Path as _P2
+                    base_name2 = _P2(filepath).stem
+                    out_dir2 = DATA_DIR / 'screenshots' / 'cooccurrence_graphs'
+                    os.makedirs(out_dir2, exist_ok=True)
+                    img_path2 = str(out_dir2 / f'{base_name2}_cooccurrence_graph.png')
+                    graph2_b64 = self._render_cooccurrence_graph_image(co_export['nodes'], co_export['edges'], co_export['components'], img_path2)
+                    result['cooccurrence']['graph_file'] = img_path2
+                    result['cooccurrence']['graph_base64'] = graph2_b64
+                except Exception as _co_img_err:
+                    result['cooccurrence']['graph_error'] = str(_co_img_err)
+            except Exception as _co_err:
+                result['cooccurrence_error'] = f"Error construyendo grafo de coocurrencia: {_co_err}"
+
             # Generar imagen del grafo (como el gráfico de ordenamiento)
             try:
                 from pathlib import Path as _P
@@ -1057,6 +1080,106 @@ class AcademicAnalysisAPI:
                 pass
 
             return {'success': True, 'results': result, 'file': filepath}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    # ===================== NUEVO: Red de Coocurrencia (Solo Algoritmos) =====================
+    def analyze_cooccurrence_network(self, csv_file: Optional[str] = None,
+                                     limit: int = 120,
+                                     min_doc_freq: int = 1,
+                                     min_term_len: int = 3,
+                                     top_tokens_per_doc: Optional[int] = None,
+                                     use_concepts: bool = False,
+                                     concepts_top_k: int = 15,
+                                     use_doc_similarity_weighting: bool = False,
+                                     doc_sim_alpha: float = 0.3,
+                                     similarity_backend: Optional[str] = None,
+                                     similarity_methods: Optional[list] = None,
+                                     term_sim_alpha: float = 0.2,
+                                     min_term_similarity: float = 0.0):
+        """
+        Construye un grafo NO dirigido de coocurrencia de términos a partir de un CSV.
+        Retorna nodos/aristas/componentes y una imagen PNG en base64.
+        """
+        try:
+            filepath = csv_file or self.unified_file or self.sorted_file
+            if not filepath:
+                return {'success': False, 'message': 'No hay CSV disponible (selecciona uno o ejecuta pipeline).'}
+            if not os.path.exists(filepath):
+                return {'success': False, 'message': f'Archivo no encontrado: {filepath}'}
+
+            df = pd.read_csv(filepath, encoding='utf-8')
+
+            # Preparar artículos (título, autores, keywords, abstract)
+            rows = df.head(limit) if (limit and len(df) > limit) else df
+            articles = []
+            for _, row in rows.iterrows():
+                title = str(row.get('title', '') if pd.notna(row.get('title', '')) else '').strip()
+                raw_auth = row.get('authors', None)
+                if pd.isna(raw_auth):
+                    authors = []
+                else:
+                    s = str(raw_auth)
+                    if ';' in s:
+                        authors = [a.strip() for a in s.split(';') if a.strip()]
+                    elif ',' in s:
+                        authors = [a.strip() for a in s.split(',') if a.strip()]
+                    else:
+                        authors = [s.strip()] if s.strip() else []
+                raw_kw = row.get('keywords', None)
+                if pd.isna(raw_kw):
+                    keywords = []
+                else:
+                    s = str(raw_kw)
+                    if ';' in s:
+                        keywords = [k.strip() for k in s.split(';') if k.strip()]
+                    elif ',' in s:
+                        keywords = [k.strip() for k in s.split(',') if k.strip()]
+                    else:
+                        keywords = [s.strip()] if s.strip() else []
+                abstract = str(row.get('abstract', '') if pd.notna(row.get('abstract', '')) else '')
+                articles.append({
+                    'id': title or f"Doc {len(articles)}",
+                    'title': title or f"Doc {len(articles)}",
+                    'authors': authors,
+                    'keywords': keywords,
+                    'abstract': abstract,
+                })
+
+            # Construir grafo con el analizador dedicado
+            from algoritmo.CooccurrenceNetworkAnalyzer import CooccurrenceNetworkAnalyzer
+            coan = CooccurrenceNetworkAnalyzer(
+                min_doc_freq=int(min_doc_freq),
+                min_term_len=int(min_term_len),
+                top_tokens_per_doc=top_tokens_per_doc if (top_tokens_per_doc is None) else int(top_tokens_per_doc),
+                use_concepts=bool(use_concepts),
+                concepts_top_k=int(concepts_top_k),
+                use_doc_similarity_weighting=bool(use_doc_similarity_weighting),
+                doc_sim_alpha=float(doc_sim_alpha),
+                similarity_backend=similarity_backend if similarity_backend in ('classic','ia',None) else None,
+                similarity_methods=similarity_methods,
+                term_sim_alpha=float(term_sim_alpha),
+                min_term_similarity=float(min_term_similarity)
+            )
+            coan.build_graph(articles)
+            co_export = coan.export()
+
+            # Renderizar PNG
+            from pathlib import Path as _P
+            out_dir = DATA_DIR / 'screenshots' / 'cooccurrence_graphs'
+            os.makedirs(out_dir, exist_ok=True)
+            base_name = _P(filepath).stem
+            img_path = str(out_dir / f'{base_name}_cooccurrence_graph.png')
+            graph_b64 = self._render_cooccurrence_graph_image(co_export['nodes'], co_export['edges'], co_export['components'], img_path)
+            co_export['graph_file'] = img_path
+            co_export['graph_base64'] = graph_b64
+
+            # Adjuntar a resultados generales (por comodidad)
+            existing = self.status.get('results', {})
+            existing['cooccurrence'] = co_export
+            self.status['results'] = existing
+
+            return {'success': True, 'results': co_export, 'file': filepath}
         except Exception as e:
             return {'success': False, 'message': str(e)}
 
@@ -1216,6 +1339,138 @@ class AcademicAnalysisAPI:
         with open(out_path, 'rb') as f:
             b64 = base64.b64encode(f.read()).decode('utf-8')
         return b64
+
+    # ====================== NUEVO: Construcción grafo coocurrencia ======================
+    def _build_cooccurrence_graph(self, articles: list[dict], concepts_key: str = 'concepts'):
+        """Construye un grafo no dirigido de coocurrencia de términos.
+
+        - Nodos: términos (keywords + términos generados GAIE si existen)
+        - Aristas: dos términos aparecen juntos en el mismo abstract (o keywords del mismo artículo)
+        - Peso: número de documentos donde coocurren
+        Devuelve (nodes, edges, components)
+        """
+        import re
+        term_docs = {}  # term -> set(doc_id)
+        all_terms = set()
+        # Recolectar términos por documento
+        for idx, art in enumerate(articles):
+            doc_id = idx
+            kws = art.get('keywords') or []
+            kws_norm = {str(k).strip().lower() for k in kws if str(k).strip()}
+            # Extraer términos frecuentes del abstract sencillo (tokens >=3 chars)
+            abstract = str(art.get('abstract','') or '')
+            tokens = {t.lower() for t in re.findall(r'[A-Za-z][A-Za-z0-9_-]{2,}', abstract)}
+            # Unir
+            terms = kws_norm | tokens
+            for t in terms:
+                all_terms.add(t)
+                term_docs.setdefault(t, set()).add(doc_id)
+
+        terms_sorted = sorted(all_terms)
+        # Construir aristas por coocurrencia
+        edges = []
+        for i in range(len(terms_sorted)):
+            ti = terms_sorted[i]
+            docs_i = term_docs[ti]
+            for j in range(i+1, len(terms_sorted)):
+                tj = terms_sorted[j]
+                inter = docs_i & term_docs[tj]
+                if inter:
+                    w = len(inter)
+                    edges.append({'source': ti, 'target': tj, 'weight': w})
+
+        # Componentes conexas (Union-Find simple)
+        parent = {t: t for t in terms_sorted}
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+        def union(a,b):
+            ra, rb = find(a), find(b)
+            if ra!=rb:
+                parent[rb]=ra
+        for e in edges:
+            union(e['source'], e['target'])
+        comps = {}
+        for t in terms_sorted:
+            r = find(t)
+            comps.setdefault(r, []).append(t)
+        components = list(comps.values())
+
+        nodes = [{'id': t, 'label': t} for t in terms_sorted]
+        return nodes, edges, components
+
+    def _render_cooccurrence_graph_image(self, nodes, edges, components, out_path: str) -> str:
+        """Render simple del grafo de coocurrencia (no dirigido) usando layout de fuerzas rápido."""
+        import io, base64, math, random
+        import numpy as np
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        N = len(nodes)
+        node_ids = [n['id'] for n in nodes]
+        idx = {nid:i for i,nid in enumerate(node_ids)}
+        # lista de aristas (i,j,w)
+        E = []
+        for e in edges:
+            s = e['source']; t = e['target']
+            if s in idx and t in idx and s!=t:
+                w = float(e.get('weight',1.0) or 1.0)
+                E.append((idx[s], idx[t], w))
+        rng = np.random.default_rng(123)
+        P = rng.uniform(-1,1,size=(N,2))
+        V = np.zeros((N,2))
+        neigh = [[] for _ in range(N)]
+        for i,j,w in E:
+            neigh[i].append((j,w))
+            neigh[j].append((i,w))
+        iters = 160 if N<=200 else 90
+        k_rep = 0.05; k_attr=0.02; rest=0.6; damping=0.82; dt=0.02
+        for _ in range(iters):
+            F = np.zeros((N,2))
+            for i in range(N):
+                d = P - P[i]
+                dist2 = np.sum(d*d,axis=1)+1e-6
+                inv = k_rep/dist2; inv[i]=0
+                F[i]+=np.sum(d*inv[:,None],axis=0)
+            for i in range(N):
+                for j,w in neigh[i]:
+                    if j==i: continue
+                    d = P[j]-P[i]
+                    dist = math.sqrt(float(d[0]*d[0]+d[1]*d[1])+1e-6)
+                    fmag = k_attr*w*(dist-rest)
+                    F[i]+= (d/dist)*fmag
+            V=(V+dt*F)*damping; P=P+dt*V
+        # Normalizar
+        mn = P.min(axis=0); mx=P.max(axis=0); span = (mx-mn); center=(mn+mx)/2; max_span=float(max(span[0],span[1],1e-6))
+        P=(P-center)/max_span*1.8
+        # Colores por componente
+        comp_map={}
+        for ci, comp in enumerate(components):
+            for t in comp:
+                comp_map[t]=ci
+        palette = [(0.99,0.56,0.36),(0.36,0.71,0.99),(0.56,0.89,0.49),(0.91,0.49,0.91),(0.95,0.77,0.34),(0.36,0.95,0.85),(0.85,0.36,0.43)]
+        fig, ax = plt.subplots(figsize=(10,8), dpi=150)
+        ax.set_facecolor('#0b1220'); fig.patch.set_facecolor('#0b1220'); ax.axis('off')
+        # aristas
+        for i,j,w in E:
+            a=P[i]; b=P[j]
+            ax.plot([a[0],b[0]],[a[1],b[1]], color=(0.75,0.8,0.9,0.55), linewidth=0.6+1.5*min(1.0,w/5.0))
+        # nodos
+        for i,n in enumerate(nodes):
+            x,y = P[i]
+            comp = comp_map.get(n['id'], i)
+            color = palette[comp % len(palette)]
+            ax.scatter([x],[y], s=70, c=[color], edgecolors='#e5e7eb', linewidths=0.6, zorder=3)
+            label = n.get('label') or n['id']
+            if len(label)>38: label = label[:35]+'…'
+            ax.text(x+0.04, y+0.015, label, color='#e2e8f0', fontsize=7)
+        plt.tight_layout()
+        fig.savefig(out_path, facecolor=fig.get_facecolor(), bbox_inches='tight')
+        plt.close(fig)
+        with open(out_path,'rb') as f:
+            return base64.b64encode(f.read()).decode('utf-8')
 
     def citation_shortest_path(self, source_id: str, target_id: str):
         try:

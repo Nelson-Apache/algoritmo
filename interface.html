@@ -1110,6 +1110,9 @@
                                 <button class="file-btn" onclick="openFile('citation_graph')">
                                     🔗 Grafo Citaciones (PNG)
                                 </button>
+                                <button class="file-btn" onclick="openFile('cooc_graph')">
+                                    📎 Grafo Coocurrencias (PNG)
+                                </button>
                             </div>
 
                             <div class="card" id="pipeline-sim-card" style="margin-top:16px;">
@@ -1156,6 +1159,26 @@
                                 <div class="form-group">
                                     <label>🧩 SCC más grandes</label>
                                     <div id="pl-cn-top-sccs" class="log-box" style="height: 140px; overflow:auto;"></div>
+                                </div>
+                            </div>
+
+                            <div class="card" id="pipeline-cooc-card" style="margin-top:16px;">
+                                <h3>🧩 Grafo de Coocurrencia de Términos (Pipeline)</h3>
+                                <div class="results-grid">
+                                    <div class="stat-card"><div class="stat-label">Términos</div><div class="stat-value" id="pl-co-nodes">-</div></div>
+                                    <div class="stat-card"><div class="stat-label">Aristas</div><div class="stat-value" id="pl-co-edges">-</div></div>
+                                    <div class="stat-card"><div class="stat-label">Componentes</div><div class="stat-value" id="pl-co-comps">-</div></div>
+                                </div>
+                                <div class="chart-container" style="background: rgba(255,255,255,0.02); overflow:hidden;">
+                                    <img id="pipeline-cooc-img" src="" alt="Grafo de coocurrencia" style="width:100%; height:auto; display:block; background: rgba(15,23,42,0.6); border-radius: 12px;" />
+                                </div>
+                                <div class="form-group">
+                                    <label>📈 Top grados (términos más conectados)</label>
+                                    <div id="pl-co-degrees" class="log-box" style="height: 160px; overflow:auto;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>🔗 Componentes conexas</label>
+                                    <div id="pl-co-components" class="log-box" style="height: 160px; overflow:auto;"></div>
                                 </div>
                             </div>
                         </div>
@@ -1588,6 +1611,58 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- NUEVO: Grafo de Coocurrencia (No dirigido, Solo Algoritmos) -->
+                    <div class="card" style="overflow: visible;">
+                        <h3>📎 Grafo de Coocurrencia (No dirigido) <span class="tooltip info-icon" tabindex="0" aria-label="Conecta términos (palabras/keywords) que aparecen juntos en el mismo documento. Útil para ver clústeres de conceptos y términos más conectados." data-tip="Conecta términos (palabras/keywords) que aparecen juntos en el mismo documento. Útil para ver clústeres de conceptos y términos más conectados.">ⓘ</span></h3>
+                        <p style="color: var(--text-muted); margin-bottom: 16px; font-size: 14px;">Construye un grafo no dirigido de coocurrencia de términos a partir de abstracts y keywords.</p>
+                        <div class="form-group">
+                            <label>📁 Fuente de artículos</label>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                                <button class="btn btn-secondary" onclick="selectFile('analysis-csv')">Elegir CSV…</button>
+                                <span style="color: var(--text-muted);">Usa el CSV seleccionado o el unificado/ordenado del pipeline.</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>⚙️ Opciones</label>
+                            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                                <label class="checkbox-label"><span>Máx. docs:</span> <input type="number" id="cooc-limit" min="2" value="120" style="width:100px; margin-left:8px;"></label>
+                                <label class="checkbox-label"><span>Min. longitud término:</span> <input type="number" id="cooc-minlen" min="2" value="3" style="width:100px; margin-left:8px;"></label>
+                                <label class="checkbox-label"><span>Min. doc freq:</span> <input type="number" id="cooc-mindf" min="1" value="1" style="width:100px; margin-left:8px;"></label>
+                                <label class="checkbox-label"><input type="checkbox" id="cooc-use-concepts"> <span>Enriquecer con conceptos (GAIE)</span></label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="runCooccurrenceAnalysis()">Generar grafo</button>
+                        <div class="progress-container" id="cooc-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="cooc-fill" style="width: 0%">0%</div>
+                            </div>
+                            <div class="status-message" id="cooc-status">Esperando...</div>
+                            <div class="substatus" id="cooc-substatus"></div>
+                        </div>
+                        <div class="mt-20">
+                            <h3>🖼️ Grafo de coocurrencia y métricas</h3>
+                            <div class="results-grid">
+                                <div class="stat-card"><div class="stat-label">Términos</div><div class="stat-value" id="cooc-nodes">-</div></div>
+                                <div class="stat-card"><div class="stat-label">Aristas</div><div class="stat-value" id="cooc-edges">-</div></div>
+                                <div class="stat-card"><div class="stat-label">Componentes</div><div class="stat-value" id="cooc-comps">-</div></div>
+                            </div>
+                            <div class="chart-container" style="background: rgba(255,255,255,0.02); overflow:hidden;">
+                                <img id="cooc-img" src="" alt="Grafo de coocurrencia (PNG)"/>
+                            </div>
+                            <div class="file-buttons">
+                                <button class="file-btn" onclick="openFile('cooc_graph')">📎 Abrir Grafo Coocurrencias (PNG)</button>
+                            </div>
+                            <div class="form-group">
+                                <label>📈 Top grados (términos más conectados)</label>
+                                <div id="cooc-degrees" class="log-box" style="height: 160px; overflow:auto;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>🔗 Componentes conexas</label>
+                                <div id="cooc-components" class="log-box" style="height: 160px; overflow:auto;"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1922,6 +1997,10 @@
             } else if (type === 'citation_graph') {
                 const cn = currentResults.citation_network || {};
                 filepath = cn.graph_file || '';
+            } else if (type === 'cooc_graph') {
+                const cn = currentResults.citation_network || {};
+                const co = cn.cooccurrence || {};
+                filepath = co.graph_file || (currentResults.cooccurrence ? (currentResults.cooccurrence.graph_file || '') : '');
             }
             
             if (filepath) {
@@ -2443,10 +2522,24 @@
                     if (imgWrap) imgWrap.classList.add('hidden');
                 }
             }
+            // Imagen del grafo de coocurrencia (si existe)
+            const coImg = document.getElementById('pipeline-cooc-img');
+            if (coImg && data.cooccurrence && data.cooccurrence.graph_base64) {
+                coImg.src = 'data:image/png;base64,' + data.cooccurrence.graph_base64;
+            }
             // Stats
             if (statsRefs && statsRefs.nodes) statsRefs.nodes.textContent = (data.node_count||0);
             if (statsRefs && statsRefs.edges) statsRefs.edges.textContent = (data.edge_count||0);
             if (statsRefs && statsRefs.scc) statsRefs.scc.textContent = (data.scc_count||0);
+            // Stats coocurrencia
+            const coNodesRef = document.getElementById('pl-co-nodes');
+            const coEdgesRef = document.getElementById('pl-co-edges');
+            const coCompsRef = document.getElementById('pl-co-comps');
+            if (data.cooccurrence) {
+                if (coNodesRef) coNodesRef.textContent = data.cooccurrence.node_count || 0;
+                if (coEdgesRef) coEdgesRef.textContent = data.cooccurrence.edge_count || 0;
+                if (coCompsRef) coCompsRef.textContent = data.cooccurrence.component_count || 0;
+            }
             // Guardar estado
             citationState.nodes = data.nodes || [];
             citationState.edges = data.edges || [];
@@ -2550,6 +2643,48 @@
             // Limpiar resultado de camino
             const pathOut = document.getElementById(pathOutId);
             if (pathOut) pathOut.innerHTML = '';
+
+            // Listado de grados y componentes coocurrencia
+            if (data.cooccurrence) {
+                const degreesDiv = document.getElementById('pl-co-degrees');
+                const compsDiv = document.getElementById('pl-co-components');
+                if (degreesDiv) {
+                    // Calcular grados -> a partir de aristas (no dirigido)
+                    const degMap = {};
+                    (data.cooccurrence.edges||[]).forEach(e => {
+                        degMap[e.source] = (degMap[e.source]||0)+1;
+                        degMap[e.target] = (degMap[e.target]||0)+1;
+                    });
+                    const degList = Object.entries(degMap).sort((a,b)=>b[1]-a[1]).slice(0,30);
+                    if (!degList.length) {
+                        degreesDiv.innerHTML = '<span style="color: var(--text-muted)">Sin datos</span>';
+                    } else {
+                        const frag = document.createDocumentFragment();
+                        degList.forEach(([term,deg]) => {
+                            const d = document.createElement('div');
+                            d.style.padding='6px 8px'; d.style.borderBottom='1px solid var(--border)';
+                            d.innerHTML = `<strong>${String(term).replace(/</g,'&lt;')}</strong> · grado=${deg}`;
+                            frag.appendChild(d);
+                        });
+                        degreesDiv.innerHTML=''; degreesDiv.appendChild(frag);
+                    }
+                }
+                if (compsDiv) {
+                    const comps = data.cooccurrence.components || [];
+                    if (!comps.length) {
+                        compsDiv.innerHTML = '<span style="color: var(--text-muted)">Sin componentes</span>';
+                    } else {
+                        const frag = document.createDocumentFragment();
+                        comps.forEach((c,idx)=>{
+                            const d=document.createElement('div');
+                            d.style.padding='6px 8px'; d.style.borderBottom='1px solid var(--border)';
+                            d.innerHTML = `<strong>#${idx+1}</strong> · tamaño=${c.length} · ${c.join(', ').replace(/</g,'&lt;')}`;
+                            frag.appendChild(d);
+                        });
+                        compsDiv.innerHTML=''; compsDiv.appendChild(frag);
+                    }
+                }
+            }
         }
 
         function drawCitationGraph(canvasId, highlightPath=null) {
@@ -2796,6 +2931,86 @@
             }).catch(err => {
                 if (out) out.innerHTML = `<span style=\"color: var(--text-muted)\">${String(err).replace(/</g,'&lt;')}</span>`;
             });
+        }
+
+        // ==================== NUEVO: Grafo de Coocurrencia (Solo Algoritmos) ====================
+        function runCooccurrenceAnalysis() {
+            const file = selectedFiles['analysis-csv'] || (currentResults && (currentResults.unified_file || (currentResults.best_sorted && currentResults.best_sorted.sorted_file))) || null;
+            if (!file) {
+                alert('Selecciona un CSV o usa el del pipeline.');
+                return;
+            }
+            const limit = parseInt(document.getElementById('cooc-limit').value) || 120;
+            const minlen = parseInt(document.getElementById('cooc-minlen').value) || 3;
+            const mindf = parseInt(document.getElementById('cooc-mindf').value) || 1;
+            const useConcepts = document.getElementById('cooc-use-concepts').checked;
+            setSectionProgress('cooc', true, 12, 'Construyendo grafo de coocurrencia…', 'Extrayendo términos y co-ocurrencias');
+            const img = document.getElementById('cooc-img'); if (img) img.src = '';
+            pywebview.api.analyze_cooccurrence_network(file, limit, mindf, minlen, null, useConcepts).then(resp => {
+                if (!resp || !resp.success) {
+                    document.getElementById('cooc-degrees').innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${((resp&&resp.message)||'Error construyendo el grafo').replace(/</g,'&lt;')}</span></div>`;
+                    setSectionProgress('cooc', true, 100, 'Error en coocurrencia', 'Revisa parámetros o el archivo');
+                    setTimeout(() => setSectionProgress('cooc', false, 0, 'Esperando...', ''), 900);
+                    return;
+                }
+                renderCooccurrenceResults(resp.results);
+                // Guardar para openFile
+                currentResults.cooccurrence = resp.results;
+                setSectionProgress('cooc', true, 100, 'Completado', 'Grafo generado');
+                setTimeout(() => setSectionProgress('cooc', false, 0, 'Esperando...', ''), 800);
+            }).catch(err => {
+                document.getElementById('cooc-degrees').innerHTML = `<div class="alert alert-warning"><span>⚠️</span><span>${String(err).replace(/</g,'&lt;')}</span></div>`;
+                setSectionProgress('cooc', true, 100, 'Error en coocurrencia', 'Consulta la consola para más detalles');
+                setTimeout(() => setSectionProgress('cooc', false, 0, 'Esperando...', ''), 1000);
+            });
+        }
+
+        function renderCooccurrenceResults(data) {
+            // Stats
+            const n = document.getElementById('cooc-nodes'); if (n) n.textContent = data.node_count || (data.nodes? data.nodes.length: 0) || 0;
+            const e = document.getElementById('cooc-edges'); if (e) e.textContent = data.edge_count || (data.edges? data.edges.length: 0) || 0;
+            const c = document.getElementById('cooc-comps'); if (c) c.textContent = data.component_count || (data.components? data.components.length: 0) || 0;
+            // Imagen
+            const img = document.getElementById('cooc-img');
+            if (img) {
+                if (data.graph_base64) img.src = 'data:image/png;base64,' + data.graph_base64; else img.src = '';
+            }
+            // Top grados
+            const degreesDiv = document.getElementById('cooc-degrees');
+            if (degreesDiv) {
+                const degMap = {};
+                (data.edges||[]).forEach(e => { degMap[e.source] = (degMap[e.source]||0)+1; degMap[e.target] = (degMap[e.target]||0)+1; });
+                const degList = Object.entries(degMap).sort((a,b)=>b[1]-a[1]).slice(0,30);
+                if (!degList.length) {
+                    degreesDiv.innerHTML = '<span style="color: var(--text-muted)">Sin datos</span>';
+                } else {
+                    const frag = document.createDocumentFragment();
+                    degList.forEach(([term,deg]) => {
+                        const d = document.createElement('div');
+                        d.style.padding='6px 8px'; d.style.borderBottom='1px solid var(--border)';
+                        d.innerHTML = `<strong>${String(term).replace(/</g,'&lt;')}</strong> · grado=${deg}`;
+                        frag.appendChild(d);
+                    });
+                    degreesDiv.innerHTML=''; degreesDiv.appendChild(frag);
+                }
+            }
+            // Componentes
+            const compsDiv = document.getElementById('cooc-components');
+            if (compsDiv) {
+                const comps = data.components || [];
+                if (!comps.length) {
+                    compsDiv.innerHTML = '<span style="color: var(--text-muted)">Sin componentes</span>';
+                } else {
+                    const frag = document.createDocumentFragment();
+                    comps.forEach((comp, idx) => {
+                        const d = document.createElement('div');
+                        d.style.padding='6px 8px'; d.style.borderBottom='1px solid var(--border)';
+                        d.innerHTML = `<strong>#${idx+1}</strong> · tamaño=${comp.length} · ${comp.join(', ').replace(/</g,'&lt;')}`;
+                        frag.appendChild(d);
+                    });
+                    compsDiv.innerHTML=''; compsDiv.appendChild(frag);
+                }
+            }
         }
     </script>
 </body>
